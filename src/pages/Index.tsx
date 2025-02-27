@@ -21,7 +21,7 @@ const recentActivities = [
     description: "Task created from guest message",
     time: "Yesterday",
     type: "task" as const,
-    status: "pending",
+    status: "pending" as const,
   },
   {
     id: "3",
@@ -36,7 +36,7 @@ const recentActivities = [
     description: "Task completed by cleaning staff",
     time: "1 week ago",
     type: "task" as const,
-    status: "completed",
+    status: "completed" as const,
   },
 ];
 
