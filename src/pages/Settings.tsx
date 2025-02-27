@@ -3,30 +3,30 @@ import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { 
   Settings as SettingsIcon,
   MessageSquare,
-  CheckCircle,
-  AlertCircle,
   Bell,
   User,
   Shield,
   Languages,
+  ToggleRight,
+  ToggleLeft,
 } from "lucide-react";
 
 const Settings = () => {
-  const [aiAnswerPreference, setAiAnswerPreference] = useState("automatic");
+  const [aiAutopilotEnabled, setAiAutopilotEnabled] = useState(false);
   
   const handleSaveAISettings = () => {
     // In a real app, this would save to a database or local storage
     toast({
       title: "Settings saved",
-      description: "Your AI answer preferences have been updated.",
+      description: `AI Autopilot has been ${aiAutopilotEnabled ? 'enabled' : 'disabled'}.`,
     });
   };
 
@@ -77,67 +77,32 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  AI Answer Preferences
+                  AI Autopilot
                 </CardTitle>
                 <CardDescription>
-                  Control how the AI assistant interacts with your conversations
+                  Control whether AI automatically responds to guest messages
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <RadioGroup 
-                    value={aiAnswerPreference} 
-                    onValueChange={setAiAnswerPreference}
-                    className="space-y-4"
-                  >
-                    <div className="flex items-start space-x-2 bg-background p-4 rounded-lg border">
-                      <RadioGroupItem value="automatic" id="ai-automatic" className="mt-1" />
-                      <div className="space-y-1.5">
-                        <Label 
-                          htmlFor="ai-automatic" 
-                          className="font-medium flex items-center gap-2"
-                        >
-                          <CheckCircle className="h-4 w-4 text-primary" />
-                          Allow AI answers automatic mode
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          AI will automatically respond to guest messages based on your property information. You'll be notified of all responses.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2 bg-background p-4 rounded-lg border">
-                      <RadioGroupItem value="suggestions" id="ai-suggestions" className="mt-1" />
-                      <div className="space-y-1.5">
-                        <Label 
-                          htmlFor="ai-suggestions" 
-                          className="font-medium flex items-center gap-2"
-                        >
-                          <MessageSquare className="h-4 w-4 text-primary" />
-                          Allow AI suggestions on chat
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          AI will suggest responses to guest messages, but you'll need to approve them before they're sent.
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start space-x-2 bg-background p-4 rounded-lg border">
-                      <RadioGroupItem value="disabled" id="ai-disabled" className="mt-1" />
-                      <div className="space-y-1.5">
-                        <Label 
-                          htmlFor="ai-disabled" 
-                          className="font-medium flex items-center gap-2"
-                        >
-                          <AlertCircle className="h-4 w-4 text-destructive" />
-                          Do not allow AI answers neither suggestions
-                        </Label>
-                        <p className="text-sm text-muted-foreground">
-                          All AI assistance will be disabled. You'll respond to all guest messages manually.
-                        </p>
-                      </div>
-                    </div>
-                  </RadioGroup>
+                <div className="flex items-center justify-between space-x-2 bg-background p-4 rounded-lg border">
+                  <div className="space-y-0.5">
+                    <Label className="text-base font-medium flex items-center gap-2">
+                      {aiAutopilotEnabled ? 
+                        <ToggleRight className="h-5 w-5 text-primary" /> : 
+                        <ToggleLeft className="h-5 w-5 text-muted-foreground" />
+                      }
+                      AI Autopilot
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                      AI Autopilot automatically responds to guest messages based on your property information. 
+                      When enabled, the AI will handle routine inquiries using details from your Property Info section.
+                    </p>
+                  </div>
+                  <Switch
+                    checked={aiAutopilotEnabled}
+                    onCheckedChange={setAiAutopilotEnabled}
+                    aria-label="Toggle AI Autopilot"
+                  />
                 </div>
 
                 <Separator />
