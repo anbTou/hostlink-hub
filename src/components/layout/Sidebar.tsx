@@ -60,7 +60,7 @@ export function Sidebar() {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-8">
-                <h1 className="font-semibold text-xl text-primary">HostAI</h1>
+                <h1 className="font-semibold text-xl text-primary">GuestAI</h1>
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -103,7 +103,7 @@ export function Sidebar() {
       )}
     >
       <div className="p-4 flex justify-between items-center">
-        {!collapsed && <h1 className="font-semibold text-primary">HostAI</h1>}
+        {!collapsed && <h1 className="font-semibold text-primary">GuestAI</h1>}
         <Button 
           variant="ghost" 
           size="icon" 

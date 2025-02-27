@@ -13,14 +13,14 @@ const recentActivities = [
     title: "New message from Lisa Johnson",
     description: "Question about check-in process",
     time: "2 hours ago",
-    type: "message",
+    type: "message" as const,
   },
   {
     id: "2",
     title: "Clean pool after storm",
     description: "Task created from guest message",
     time: "Yesterday",
-    type: "task",
+    type: "task" as const,
     status: "pending",
   },
   {
@@ -28,14 +28,14 @@ const recentActivities = [
     title: "New review on Airbnb",
     description: "4.8/5 stars from Michael Thompson",
     time: "3 days ago",
-    type: "review",
+    type: "review" as const,
   },
   {
     id: "4",
     title: "Replace towels in upstairs bathroom",
     description: "Task completed by cleaning staff",
     time: "1 week ago",
-    type: "task",
+    type: "task" as const,
     status: "completed",
   },
 ];
