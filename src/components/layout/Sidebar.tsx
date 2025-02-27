@@ -58,11 +58,11 @@ export function Sidebar() {
             onClick={() => setMobileMenuOpen(false)}
           >
             <div 
-              className="w-[280px] h-full bg-sidebar p-4 shadow-lg animate-slide-in-right"
+              className="w-[280px] h-full gradient-sidebar p-4 shadow-lg animate-slide-in-right"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-8">
-                <h1 className="font-semibold text-xl text-primary">GuestAI</h1>
+                <h1 className="font-semibold text-xl text-primary">GuestAssist</h1>
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -81,7 +81,7 @@ export function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
                       isActive(item.path)
-                        ? "bg-primary text-primary-foreground"
+                        ? "gradient-active text-primary-foreground"
                         : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                     )}
                   >
@@ -100,12 +100,12 @@ export function Sidebar() {
   return (
     <div 
       className={cn(
-        "h-screen sticky top-0 bg-sidebar border-r border-border transition-all duration-300",
+        "h-screen sticky top-0 gradient-sidebar border-r border-border transition-all duration-300",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
     >
       <div className="p-4 flex justify-between items-center">
-        {!collapsed && <h1 className="font-semibold text-primary">GuestAI</h1>}
+        {!collapsed && <h1 className="font-semibold text-primary">GuestAssist</h1>}
         <Button 
           variant="ghost" 
           size="icon" 
@@ -124,7 +124,7 @@ export function Sidebar() {
             className={cn(
               "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
               isActive(item.path)
-                ? "bg-primary text-primary-foreground"
+                ? "gradient-active text-primary-foreground"
                 : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
               collapsed && "justify-center"
             )}
