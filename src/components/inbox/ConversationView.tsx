@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { Conversation } from "./ConversationList";
+import { format, formatDistanceToNow, parseISO } from "date-fns";
 
 interface Message {
   id: string;
   text: string;
   sender: "user" | "contact" | "ai";
-  timestamp: string;
+  timestamp: string; // ISO string
 }
 
 interface ConversationViewProps {
@@ -23,27 +24,27 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
-      text: "Hello, I noticed in your listing that breakfast is included. Could you please let me know what time breakfast is served?",
+      text: conversation.lastMessage.text,
       sender: "contact",
-      timestamp: "Yesterday, 2:30 PM"
+      timestamp: conversation.lastMessage.timestamp
     },
     {
       id: "2",
       text: "Also, we'll be arriving around 9 PM. Is that too late for check-in?",
       sender: "contact",
-      timestamp: "Yesterday, 2:32 PM"
+      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 120000 + "" // 2 minutes before
     },
     {
       id: "3",
       text: "Our AI has suggested a response for you",
       sender: "ai",
-      timestamp: "Yesterday, 2:35 PM"
+      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 60000 + "" // 1 minute before
     },
     {
       id: "4",
       text: "Hello! Breakfast is served from 7:30 AM to 10:00 AM in our dining area. As for your arrival time, 9 PM is perfectly fine for check-in. We have a 24-hour reception desk. Is there anything else you'd like to know?",
       sender: "user",
-      timestamp: "Yesterday, 3:15 PM"
+      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 30000 + "" // 30 seconds before
     }
   ]);
   
@@ -58,6 +59,26 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
   
+  const formatMessageTime = (timestamp: string) => {
+    try {
+      const date = typeof timestamp === 'string' && timestamp.length > 10 
+        ? parseISO(timestamp) 
+        : new Date(parseInt(timestamp));
+      
+      const now = new Date();
+      const diffInHours = Math.abs(now.getTime() - date.getTime()) / 36e5;
+      
+      if (diffInHours < 24) {
+        return formatDistanceToNow(date, { addSuffix: true });
+      } else {
+        return format(date, "MMM d, h:mm a");
+      }
+    } catch (e) {
+      console.error("Error parsing date:", e);
+      return "Unknown time";
+    }
+  };
+  
   const handleSendMessage = () => {
     if (newMessage.trim() === "") return;
     
@@ -65,19 +86,19 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       id: Date.now().toString(),
       text: newMessage,
       sender: "user",
-      timestamp: "Just now"
+      timestamp: new Date().toISOString()
     };
     
     setMessages([...messages, message]);
     setNewMessage("");
     
-    // Simulate AI response
+    // Simulate contact response
     setTimeout(() => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: "I've noted your message. Is there anything else you'd like to ask about?",
         sender: "contact",
-        timestamp: "Just now"
+        timestamp: new Date().toISOString()
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -162,7 +183,7 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
               )}
               <p>{message.text}</p>
               <div className="text-xs opacity-70 mt-1 text-right">
-                {message.timestamp}
+                {formatMessageTime(message.timestamp)}
               </div>
             </div>
           </div>
