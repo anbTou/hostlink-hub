@@ -12,6 +12,7 @@ import {
   Settings,
   Menu,
   X,
+  Home,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -19,6 +20,7 @@ const navItems = [
   { name: "Inbox", icon: Inbox, path: "/inbox" },
   { name: "Dashboard", icon: BarChart2, path: "/" },
   { name: "Knowledge Base", icon: Book, path: "/knowledge" },
+  { name: "Property Info", icon: Home, path: "/property" },
   { name: "Phone", icon: Phone, path: "/phone" },
   { name: "Tasks", icon: CheckSquare, path: "/tasks" },
   { name: "Settings", icon: Settings, path: "/settings" },
