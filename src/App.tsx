@@ -8,6 +8,7 @@ import Dashboard from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import Knowledge from "./pages/Knowledge";
 import PropertyInfo from "./pages/PropertyInfo";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/knowledge" element={<Knowledge />} />
           <Route path="/property" element={<PropertyInfo />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
