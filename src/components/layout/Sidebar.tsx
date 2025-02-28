@@ -17,8 +17,8 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = [
-  { name: "Inbox", icon: Inbox, path: "/inbox" },
   { name: "Dashboard", icon: BarChart2, path: "/" },
+  { name: "Inbox", icon: Inbox, path: "/inbox" },
   { name: "Knowledge Base", icon: Book, path: "/knowledge" },
   { name: "Property Info", icon: Home, path: "/property" },
   { name: "Phone", icon: Phone, path: "/phone" },
