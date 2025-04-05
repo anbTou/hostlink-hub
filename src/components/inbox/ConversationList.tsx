@@ -1,12 +1,15 @@
-
 import { useState } from "react";
-import { Search, User, Mail, Calendar, Edit, MessageSquare } from "lucide-react";
+import { Search, User, Mail, Calendar, Edit, MessageSquare, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { format, isToday, isYesterday, isThisWeek, parseISO } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 // Types
 export type ConversationStatus = "todo" | "followup" | "done";
@@ -43,6 +46,15 @@ export function ConversationList({
   const [statusFilter, setStatusFilter] = useState<ConversationStatus | "all">("todo");
   const [sourceFilters, setSourceFilters] = useState<ConversationSource[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState({
+    from: "me@example.com",
+    to: "",
+    cc: "",
+    subject: "",
+    message: ""
+  });
+  const { toast } = useToast();
   
   // Toggle a source filter on/off
   const toggleSourceFilter = (source: ConversationSource) => {
@@ -73,6 +85,39 @@ export function ConversationList({
     
     return matchesStatus && matchesSource && matchesSearch;
   });
+  
+  const handleComposeNew = () => {
+    setComposeOpen(true);
+  };
+
+  const handleSendEmail = () => {
+    // Validate required fields
+    if (!newEmail.to || !newEmail.subject) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in the recipient and subject fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real app, this would send the email through an API
+    // For our demo, we'll notify the user
+    toast({
+      title: "Email sent",
+      description: `Your message to ${newEmail.to} has been sent successfully.`
+    });
+    
+    // Reset form and close dialog
+    setNewEmail({
+      from: "me@example.com",
+      to: "",
+      cc: "",
+      subject: "",
+      message: ""
+    });
+    setComposeOpen(false);
+  };
   
   // Count totals for badges
   const todoCount = conversations.filter(c => c.status === "todo").length;
@@ -130,6 +175,15 @@ export function ConversationList({
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        
+        {/* Compose Button */}
+        <Button 
+          onClick={handleComposeNew}
+          className="w-full flex items-center justify-center gap-2 mb-4"
+        >
+          <Edit className="h-4 w-4" />
+          Compose New
+        </Button>
         
         {/* Status Filters */}
         <div className="flex space-x-2 overflow-x-auto py-1 mb-3 scrollbar-hide">
@@ -210,7 +264,7 @@ export function ConversationList({
             className="flex gap-2 items-center"
           >
             <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 7h-8v7H3V5H1v15h2v-3h18v3h2V11c0-2.21-1.79-4-4-4zm2 7h-8V9h6c1.1 0 2 .9 2 2v3z" />
+              <path d="M19 7h-8V9h6c1.1 0 2 .9 2 2v3z" />
             </svg>
             <span>Booking</span>
             {sourceCounts.booking > 0 && (
@@ -316,6 +370,86 @@ export function ConversationList({
           </div>
         )}
       </div>
+
+      {/* Compose Email Dialog */}
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>New Message</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="from" className="text-right">
+                From
+              </Label>
+              <Input
+                id="from"
+                value={newEmail.from}
+                className="col-span-3"
+                readOnly
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="to" className="text-right">
+                To
+              </Label>
+              <Input
+                id="to"
+                value={newEmail.to}
+                onChange={(e) => setNewEmail({...newEmail, to: e.target.value})}
+                className="col-span-3"
+                placeholder="recipient@example.com"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cc" className="text-right">
+                Cc
+              </Label>
+              <Input
+                id="cc"
+                value={newEmail.cc}
+                onChange={(e) => setNewEmail({...newEmail, cc: e.target.value})}
+                className="col-span-3"
+                placeholder="cc@example.com"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subject" className="text-right">
+                Subject
+              </Label>
+              <Input
+                id="subject"
+                value={newEmail.subject}
+                onChange={(e) => setNewEmail({...newEmail, subject: e.target.value})}
+                className="col-span-3"
+                placeholder="Email subject"
+              />
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              <Label htmlFor="message" className="text-right self-start mt-2">
+                Message
+              </Label>
+              <Textarea
+                id="message"
+                value={newEmail.message}
+                onChange={(e) => setNewEmail({...newEmail, message: e.target.value})}
+                className="col-span-3"
+                rows={8}
+                placeholder="Type your message here"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setComposeOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleSendEmail} className="gap-2">
+              <Send className="h-4 w-4" />
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
