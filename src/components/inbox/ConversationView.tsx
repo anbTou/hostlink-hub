@@ -1,18 +1,28 @@
 
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Smile, MoreHorizontal } from "lucide-react";
+import { Send, Paperclip, Smile, MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Conversation } from "./ConversationList";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
+
+interface EmailDetails {
+  to: string[];
+  from: string;
+  subject: string;
+  cc?: string[];
+  bcc?: string[];
+}
 
 interface Message {
   id: string;
   text: string;
   sender: "user" | "contact" | "ai";
   timestamp: string; // ISO string
+  emailDetails?: EmailDetails;
 }
 
 interface ConversationViewProps {
@@ -26,13 +36,25 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       id: "1",
       text: conversation.lastMessage.text,
       sender: "contact",
-      timestamp: conversation.lastMessage.timestamp
+      timestamp: conversation.lastMessage.timestamp,
+      emailDetails: {
+        from: conversation.contact.name,
+        to: ["you@example.com"],
+        subject: "Question about breakfast service",
+        cc: ["reservations@example.com"]
+      }
     },
     {
       id: "2",
       text: "Also, we'll be arriving around 9 PM. Is that too late for check-in?",
       sender: "contact",
-      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 120000 + "" // 2 minutes before
+      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 120000 + "", // 2 minutes before
+      emailDetails: {
+        from: conversation.contact.name,
+        to: ["you@example.com"],
+        subject: "Question about breakfast service",
+        cc: ["reservations@example.com"]
+      }
     },
     {
       id: "3",
@@ -44,11 +66,25 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       id: "4",
       text: "Hello! Breakfast is served from 7:30 AM to 10:00 AM in our dining area. As for your arrival time, 9 PM is perfectly fine for check-in. We have a 24-hour reception desk. Is there anything else you'd like to know?",
       sender: "user",
-      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 30000 + "" // 30 seconds before
+      timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 30000 + "", // 30 seconds before
+      emailDetails: {
+        from: "you@example.com",
+        to: [conversation.contact.name],
+        subject: "Re: Question about breakfast service",
+        cc: ["reservations@example.com"]
+      }
     }
   ]);
   
   const [newMessage, setNewMessage] = useState("");
+  const [showReplyForm, setShowReplyForm] = useState(false);
+  const [replyDetails, setReplyDetails] = useState<EmailDetails>({
+    from: "you@example.com",
+    to: [conversation.contact.name],
+    subject: `Re: ${messages[0]?.emailDetails?.subject || "Your inquiry"}`,
+    cc: messages[0]?.emailDetails?.cc || [],
+    bcc: []
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -86,11 +122,13 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       id: Date.now().toString(),
       text: newMessage,
       sender: "user",
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      emailDetails: replyDetails
     };
     
     setMessages([...messages, message]);
     setNewMessage("");
+    setShowReplyForm(false);
     
     // Simulate contact response
     setTimeout(() => {
@@ -98,7 +136,13 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
         id: (Date.now() + 1).toString(),
         text: "I've noted your message. Is there anything else you'd like to ask about?",
         sender: "contact",
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        emailDetails: {
+          from: conversation.contact.name,
+          to: ["you@example.com"],
+          subject: `Re: ${replyDetails.subject}`,
+          cc: replyDetails.cc
+        }
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -110,6 +154,31 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       e.preventDefault();
       handleSendMessage();
     }
+  };
+  
+  const toggleReplyForm = () => {
+    setShowReplyForm(!showReplyForm);
+  };
+  
+  const updateCcField = (value: string) => {
+    setReplyDetails({
+      ...replyDetails,
+      cc: value.split(',').map(email => email.trim()).filter(email => email !== "")
+    });
+  };
+  
+  const updateBccField = (value: string) => {
+    setReplyDetails({
+      ...replyDetails,
+      bcc: value.split(',').map(email => email.trim()).filter(email => email !== "")
+    });
+  };
+  
+  const updateToField = (value: string) => {
+    setReplyDetails({
+      ...replyDetails,
+      to: value.split(',').map(email => email.trim()).filter(email => email !== "")
+    });
   };
   
   return (
@@ -162,8 +231,8 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
           <div 
             key={message.id} 
             className={cn(
-              "flex",
-              message.sender === "user" ? "justify-end" : "justify-start"
+              "flex flex-col",
+              message.sender === "user" ? "items-end" : "items-start"
             )}
           >
             <div 
@@ -176,6 +245,25 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
                   : "bg-secondary text-secondary-foreground"
               )}
             >
+              {message.emailDetails && (
+                <div className="mb-2 text-xs border-b pb-2 border-primary/20">
+                  {message.emailDetails.subject && (
+                    <div className="font-bold mb-1">{message.emailDetails.subject}</div>
+                  )}
+                  <div>
+                    <span className="font-semibold">From:</span> {message.emailDetails.from}
+                  </div>
+                  <div>
+                    <span className="font-semibold">To:</span> {message.emailDetails.to.join(", ")}
+                  </div>
+                  {message.emailDetails.cc && message.emailDetails.cc.length > 0 && (
+                    <div>
+                      <span className="font-semibold">CC:</span> {message.emailDetails.cc.join(", ")}
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {message.sender === "ai" && (
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-xs font-semibold text-primary">AI Assistant</span>
@@ -192,9 +280,56 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       </div>
       
       <div className="p-4 border-t border-border">
+        {!showReplyForm ? (
+          <Button 
+            onClick={toggleReplyForm} 
+            className="w-full mb-4 flex items-center justify-center"
+            variant="outline"
+          >
+            <Send className="h-4 w-4 mr-2" /> Reply
+          </Button>
+        ) : (
+          <div className="bg-card border border-border rounded-lg p-4 mb-4">
+            <div className="space-y-3">
+              <div className="flex items-center">
+                <span className="w-20 text-sm font-medium">To:</span>
+                <Input 
+                  value={replyDetails.to.join(", ")} 
+                  onChange={(e) => updateToField(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+              <div className="flex items-center">
+                <span className="w-20 text-sm font-medium">Subject:</span>
+                <Input 
+                  value={replyDetails.subject} 
+                  onChange={(e) => setReplyDetails({...replyDetails, subject: e.target.value})}
+                  className="flex-1"
+                />
+              </div>
+              <div className="flex items-center">
+                <span className="w-20 text-sm font-medium">CC:</span>
+                <Input 
+                  value={replyDetails.cc?.join(", ") || ""} 
+                  onChange={(e) => updateCcField(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+              <div className="flex items-center">
+                <span className="w-20 text-sm font-medium">BCC:</span>
+                <Input 
+                  value={replyDetails.bcc?.join(", ") || ""} 
+                  onChange={(e) => updateBccField(e.target.value)}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="relative">
           <Textarea 
-            placeholder="Type your message..." 
+            placeholder={showReplyForm ? "Type your reply..." : "Type your message..."} 
             className="min-h-[80px] pr-20"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}

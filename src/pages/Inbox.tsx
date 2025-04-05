@@ -4,7 +4,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { subHours, subDays, formatISO, subMinutes } from "date-fns";
 
@@ -193,12 +193,26 @@ const InboxPage = () => {
     ));
   };
   
+  const handleComposeNew = () => {
+    // In a real application, this would open a new email composition form
+    alert("Compose new email feature would open here");
+  };
+  
   return (
     <MainLayout>
       <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
         <div className="flex h-full">
           {(showList || !isMobile) && (
             <div className={`${isMobile ? 'w-full' : 'w-1/3'}`}>
+              <div className="p-4 border-b border-border">
+                <Button 
+                  onClick={handleComposeNew}
+                  className="w-full flex items-center justify-center gap-2"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Compose New
+                </Button>
+              </div>
               <ConversationList 
                 conversations={conversations}
                 selectedConversationId={selectedConversationId}
