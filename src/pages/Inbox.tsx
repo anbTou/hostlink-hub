@@ -4,9 +4,20 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, PlusCircle } from "lucide-react";
+import { ArrowLeft, PlusCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { subHours, subDays, formatISO, subMinutes } from "date-fns";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter 
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
 
 // Format a date into an ISO string for consistent sorting
 const toISOString = (date: Date): string => formatISO(date);
@@ -170,6 +181,15 @@ const InboxPage = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<string | undefined>(conversations[0]?.id);
   const isMobile = useIsMobile();
   const [showList, setShowList] = useState(!isMobile);
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [newEmail, setNewEmail] = useState({
+    to: "",
+    subject: "",
+    cc: "",
+    bcc: "",
+    message: ""
+  });
+  const { toast } = useToast();
   
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
   
@@ -194,8 +214,49 @@ const InboxPage = () => {
   };
   
   const handleComposeNew = () => {
-    // In a real application, this would open a new email composition form
-    alert("Compose new email feature would open here");
+    setComposeOpen(true);
+  };
+
+  const handleSendEmail = () => {
+    // Validate required fields
+    if (!newEmail.to || !newEmail.subject) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in the recipient and subject fields.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // In a real app, this would send the email through an API
+    // For our demo, we'll add it to the conversations list
+    const newConversation: Conversation = {
+      id: `new-${Date.now()}`,
+      contact: {
+        name: newEmail.to.split('@')[0] || "New Contact",
+      },
+      lastMessage: {
+        text: newEmail.message,
+        time: "Just now",
+        timestamp: toISOString(new Date()),
+        isUnread: false,
+        sender: "user",
+      },
+      source: "email",
+      status: "todo",
+    };
+
+    setConversations([newConversation, ...conversations]);
+    setSelectedConversationId(newConversation.id);
+    
+    // Reset form and close dialog
+    setNewEmail({ to: "", subject: "", cc: "", bcc: "", message: "" });
+    setComposeOpen(false);
+    
+    toast({
+      title: "Email sent",
+      description: "Your message has been sent successfully."
+    });
   };
   
   return (
@@ -241,6 +302,87 @@ const InboxPage = () => {
           )}
         </div>
       </div>
+
+      {/* Compose Email Dialog */}
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>New Message</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="to" className="text-right">
+                To
+              </Label>
+              <Input
+                id="to"
+                value={newEmail.to}
+                onChange={(e) => setNewEmail({...newEmail, to: e.target.value})}
+                className="col-span-3"
+                placeholder="recipient@example.com"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="cc" className="text-right">
+                Cc
+              </Label>
+              <Input
+                id="cc"
+                value={newEmail.cc}
+                onChange={(e) => setNewEmail({...newEmail, cc: e.target.value})}
+                className="col-span-3"
+                placeholder="cc@example.com"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="bcc" className="text-right">
+                Bcc
+              </Label>
+              <Input
+                id="bcc"
+                value={newEmail.bcc}
+                onChange={(e) => setNewEmail({...newEmail, bcc: e.target.value})}
+                className="col-span-3"
+                placeholder="bcc@example.com"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="subject" className="text-right">
+                Subject
+              </Label>
+              <Input
+                id="subject"
+                value={newEmail.subject}
+                onChange={(e) => setNewEmail({...newEmail, subject: e.target.value})}
+                className="col-span-3"
+                placeholder="Email subject"
+              />
+            </div>
+            <div className="grid grid-cols-4 gap-4">
+              <Label htmlFor="message" className="text-right self-start mt-2">
+                Message
+              </Label>
+              <Textarea
+                id="message"
+                value={newEmail.message}
+                onChange={(e) => setNewEmail({...newEmail, message: e.target.value})}
+                className="col-span-3"
+                rows={8}
+                placeholder="Type your message here"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setComposeOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" onClick={handleSendEmail} className="gap-2">
+              <Send className="h-4 w-4" />
+              Send
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </MainLayout>
   );
 };
