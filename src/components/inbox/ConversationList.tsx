@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Search, User, Mail, Calendar, Edit, MessageSquare, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -176,7 +177,7 @@ export function ConversationList({
           />
         </div>
         
-        {/* Compose Button */}
+        {/* Compose Button - THIS IS THE SELECTED BUTTON */}
         <Button 
           onClick={handleComposeNew}
           className="w-full flex items-center justify-center gap-2 mb-4"
