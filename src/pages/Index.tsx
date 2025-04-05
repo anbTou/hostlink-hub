@@ -1,5 +1,4 @@
-
-import { Inbox, Users, Star, CheckCircle, Clock, MessageSquare, Flag, Calendar, AlertTriangle } from "lucide-react";
+import { Inbox, Users, Star, CheckCircle, Clock, MessageSquare, Flag, Calendar, AlertTriangle, PlusCircle } from "lucide-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
@@ -44,12 +43,12 @@ const recentActivities = [
   },
 ];
 
-// Sample priority tasks
+// Sample priority tasks - fixed priority type
 const priorityTasks = [
   {
     id: "1",
     title: "Fix broken air conditioning in Unit 3",
-    priority: "high",
+    priority: "high" as "high",
     dueDate: "Today",
     createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
     status: "pending",
@@ -57,7 +56,7 @@ const priorityTasks = [
   {
     id: "2",
     title: "Respond to guest complaint about noise",
-    priority: "high",
+    priority: "high" as "high",
     dueDate: "Today",
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     status: "pending",
@@ -65,7 +64,7 @@ const priorityTasks = [
   {
     id: "3",
     title: "Schedule deep cleaning for Unit 5",
-    priority: "medium",
+    priority: "medium" as "medium",
     dueDate: "Tomorrow",
     createdAt: new Date(),
     status: "pending",
