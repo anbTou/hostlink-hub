@@ -1,11 +1,14 @@
 
-import { Inbox, Users, Star, CheckCircle, Clock, MessageSquare } from "lucide-react";
+import { Inbox, Users, Star, CheckCircle, Clock, MessageSquare, Flag, Calendar, AlertTriangle } from "lucide-react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { StatsCard } from "@/components/dashboard/StatsCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { ConversationMetrics } from "@/components/dashboard/ConversationMetrics";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PriorityTasks } from "@/components/dashboard/PriorityTasks";
+import { QuickNotes } from "@/components/dashboard/QuickNotes";
+import { TaskTimeframes } from "@/components/dashboard/TaskTimeframes";
 
 const recentActivities = [
   {
@@ -22,6 +25,7 @@ const recentActivities = [
     time: "Yesterday",
     type: "task" as const,
     status: "pending" as const,
+    priority: "high" as const,
   },
   {
     id: "3",
@@ -38,6 +42,48 @@ const recentActivities = [
     type: "task" as const,
     status: "completed" as const,
   },
+];
+
+// Sample priority tasks
+const priorityTasks = [
+  {
+    id: "1",
+    title: "Fix broken air conditioning in Unit 3",
+    priority: "high",
+    dueDate: "Today",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
+    status: "pending",
+  },
+  {
+    id: "2",
+    title: "Respond to guest complaint about noise",
+    priority: "high",
+    dueDate: "Today",
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
+    status: "pending",
+  },
+  {
+    id: "3",
+    title: "Schedule deep cleaning for Unit 5",
+    priority: "medium",
+    dueDate: "Tomorrow",
+    createdAt: new Date(),
+    status: "pending",
+  }
+];
+
+// Sample notes
+const quickNotes = [
+  {
+    id: "1",
+    content: "Call plumber to check water pressure in Unit 2",
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 2)),
+  },
+  {
+    id: "2",
+    content: "Guest in Unit 4 requested extra blankets",
+    timestamp: new Date(new Date().setHours(new Date().getHours() - 5)),
+  }
 ];
 
 const Dashboard = () => {
@@ -81,12 +127,64 @@ const Dashboard = () => {
         
         <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
           <Card className="lg:col-span-2 hover-card-effect">
+            <CardHeader className="flex flex-row items-start justify-between">
+              <div>
+                <CardTitle>Priority Tasks</CardTitle>
+                <CardDescription>Tasks that need your immediate attention</CardDescription>
+              </div>
+              <Button variant="outline" size="sm" className="gap-1">
+                <PlusCircle className="h-4 w-4" />
+                <span>New Task</span>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <PriorityTasks tasks={priorityTasks} />
+            </CardContent>
+          </Card>
+          
+          <Card className="hover-card-effect">
+            <CardHeader>
+              <CardTitle>Task Timeframes</CardTitle>
+              <CardDescription>Tasks grouped by due date</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <TaskTimeframes />
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+          <Card className="hover-card-effect">
+            <CardHeader className="flex flex-row items-start justify-between">
+              <div>
+                <CardTitle>Quick Notes</CardTitle>
+                <CardDescription>Capture thoughts and convert to tasks</CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <QuickNotes notes={quickNotes} />
+            </CardContent>
+          </Card>
+          
+          <Card className="lg:col-span-2 hover-card-effect">
             <CardHeader>
               <CardTitle>Weekly Activity</CardTitle>
               <CardDescription>Your conversation metrics over the past week</CardDescription>
             </CardHeader>
             <CardContent>
               <ConversationMetrics />
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+          <Card className="lg:col-span-2 hover-card-effect">
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Your latest interactions and tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RecentActivity activities={recentActivities} />
             </CardContent>
           </Card>
           
@@ -114,49 +212,6 @@ const Dashboard = () => {
               </div>
               
               <Button className="w-full">Configure AI</Button>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
-          <Card className="lg:col-span-2 hover-card-effect">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Your latest interactions and tasks</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <RecentActivity activities={recentActivities} />
-            </CardContent>
-          </Card>
-          
-          <Card className="hover-card-effect">
-            <CardHeader>
-              <CardTitle>To-Do List</CardTitle>
-              <CardDescription>Tasks requiring your attention</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-red-500"></div>
-                  <span>Respond to 3 new messages</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                  <span>Review 2 AI-generated responses</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-yellow-500"></div>
-                  <span>Update house manual</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span>Schedule cleaning service</span>
-                </li>
-              </ul>
-              
-              <Button variant="outline" className="w-full mt-4">
-                View All Tasks
-              </Button>
             </CardContent>
           </Card>
         </div>

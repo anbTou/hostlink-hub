@@ -13,16 +13,32 @@ import {
   Menu,
   X,
   Home,
+  Calendar,
+  Clock,
+  FileText,
+  ChevronDown,
+  ChevronRight,
+  PlusCircle,
+  Flag,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Main navigation categories
 const navItems = [
   { name: "Dashboard", icon: BarChart2, path: "/" },
   { name: "Inbox", icon: Inbox, path: "/inbox" },
+  { name: "Tasks", icon: CheckSquare, path: "/tasks", 
+    children: [
+      { name: "Today", icon: Clock, path: "/tasks/today" },
+      { name: "This Week", icon: Calendar, path: "/tasks/week" },
+      { name: "Later", icon: FileText, path: "/tasks/later" },
+      { name: "All Tasks", icon: CheckSquare, path: "/tasks/all" },
+    ]
+  },
+  { name: "Quick Notes", icon: FileText, path: "/notes" },
   { name: "Knowledge Base", icon: Book, path: "/knowledge" },
   { name: "Property Info", icon: Home, path: "/property" },
   { name: "Phone", icon: Phone, path: "/phone" },
-  { name: "Tasks", icon: CheckSquare, path: "/tasks" },
   { name: "Settings", icon: Settings, path: "/settings" },
 ];
 
@@ -31,6 +47,16 @@ export function Sidebar() {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    "Tasks": true // Default to expanded
+  });
+
+  const toggleGroup = (name: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [name]: !prev[name]
+    }));
+  };
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
@@ -74,20 +100,64 @@ export function Sidebar() {
               </div>
               <nav className="space-y-2">
                 {navItems.map((item) => (
-                  <Link
-                    key={item.name}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-                      isActive(item.path)
-                        ? "gradient-active text-primary-foreground"
-                        : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                  <div key={item.name} className="space-y-1">
+                    {item.children ? (
+                      <>
+                        <div 
+                          className={cn(
+                            "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors",
+                            isActive(item.path) && "text-primary"
+                          )}
+                          onClick={() => toggleGroup(item.name)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <item.icon className="h-5 w-5" />
+                            <span>{item.name}</span>
+                          </div>
+                          {expandedGroups[item.name] ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </div>
+                        
+                        {expandedGroups[item.name] && (
+                          <div className="ml-8 space-y-1 mt-1">
+                            {item.children.map((child) => (
+                              <Link
+                                key={child.name}
+                                to={child.path}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={cn(
+                                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                                  isActive(child.path)
+                                    ? "gradient-active text-primary-foreground"
+                                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                )}
+                              >
+                                <child.icon className="h-4 w-4" />
+                                <span>{child.name}</span>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        onClick={() => setMobileMenuOpen(false)}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                          isActive(item.path)
+                            ? "gradient-active text-primary-foreground"
+                            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span>{item.name}</span>
+                      </Link>
                     )}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.name}</span>
-                  </Link>
+                  </div>
                 ))}
               </nav>
             </div>
@@ -118,20 +188,66 @@ export function Sidebar() {
       
       <nav className="mt-8 px-2 space-y-1">
         {navItems.map((item) => (
-          <Link
-            key={item.name}
-            to={item.path}
-            className={cn(
-              "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
-              isActive(item.path)
-                ? "gradient-active text-primary-foreground"
-                : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              collapsed && "justify-center"
+          <div key={item.name} className="space-y-1">
+            {item.children ? (
+              <>
+                <div 
+                  className={cn(
+                    "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors",
+                    isActive(item.path) && "text-primary",
+                    collapsed && "justify-center"
+                  )}
+                  onClick={() => !collapsed && toggleGroup(item.name)}
+                >
+                  <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
+                    <item.icon className="h-5 w-5" />
+                    {!collapsed && <span>{item.name}</span>}
+                  </div>
+                  {!collapsed && (
+                    expandedGroups[item.name] ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )
+                  )}
+                </div>
+                
+                {!collapsed && expandedGroups[item.name] && (
+                  <div className="ml-8 space-y-1 mt-1">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.name}
+                        to={child.path}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                          isActive(child.path)
+                            ? "gradient-active text-primary-foreground"
+                            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                        )}
+                      >
+                        <child.icon className="h-4 w-4" />
+                        <span>{child.name}</span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </>
+            ) : (
+              <Link
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                  isActive(item.path)
+                    ? "gradient-active text-primary-foreground"
+                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  collapsed && "justify-center"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {!collapsed && <span>{item.name}</span>}
+              </Link>
             )}
-          >
-            <item.icon className="h-5 w-5" />
-            {!collapsed && <span>{item.name}</span>}
-          </Link>
+          </div>
         ))}
       </nav>
     </div>
