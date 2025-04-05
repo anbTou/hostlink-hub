@@ -12,7 +12,7 @@ const weekTasks = [
     title: "Schedule pool cleaning service",
     description: "Regular maintenance",
     priority: "medium" as "medium",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 3)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignee: "Jane Smith"
@@ -22,7 +22,7 @@ const weekTasks = [
     title: "Review booking requests for next weekend",
     description: "Accept or decline pending requests",
     priority: "medium" as "medium",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 2)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignee: "John Doe"

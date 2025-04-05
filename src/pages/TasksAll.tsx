@@ -16,7 +16,7 @@ const allTasks = [
     title: "Fix broken air conditioning in Unit 3",
     description: "Guest reported that the A/C is not cooling properly",
     priority: "high" as "high",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 3)),
     assignee: "John Doe"
@@ -26,7 +26,7 @@ const allTasks = [
     title: "Schedule pool cleaning service",
     description: "Regular maintenance",
     priority: "medium" as "medium",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 3)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignee: "Jane Smith"
@@ -36,7 +36,7 @@ const allTasks = [
     title: "Respond to guest inquiry about early check-in",
     description: "Guest arriving tomorrow, asking about 1pm check-in",
     priority: "high" as "high",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(),
     createdAt: new Date(new Date().setHours(new Date().getHours() - 5)),
     assignee: "John Doe"
@@ -46,7 +46,7 @@ const allTasks = [
     title: "Order new towels for all units",
     description: "Current inventory is getting worn",
     priority: "low" as "low",
-    status: "done",
+    status: "done" as "done", // Explicitly typed as "done"
     dueDate: new Date(new Date().setDate(new Date().getDate() - 2)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
     assignee: "Jane Smith"
@@ -56,7 +56,7 @@ const allTasks = [
     title: "Update house manual with new WiFi password",
     description: "Password was changed last week",
     priority: "medium" as "medium",
-    status: "done",
+    status: "done" as "done", // Explicitly typed as "done"
     dueDate: new Date(new Date().setDate(new Date().getDate() - 1)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 4)),
     assignee: "John Doe"
@@ -66,7 +66,7 @@ const allTasks = [
     title: "Research new property management software",
     description: "Evaluate alternatives to current system",
     priority: "low" as "low",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 14)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 10)),
     assignee: "Jane Smith"
@@ -76,7 +76,7 @@ const allTasks = [
     title: "Plan renovations for Unit 5",
     description: "Create budget and timeline for bathroom updates",
     priority: "medium" as "medium",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
     assignee: "John Doe"

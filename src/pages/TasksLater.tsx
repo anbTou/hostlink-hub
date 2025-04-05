@@ -12,7 +12,7 @@ const laterTasks = [
     title: "Research new property management software",
     description: "Evaluate alternatives to current system",
     priority: "low" as "low",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 14)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 10)),
     assignee: "Jane Smith"
@@ -22,7 +22,7 @@ const laterTasks = [
     title: "Plan renovations for Unit 5",
     description: "Create budget and timeline for bathroom updates",
     priority: "medium" as "medium",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
     assignee: "John Doe"

@@ -12,7 +12,7 @@ const todayTasks = [
     title: "Fix broken air conditioning in Unit 3",
     description: "Guest reported that the A/C is not cooling properly",
     priority: "high" as "high",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 3)),
     assignee: "John Doe"
@@ -22,7 +22,7 @@ const todayTasks = [
     title: "Respond to guest inquiry about early check-in",
     description: "Guest arriving tomorrow, asking about 1pm check-in",
     priority: "high" as "high",
-    status: "todo",
+    status: "todo" as "todo", // Explicitly typed as "todo"
     dueDate: new Date(),
     createdAt: new Date(new Date().setHours(new Date().getHours() - 5)),
     assignee: "John Doe"

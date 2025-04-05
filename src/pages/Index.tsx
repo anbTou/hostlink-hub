@@ -51,7 +51,7 @@ const priorityTasks = [
     priority: "high" as "high",
     dueDate: "Today",
     createdAt: new Date(new Date().setDate(new Date().getDate() - 2)),
-    status: "pending",
+    status: "pending" as "pending",
   },
   {
     id: "2",
@@ -59,7 +59,7 @@ const priorityTasks = [
     priority: "high" as "high",
     dueDate: "Today",
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
-    status: "pending",
+    status: "pending" as "pending",
   },
   {
     id: "3",
@@ -67,7 +67,7 @@ const priorityTasks = [
     priority: "medium" as "medium",
     dueDate: "Tomorrow",
     createdAt: new Date(),
-    status: "pending",
+    status: "pending" as "pending",
   }
 ];
 
