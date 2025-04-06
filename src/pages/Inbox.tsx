@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, PlusCircle, Send } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, PlusCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { subHours, subDays, formatISO, subMinutes } from "date-fns";
 import { 
@@ -18,11 +17,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { cn } from "@/lib/utils";
 
-// Format a date into an ISO string for consistent sorting
 const toISOString = (date: Date): string => formatISO(date);
 
-// Sample data for conversations
 const sampleConversations: Conversation[] = [
   {
     id: "1",
@@ -32,7 +31,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "Hello! I noticed in your listing that breakfast is included. Could you please let me know what time breakfast is served?",
       time: "2h ago",
-      timestamp: toISOString(subHours(new Date(), 2)), // 2 hours ago
+      timestamp: toISOString(subHours(new Date(), 2)),
       isUnread: true,
       sender: "contact",
     },
@@ -47,7 +46,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "Thank you for the information about the pool hours. We're looking forward to our stay!",
       time: "3h ago",
-      timestamp: toISOString(subHours(new Date(), 3)), // 3 hours ago
+      timestamp: toISOString(subHours(new Date(), 3)),
       isUnread: false,
       sender: "contact",
     },
@@ -62,7 +61,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "Our flight has been delayed. We'll arrive around midnight. Is that okay?",
       time: "5h ago",
-      timestamp: toISOString(subHours(new Date(), 5)), // 5 hours ago
+      timestamp: toISOString(subHours(new Date(), 5)),
       isUnread: true,
       sender: "contact",
     },
@@ -77,7 +76,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "We'll need to arrange a late checkout on Sunday, if possible. Our flight leaves at 8 PM.",
       time: "Yesterday",
-      timestamp: toISOString(subDays(new Date(), 1)), // Yesterday
+      timestamp: toISOString(subDays(new Date(), 1)),
       isUnread: false,
       sender: "contact",
     },
@@ -92,7 +91,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "I understand completely. Thank you for being so accommodating with our special requests.",
       time: "2 days ago",
-      timestamp: toISOString(subDays(new Date(), 2)), // 2 days ago
+      timestamp: toISOString(subDays(new Date(), 2)),
       isUnread: false,
       sender: "contact",
     },
@@ -107,7 +106,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "Is it possible to arrange an airport pickup? Our flight arrives at 3:30 PM on Friday.",
       time: "30m ago",
-      timestamp: toISOString(subMinutes(new Date(), 30)), // 30 minutes ago
+      timestamp: toISOString(subMinutes(new Date(), 30)),
       isUnread: true,
       sender: "contact",
     },
@@ -122,7 +121,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "We noticed the hot tub instructions aren't working as described. Can you help?",
       time: "1h ago",
-      timestamp: toISOString(subHours(new Date(), 1)), // 1 hour ago
+      timestamp: toISOString(subHours(new Date(), 1)),
       isUnread: true,
       sender: "contact",
     },
@@ -137,7 +136,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "We've just arrived and everything looks wonderful! Thank you for the welcome basket.",
       time: "4h ago",
-      timestamp: toISOString(subHours(new Date(), 4)), // 4 hours ago
+      timestamp: toISOString(subHours(new Date(), 4)),
       isUnread: false,
       sender: "contact",
     },
@@ -152,7 +151,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "We're planning to bring our small dog. Is that allowed according to your pet policy?",
       time: "3 days ago",
-      timestamp: toISOString(subDays(new Date(), 3)), // 3 days ago
+      timestamp: toISOString(subDays(new Date(), 3)),
       isUnread: false,
       sender: "contact",
     },
@@ -167,7 +166,7 @@ const sampleConversations: Conversation[] = [
     lastMessage: {
       text: "The WiFi seems to be down. Is there an alternative network we can use?",
       time: "45m ago",
-      timestamp: toISOString(subMinutes(new Date(), 45)), // 45 minutes ago
+      timestamp: toISOString(subMinutes(new Date(), 45)),
       isUnread: true,
       sender: "contact",
     },
@@ -189,6 +188,7 @@ const InboxPage = () => {
     bcc: "",
     message: ""
   });
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const { toast } = useToast();
   
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
@@ -199,7 +199,6 @@ const InboxPage = () => {
       setShowList(false);
     }
     
-    // Mark conversation as read when selected
     setConversations(conversations.map(c => 
       c.id === id && c.lastMessage.isUnread 
         ? { ...c, lastMessage: { ...c.lastMessage, isUnread: false } } 
@@ -218,7 +217,6 @@ const InboxPage = () => {
   };
 
   const handleSendEmail = () => {
-    // Validate required fields
     if (!newEmail.to || !newEmail.subject) {
       toast({
         title: "Missing information",
@@ -228,8 +226,6 @@ const InboxPage = () => {
       return;
     }
 
-    // In a real app, this would send the email through an API
-    // For our demo, we'll add it to the conversations list
     const newConversation: Conversation = {
       id: `new-${Date.now()}`,
       contact: {
@@ -249,7 +245,6 @@ const InboxPage = () => {
     setConversations([newConversation, ...conversations]);
     setSelectedConversationId(newConversation.id);
     
-    // Reset form and close dialog
     setNewEmail({ to: "", subject: "", cc: "", bcc: "", message: "" });
     setComposeOpen(false);
     
@@ -258,33 +253,37 @@ const InboxPage = () => {
       description: "Your message has been sent successfully."
     });
   };
-  
-  return (
-    <MainLayout>
-      <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
-        <div className="flex h-full">
-          {(showList || !isMobile) && (
-            <div className={`${isMobile ? 'w-full' : 'w-1/3'}`}>
-              <div className="p-4 border-b border-border">
-                <Button 
-                  onClick={handleComposeNew}
-                  className="w-full flex items-center justify-center gap-2"
-                >
-                  <PlusCircle className="h-4 w-4" />
-                  Compose New
-                </Button>
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  if (isMobile) {
+    return (
+      <MainLayout>
+        <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
+          <div className="flex h-full">
+            {showList && (
+              <div className="w-full">
+                <div className="p-4 border-b border-border">
+                  <Button 
+                    onClick={handleComposeNew}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    Compose New
+                  </Button>
+                </div>
+                <ConversationList 
+                  conversations={conversations}
+                  selectedConversationId={selectedConversationId}
+                  onSelectConversation={handleSelectConversation}
+                />
               </div>
-              <ConversationList 
-                conversations={conversations}
-                selectedConversationId={selectedConversationId}
-                onSelectConversation={handleSelectConversation}
-              />
-            </div>
-          )}
-          
-          {(!showList || !isMobile) && selectedConversation && (
-            <div className={`${isMobile ? 'w-full' : 'w-2/3'} relative`}>
-              {isMobile && (
+            )}
+            
+            {!showList && selectedConversation && (
+              <div className="w-full relative">
                 <Button 
                   variant="ghost" 
                   size="icon"
@@ -293,19 +292,194 @@ const InboxPage = () => {
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
-              )}
-              <ConversationView 
-                conversation={selectedConversation} 
-                onStatusChange={handleStatusChange}
-              />
-            </div>
-          )}
+                <ConversationView 
+                  conversation={selectedConversation} 
+                  onStatusChange={handleStatusChange}
+                />
+              </div>
+            )}
+          </div>
         </div>
+
+        <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+          <DialogContent className="sm:max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>New Message</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="to" className="text-right">
+                  To
+                </Label>
+                <Input
+                  id="to"
+                  value={newEmail.to}
+                  onChange={(e) => setNewEmail({...newEmail, to: e.target.value})}
+                  className="col-span-3"
+                  placeholder="recipient@example.com"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="cc" className="text-right">
+                  Cc
+                </Label>
+                <Input
+                  id="cc"
+                  value={newEmail.cc}
+                  onChange={(e) => setNewEmail({...newEmail, cc: e.target.value})}
+                  className="col-span-3"
+                  placeholder="cc@example.com"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="bcc" className="text-right">
+                  Bcc
+                </Label>
+                <Input
+                  id="bcc"
+                  value={newEmail.bcc}
+                  onChange={(e) => setNewEmail({...newEmail, bcc: e.target.value})}
+                  className="col-span-3"
+                  placeholder="bcc@example.com"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="subject" className="text-right">
+                  Subject
+                </Label>
+                <Input
+                  id="subject"
+                  value={newEmail.subject}
+                  onChange={(e) => setNewEmail({...newEmail, subject: e.target.value})}
+                  className="col-span-3"
+                  placeholder="Email subject"
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <Label htmlFor="message" className="text-right self-start mt-2">
+                  Message
+                </Label>
+                <Textarea
+                  id="message"
+                  value={newEmail.message}
+                  onChange={(e) => setNewEmail({...newEmail, message: e.target.value})}
+                  className="col-span-3"
+                  rows={8}
+                  placeholder="Type your message here"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setComposeOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="button" onClick={handleSendEmail} className="gap-2">
+                <Send className="h-4 w-4" />
+                Send
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </MainLayout>
+    );
+  }
+  
+  return (
+    <MainLayout>
+      <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          <ResizablePanel 
+            defaultSize={30} 
+            collapsible={true}
+            minSize={5}
+            maxSize={50}
+            collapsedSize={5}
+            onCollapse={() => setIsCollapsed(true)}
+            onExpand={() => setIsCollapsed(false)}
+            className={cn(
+              "transition-all duration-300",
+              isCollapsed ? "min-w-[50px] overflow-hidden" : ""
+            )}
+          >
+            <div className={cn(
+              "h-full flex flex-col",
+              isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"
+            )}>
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h2 className={cn("text-lg font-medium", isCollapsed ? "hidden" : "block")}>Inbox</h2>
+                <Button 
+                  onClick={handleComposeNew}
+                  className={cn(
+                    "flex items-center justify-center gap-2",
+                    isCollapsed ? "hidden" : "w-full"
+                  )}
+                >
+                  <PlusCircle className="h-4 w-4" />
+                  Compose New
+                </Button>
+              </div>
+              <div className={cn("flex-1", isCollapsed ? "hidden" : "block")}>
+                <ConversationList 
+                  conversations={conversations}
+                  selectedConversationId={selectedConversationId}
+                  onSelectConversation={handleSelectConversation}
+                />
+              </div>
+            </div>
+            {isCollapsed && (
+              <div className="h-full flex flex-col items-center pt-4">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={toggleCollapse}
+                  className="rotate-180"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={handleComposeNew}
+                  className="mt-2"
+                  title="Compose New"
+                >
+                  <PlusCircle className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+          </ResizablePanel>
+          
+          <ResizableHandle withHandle />
+          
+          <ResizablePanel defaultSize={70} minSize={30}>
+            {selectedConversation ? (
+              <div className="relative h-full">
+                {isCollapsed && (
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="absolute top-4 left-4 z-10"
+                    onClick={toggleCollapse}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+                <ConversationView 
+                  conversation={selectedConversation} 
+                  onStatusChange={handleStatusChange}
+                />
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                <p>Select a conversation to view</p>
+              </div>
+            )}
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
 
-      {/* Compose Email Dialog */}
       <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>New Message</DialogTitle>
           </DialogHeader>
