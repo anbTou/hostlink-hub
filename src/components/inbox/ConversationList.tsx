@@ -1,5 +1,6 @@
+
 import { useState } from "react";
-import { Search, User, Mail, Calendar, Edit, MessageSquare, Send } from "lucide-react";
+import { Search, User, Mail, Calendar, MessageSquare, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -152,9 +153,6 @@ export function ConversationList({
       <div className="p-4 border-b border-border">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-medium">Inbox</h2>
-          <Button variant="outline" size="icon" className="eliminate this element\n">
-            <Edit className="h-4 w-4" />
-          </Button>
         </div>
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -163,7 +161,7 @@ export function ConversationList({
         
         {/* Compose Button - THIS IS THE SELECTED BUTTON */}
         <Button onClick={handleComposeNew} className="w-full flex items-center justify-center gap-2 mb-4">
-          <Edit className="h-4 w-4" />
+          <Send className="h-4 w-4" />
           Compose New
         </Button>
         

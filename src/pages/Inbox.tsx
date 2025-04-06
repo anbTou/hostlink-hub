@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, ChevronLeft, ChevronRight, PlusCircle, Send } from "lucide-react";
+import { ArrowLeft, PlusCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { subHours, subDays, formatISO, subMinutes } from "date-fns";
 import { 
@@ -17,8 +18,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
-import { cn } from "@/lib/utils";
 
 const toISOString = (date: Date): string => formatISO(date);
 
@@ -188,7 +187,6 @@ const InboxPage = () => {
     bcc: "",
     message: ""
   });
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const { toast } = useToast();
   
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
@@ -252,10 +250,6 @@ const InboxPage = () => {
       title: "Email sent",
       description: "Your message has been sent successfully."
     });
-  };
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
   };
 
   if (isMobile) {
@@ -387,95 +381,27 @@ const InboxPage = () => {
   return (
     <MainLayout>
       <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-          <ResizablePanel 
-            defaultSize={30} 
-            collapsible={true}
-            minSize={5}
-            maxSize={50}
-            collapsedSize={5}
-            onCollapse={() => setIsCollapsed(true)}
-            onExpand={() => setIsCollapsed(false)}
-            className={cn(
-              "transition-all duration-300",
-              isCollapsed ? "min-w-[50px] overflow-hidden" : ""
-            )}
-          >
-            <div className={cn(
-              "h-full flex flex-col",
-              isCollapsed ? "w-0 opacity-0" : "w-full opacity-100"
-            )}>
-              <div className="p-4 border-b border-border flex items-center justify-between">
-                <h2 className={cn("text-lg font-medium", isCollapsed ? "hidden" : "block")}>Inbox</h2>
-                <Button 
-                  onClick={handleComposeNew}
-                  className={cn(
-                    "flex items-center justify-center gap-2",
-                    isCollapsed ? "hidden" : "w-full"
-                  )}
-                >
-                  <PlusCircle className="h-4 w-4" />
-                  Compose New
-                </Button>
-              </div>
-              <div className={cn("flex-1", isCollapsed ? "hidden" : "block")}>
-                <ConversationList 
-                  conversations={conversations}
-                  selectedConversationId={selectedConversationId}
-                  onSelectConversation={handleSelectConversation}
-                />
-              </div>
-            </div>
-            {isCollapsed && (
-              <div className="h-full flex flex-col items-center pt-4">
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={toggleCollapse}
-                  className="rotate-180"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon"
-                  onClick={handleComposeNew}
-                  className="mt-2"
-                  title="Compose New"
-                >
-                  <PlusCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </ResizablePanel>
-          
-          <ResizableHandle withHandle />
-          
-          <ResizablePanel defaultSize={70} minSize={30}>
+        <div className="flex h-full">
+          <div className="w-1/3 border-r border-border">
+            <ConversationList 
+              conversations={conversations}
+              selectedConversationId={selectedConversationId}
+              onSelectConversation={handleSelectConversation}
+            />
+          </div>
+          <div className="w-2/3">
             {selectedConversation ? (
-              <div className="relative h-full">
-                {isCollapsed && (
-                  <Button 
-                    variant="ghost" 
-                    size="icon"
-                    className="absolute top-4 left-4 z-10"
-                    onClick={toggleCollapse}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                )}
-                <ConversationView 
-                  conversation={selectedConversation} 
-                  onStatusChange={handleStatusChange}
-                />
-              </div>
+              <ConversationView 
+                conversation={selectedConversation} 
+                onStatusChange={handleStatusChange}
+              />
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                 <p>Select a conversation to view</p>
               </div>
             )}
-          </ResizablePanel>
-        </ResizablePanelGroup>
+          </div>
+        </div>
       </div>
 
       <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
