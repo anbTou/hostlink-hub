@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -21,6 +22,7 @@ import {
   Pencil,
   Users,
   Map,
+  Plus,
 } from "lucide-react";
 
 const PropertyInfo = () => {
@@ -34,7 +36,11 @@ const PropertyInfo = () => {
               Comprehensive details about your property for AI knowledge
             </p>
           </div>
-          <div>
+          <div className="flex gap-3">
+            <Button variant="outline">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Property
+            </Button>
             <Button>
               <Edit className="h-4 w-4 mr-2" />
               Edit Property
