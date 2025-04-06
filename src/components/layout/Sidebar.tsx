@@ -7,7 +7,7 @@ import {
   Inbox,
   BarChart2,
   Book,
-  Phone,
+  Users,
   CheckSquare,
   Settings,
   Menu,
@@ -38,7 +38,7 @@ const navItems = [
   { name: "Quick Notes", icon: FileText, path: "/notes" },
   { name: "Knowledge Base", icon: Book, path: "/knowledge" },
   { name: "Property Info", icon: Home, path: "/property" },
-  { name: "Phone", icon: Phone, path: "/phone" },
+  { name: "Contacts", icon: Users, path: "/phone" },
   { name: "Settings", icon: Settings, path: "/settings" },
 ];
 
