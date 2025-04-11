@@ -1,12 +1,23 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { ContactList, Contact } from "@/components/inbox/ContactList";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, ChevronLeft, ChevronRight, PlusCircle, Send, Users } from "lucide-react";
+import { 
+  ArrowLeft, 
+  ChevronLeft, 
+  ChevronRight, 
+  PlusCircle, 
+  Send, 
+  Users,
+  Mail,
+  Calendar,
+  FileText
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { subHours, subDays, formatISO, subMinutes, subMonths } from "date-fns";
+import { subHours, subDays, formatISO, subMinutes, subMonths, format } from "date-fns";
 import { 
   Dialog, 
   DialogContent, 
@@ -19,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar } from "@/components/ui/avatar";
 
 const toISOString = (date: Date): string => formatISO(date);
 
@@ -339,24 +351,24 @@ const InboxPage = () => {
                       <TabsTrigger value="conversations" className="flex-1">Inbox</TabsTrigger>
                       <TabsTrigger value="contacts" className="flex-1">Contacts</TabsTrigger>
                     </TabsList>
+
+                    <TabsContent value="conversations" className="m-0 h-[calc(100%-76px)]">
+                      <ConversationList 
+                        conversations={conversations}
+                        selectedConversationId={selectedConversationId}
+                        onSelectConversation={handleSelectConversation}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="contacts" className="m-0 h-[calc(100%-76px)]">
+                      <ContactList 
+                        contacts={contacts}
+                        selectedContactId={selectedContactId}
+                        onSelectContact={handleSelectContact}
+                      />
+                    </TabsContent>
                   </Tabs>
                 </div>
-                
-                <TabsContent value="conversations" className="m-0 h-[calc(100%-76px)]">
-                  <ConversationList 
-                    conversations={conversations}
-                    selectedConversationId={selectedConversationId}
-                    onSelectConversation={handleSelectConversation}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="contacts" className="m-0 h-[calc(100%-76px)]">
-                  <ContactList 
-                    contacts={contacts}
-                    selectedContactId={selectedContactId}
-                    onSelectContact={handleSelectContact}
-                  />
-                </TabsContent>
               </div>
             )}
             
@@ -552,24 +564,24 @@ const InboxPage = () => {
                       <TabsTrigger value="conversations" className="flex-1">Inbox</TabsTrigger>
                       <TabsTrigger value="contacts" className="flex-1">Contacts</TabsTrigger>
                     </TabsList>
+
+                    <TabsContent value="conversations" className="m-0 flex-1 overflow-hidden">
+                      <ConversationList 
+                        conversations={conversations}
+                        selectedConversationId={selectedConversationId}
+                        onSelectConversation={handleSelectConversation}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="contacts" className="m-0 flex-1 overflow-hidden">
+                      <ContactList 
+                        contacts={contacts}
+                        selectedContactId={selectedContactId}
+                        onSelectContact={handleSelectContact}
+                      />
+                    </TabsContent>
                   </Tabs>
                 </div>
-                
-                <TabsContent value="conversations" className="m-0 flex-1 overflow-hidden">
-                  <ConversationList 
-                    conversations={conversations}
-                    selectedConversationId={selectedConversationId}
-                    onSelectConversation={handleSelectConversation}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="contacts" className="m-0 flex-1 overflow-hidden">
-                  <ContactList 
-                    contacts={contacts}
-                    selectedContactId={selectedContactId}
-                    onSelectContact={handleSelectContact}
-                  />
-                </TabsContent>
               </div>
             )}
           </div>
