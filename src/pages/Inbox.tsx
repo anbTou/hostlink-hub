@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, PlusCircle, Send } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, PlusCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { subHours, subDays, formatISO, subMinutes } from "date-fns";
 import { 
@@ -179,6 +180,7 @@ const InboxPage = () => {
   const isMobile = useIsMobile();
   const [showList, setShowList] = useState(!isMobile);
   const [composeOpen, setComposeOpen] = useState(false);
+  const [isListCollapsed, setIsListCollapsed] = useState(false);
   const [newEmail, setNewEmail] = useState({
     to: "",
     subject: "",
@@ -211,6 +213,10 @@ const InboxPage = () => {
   
   const handleComposeNew = () => {
     setComposeOpen(true);
+  };
+
+  const toggleListCollapse = () => {
+    setIsListCollapsed(!isListCollapsed);
   };
 
   const handleSendEmail = () => {
@@ -381,14 +387,24 @@ const InboxPage = () => {
     <MainLayout>
       <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
         <div className="flex h-full">
-          <div className="w-1/3 border-r border-border">
-            <ConversationList 
-              conversations={conversations}
-              selectedConversationId={selectedConversationId}
-              onSelectConversation={handleSelectConversation}
-            />
+          <div className={`border-r border-border transition-all duration-300 ${isListCollapsed ? 'w-0' : 'w-1/3'} ${isListCollapsed ? 'overflow-hidden' : ''}`}>
+            {!isListCollapsed && (
+              <ConversationList 
+                conversations={conversations}
+                selectedConversationId={selectedConversationId}
+                onSelectConversation={handleSelectConversation}
+              />
+            )}
           </div>
-          <div className="w-2/3">
+          <div className={`relative transition-all duration-300 ${isListCollapsed ? 'w-full' : 'w-2/3'}`}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 left-4 z-10"
+              onClick={toggleListCollapse}
+            >
+              {isListCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            </Button>
             {selectedConversation ? (
               <ConversationView 
                 conversation={selectedConversation} 
