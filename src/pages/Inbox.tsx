@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
@@ -255,7 +254,7 @@ const InboxPage = () => {
   if (isMobile) {
     return (
       <MainLayout>
-        <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
+        <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
           <div className="flex h-full">
             {showList && (
               <div className="w-full">
@@ -380,7 +379,7 @@ const InboxPage = () => {
   
   return (
     <MainLayout>
-      <div className="h-[calc(100vh-2rem)] bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
+      <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
         <div className="flex h-full">
           <div className="w-1/3 border-r border-border">
             <ConversationList 
