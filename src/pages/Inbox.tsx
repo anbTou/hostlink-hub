@@ -1,12 +1,12 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList, Conversation } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
+import { ContactList, Contact } from "@/components/inbox/ContactList";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ArrowLeft, ChevronLeft, ChevronRight, PlusCircle, Send } from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, PlusCircle, Send, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { subHours, subDays, formatISO, subMinutes } from "date-fns";
+import { subHours, subDays, formatISO, subMinutes, subMonths } from "date-fns";
 import { 
   Dialog, 
   DialogContent, 
@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const toISOString = (date: Date): string => formatISO(date);
 
@@ -174,13 +175,65 @@ const sampleConversations: Conversation[] = [
   },
 ];
 
+const sampleContacts: Contact[] = [
+  {
+    id: "1",
+    name: "Sarah Miller",
+    email: "sarah.miller@example.com",
+    previousStays: [
+      { propertyName: "Beachfront Villa", date: toISOString(subMonths(new Date(), 3)) },
+      { propertyName: "Mountain Cabin", date: toISOString(subMonths(new Date(), 8)) }
+    ],
+    notes: "Prefers quiet rooms away from elevators. Allergic to feather pillows. Always books for anniversary in September."
+  },
+  {
+    id: "2",
+    name: "John Davis",
+    email: "john.davis@example.com",
+    previousStays: [
+      { propertyName: "Lakeside Cottage", date: toISOString(subMonths(new Date(), 2)) }
+    ],
+    notes: "Travels for business frequently. Prefers early check-in when available. Member of loyalty program."
+  },
+  {
+    id: "3",
+    name: "Maria Rodriguez",
+    email: "maria.r@example.com",
+    previousStays: [
+      { propertyName: "Beachfront Villa", date: toISOString(subMonths(new Date(), 1)) },
+      { propertyName: "City Apartment", date: toISOString(subMonths(new Date(), 5)) },
+      { propertyName: "Mountain Cabin", date: toISOString(subMonths(new Date(), 10)) }
+    ],
+    notes: "Travels with small dog. Needs pet-friendly accommodations. Always requests extra towels."
+  },
+  {
+    id: "4",
+    name: "Thomas Brown",
+    email: "t.brown@example.com",
+    previousStays: [],
+    notes: "First-time guest. Mentioned celebrating birthday during stay."
+  },
+  {
+    id: "5",
+    name: "Emma Wilson",
+    email: "emma.wilson@example.com",
+    previousStays: [
+      { propertyName: "Lakeside Cottage", date: toISOString(subMonths(new Date(), 4)) }
+    ],
+    notes: "Gluten-free diet. Requested restaurant recommendations. Interested in local hiking trails."
+  }
+];
+
 const InboxPage = () => {
   const [conversations, setConversations] = useState<Conversation[]>(sampleConversations);
+  const [contacts, setContacts] = useState<Contact[]>(sampleContacts);
   const [selectedConversationId, setSelectedConversationId] = useState<string | undefined>(conversations[0]?.id);
+  const [selectedContactId, setSelectedContactId] = useState<string | undefined>();
   const isMobile = useIsMobile();
   const [showList, setShowList] = useState(!isMobile);
   const [composeOpen, setComposeOpen] = useState(false);
   const [isListCollapsed, setIsListCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<"conversations" | "contacts">("conversations");
   const [newEmail, setNewEmail] = useState({
     to: "",
     subject: "",
@@ -191,6 +244,7 @@ const InboxPage = () => {
   const { toast } = useToast();
   
   const selectedConversation = conversations.find(c => c.id === selectedConversationId);
+  const selectedContact = contacts.find(c => c.id === selectedContactId);
   
   const handleSelectConversation = (id: string) => {
     setSelectedConversationId(id);
@@ -203,6 +257,13 @@ const InboxPage = () => {
         ? { ...c, lastMessage: { ...c.lastMessage, isUnread: false } } 
         : c
     ));
+  };
+
+  const handleSelectContact = (contact: Contact) => {
+    setSelectedContactId(contact.id);
+    if (isMobile) {
+      setShowList(false);
+    }
   };
   
   const handleStatusChange = (id: string, status: Conversation["status"]) => {
@@ -267,17 +328,35 @@ const InboxPage = () => {
                 <div className="p-4 border-b border-border">
                   <Button 
                     onClick={handleComposeNew}
-                    className="w-full flex items-center justify-center gap-2"
+                    className="w-full flex items-center justify-center gap-2 mb-4"
                   >
                     <PlusCircle className="h-4 w-4" />
                     Compose New
                   </Button>
+                  
+                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "conversations" | "contacts")}>
+                    <TabsList className="w-full">
+                      <TabsTrigger value="conversations" className="flex-1">Inbox</TabsTrigger>
+                      <TabsTrigger value="contacts" className="flex-1">Contacts</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
                 </div>
-                <ConversationList 
-                  conversations={conversations}
-                  selectedConversationId={selectedConversationId}
-                  onSelectConversation={handleSelectConversation}
-                />
+                
+                <TabsContent value="conversations" className="m-0 h-[calc(100%-76px)]">
+                  <ConversationList 
+                    conversations={conversations}
+                    selectedConversationId={selectedConversationId}
+                    onSelectConversation={handleSelectConversation}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="contacts" className="m-0 h-[calc(100%-76px)]">
+                  <ContactList 
+                    contacts={contacts}
+                    selectedContactId={selectedContactId}
+                    onSelectContact={handleSelectContact}
+                  />
+                </TabsContent>
               </div>
             )}
             
@@ -295,6 +374,75 @@ const InboxPage = () => {
                   conversation={selectedConversation} 
                   onStatusChange={handleStatusChange}
                 />
+              </div>
+            )}
+            
+            {!showList && selectedContact && !selectedConversation && (
+              <div className="w-full relative p-6">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  className="absolute top-4 left-4 z-10"
+                  onClick={() => setShowList(true)}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div className="max-w-2xl mx-auto">
+                  <div className="flex items-center gap-4 mb-6">
+                    <Avatar className="h-16 w-16">
+                      <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary text-2xl font-medium">
+                        {selectedContact.name.charAt(0)}
+                      </div>
+                    </Avatar>
+                    <div>
+                      <h1 className="text-2xl font-bold">{selectedContact.name}</h1>
+                      <div className="flex items-center text-muted-foreground">
+                        <Mail className="h-4 w-4 mr-2" />
+                        <span>{selectedContact.email}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    <div className="space-y-2">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Calendar className="h-5 w-5" />
+                        Previous Stays
+                      </h2>
+                      {selectedContact.previousStays.length > 0 ? (
+                        <div className="border rounded-md divide-y">
+                          {selectedContact.previousStays.map((stay, index) => (
+                            <div key={index} className="p-3 flex justify-between">
+                              <span className="font-medium">{stay.propertyName}</span>
+                              <span className="text-muted-foreground">
+                                {format(new Date(stay.date), "MMMM d, yyyy")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">No previous stays recorded</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Notes
+                      </h2>
+                      <div className="border rounded-md p-3">
+                        {selectedContact.notes || "No notes available"}
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      onClick={handleComposeNew} 
+                      className="w-full mt-4"
+                    >
+                      Send Email to {selectedContact.name}
+                    </Button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
@@ -389,15 +537,43 @@ const InboxPage = () => {
         <div className="flex h-full">
           <div className={`border-r border-border transition-all duration-300 ${isListCollapsed ? 'w-0' : 'w-1/3'} ${isListCollapsed ? 'overflow-hidden' : ''}`}>
             {!isListCollapsed && (
-              <ConversationList 
-                conversations={conversations}
-                selectedConversationId={selectedConversationId}
-                onSelectConversation={handleSelectConversation}
-              />
+              <div className="h-full flex flex-col">
+                <div className="p-4 border-b border-border">
+                  <Button 
+                    onClick={handleComposeNew}
+                    className="w-full flex items-center justify-center gap-2 mb-4"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    Compose New
+                  </Button>
+                  
+                  <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "conversations" | "contacts")}>
+                    <TabsList className="w-full">
+                      <TabsTrigger value="conversations" className="flex-1">Inbox</TabsTrigger>
+                      <TabsTrigger value="contacts" className="flex-1">Contacts</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
+                
+                <TabsContent value="conversations" className="m-0 flex-1 overflow-hidden">
+                  <ConversationList 
+                    conversations={conversations}
+                    selectedConversationId={selectedConversationId}
+                    onSelectConversation={handleSelectConversation}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="contacts" className="m-0 flex-1 overflow-hidden">
+                  <ContactList 
+                    contacts={contacts}
+                    selectedContactId={selectedContactId}
+                    onSelectContact={handleSelectContact}
+                  />
+                </TabsContent>
+              </div>
             )}
           </div>
           <div className={`relative transition-all duration-300 ${isListCollapsed ? 'w-full' : 'w-2/3'}`}>
-            {/* Repositioned the toggle button to avoid overlapping with other elements */}
             <div className="absolute top-0 left-0 h-10 w-10 flex items-center justify-center z-10">
               <Button
                 variant="ghost"
@@ -414,9 +590,74 @@ const InboxPage = () => {
                 conversation={selectedConversation} 
                 onStatusChange={handleStatusChange}
               />
+            ) : selectedContact ? (
+              <div className="p-6 h-full overflow-auto">
+                <div className="max-w-2xl mx-auto">
+                  <div className="flex items-center gap-4 mb-6">
+                    <Avatar className="h-16 w-16">
+                      <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary text-2xl font-medium">
+                        {selectedContact.name.charAt(0)}
+                      </div>
+                    </Avatar>
+                    <div>
+                      <h1 className="text-2xl font-bold">{selectedContact.name}</h1>
+                      <div className="flex items-center text-muted-foreground">
+                        <Mail className="h-4 w-4 mr-2" />
+                        <span>{selectedContact.email}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid gap-6">
+                    <div className="space-y-2">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <Calendar className="h-5 w-5" />
+                        Previous Stays
+                      </h2>
+                      {selectedContact.previousStays.length > 0 ? (
+                        <div className="border rounded-md divide-y">
+                          {selectedContact.previousStays.map((stay, index) => (
+                            <div key={index} className="p-3 flex justify-between">
+                              <span className="font-medium">{stay.propertyName}</span>
+                              <span className="text-muted-foreground">
+                                {format(new Date(stay.date), "MMMM d, yyyy")}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground">No previous stays recorded</p>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h2 className="text-lg font-semibold flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        Notes
+                      </h2>
+                      <div className="border rounded-md p-3">
+                        {selectedContact.notes || "No notes available"}
+                      </div>
+                    </div>
+                    
+                    <Button 
+                      onClick={() => {
+                        setNewEmail(prev => ({
+                          ...prev,
+                          to: selectedContact.email
+                        }));
+                        setComposeOpen(true);
+                      }} 
+                      className="w-full mt-4"
+                    >
+                      Send Email to {selectedContact.name}
+                    </Button>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <p>Select a conversation to view</p>
+                <p>Select a conversation or contact to view</p>
               </div>
             )}
           </div>
