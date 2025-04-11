@@ -397,14 +397,18 @@ const InboxPage = () => {
             )}
           </div>
           <div className={`relative transition-all duration-300 ${isListCollapsed ? 'w-full' : 'w-2/3'}`}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 left-4 z-10"
-              onClick={toggleListCollapse}
-            >
-              {isListCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-            </Button>
+            {/* Repositioned the toggle button to avoid overlapping with other elements */}
+            <div className="absolute top-0 left-0 h-10 w-10 flex items-center justify-center z-10">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleListCollapse}
+                className="h-8 w-8"
+              >
+                {isListCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+              </Button>
+            </div>
+            
             {selectedConversation ? (
               <ConversationView 
                 conversation={selectedConversation} 
