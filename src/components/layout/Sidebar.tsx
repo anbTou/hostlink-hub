@@ -21,13 +21,34 @@ import {
   PlusCircle,
   Flag,
   Sparkles,
+  Mail,
+  MessageSquare,
+  Phone as PhoneIcon,
+  Globe,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Main navigation categories
 const navItems = [
   { name: "Dashboard", icon: BarChart2, path: "/" },
-  { name: "Inbox", icon: Inbox, path: "/inbox" },
+  { 
+    name: "Inbox", 
+    icon: Inbox, 
+    path: "/inbox", 
+    children: [
+      { name: "Email", icon: Mail, path: "/inbox/email" },
+      { name: "Airbnb", icon: Home, path: "/inbox/airbnb" },
+      { name: "Booking", icon: Calendar, path: "/inbox/booking" },
+      { name: "VRBO", icon: Globe, path: "/inbox/vrbo" },
+      { name: "WhatsApp", icon: MessageSquare, path: "/inbox/whatsapp" },
+    ]
+  },
   { name: "Tasks", icon: CheckSquare, path: "/tasks", 
     children: [
       { name: "Today", icon: Clock, path: "/tasks/today" },
@@ -206,8 +227,33 @@ export function Sidebar() {
                   onClick={() => !collapsed && toggleGroup(item.name)}
                 >
                   <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
-                    <item.icon className="h-5 w-5" />
-                    {!collapsed && <span className="font-medium">{item.name}</span>}
+                    {collapsed ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="focus:outline-none">
+                            <item.icon className="h-5 w-5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="right" align="start" className="w-48 bg-white">
+                          <Link to={item.path}>
+                            <DropdownMenuItem>All {item.name}</DropdownMenuItem>
+                          </Link>
+                          {item.children.map((child) => (
+                            <Link key={child.name} to={child.path}>
+                              <DropdownMenuItem>
+                                <child.icon className="h-4 w-4 mr-2" />
+                                <span>{child.name}</span>
+                              </DropdownMenuItem>
+                            </Link>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <>
+                        <item.icon className="h-5 w-5" />
+                        <span className="font-medium">{item.name}</span>
+                      </>
+                    )}
                   </div>
                   {!collapsed && (
                     expandedGroups[item.name] ? (
