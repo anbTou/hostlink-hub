@@ -1,12 +1,10 @@
 
 import { useState, useRef, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { Send, Paperclip, Smile, MoreHorizontal, ChevronDown, ChevronUp, Home, Calendar, Mail, MessageSquare, Globe } from "lucide-react";
+import { Send, Paperclip, Smile, MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Conversation } from "./ConversationList";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
@@ -33,67 +31,30 @@ interface ConversationViewProps {
 }
 
 export function ConversationView({ conversation, onStatusChange }: ConversationViewProps) {
-  const location = useLocation();
-  const currentPath = location.pathname;
-  const platform = currentPath.split('/').pop() || 'email';
-  
-  // Get the appropriate icon for the current platform
-  const getPlatformIcon = () => {
-    switch(platform) {
-      case 'airbnb': return <Home className="h-4 w-4 mr-2" />;
-      case 'booking': return <Calendar className="h-4 w-4 mr-2" />;
-      case 'vrbo': return <Globe className="h-4 w-4 mr-2" />;
-      case 'whatsapp': return <MessageSquare className="h-4 w-4 mr-2" />;
-      default: return <Mail className="h-4 w-4 mr-2" />;
-    }
-  };
-  
-  // Platform-specific styling
-  const getPlatformBadgeStyle = () => {
-    switch(platform) {
-      case 'airbnb': return "bg-red-100 text-red-600 border-red-200";
-      case 'booking': return "bg-blue-100 text-blue-600 border-blue-200";
-      case 'vrbo': return "bg-green-100 text-green-600 border-green-200";
-      case 'whatsapp': return "bg-emerald-100 text-emerald-600 border-emerald-200";
-      default: return "bg-gray-100 text-gray-600 border-gray-200";
-    }
-  };
-  
-  // Get platform name with proper capitalization
-  const getPlatformName = () => {
-    switch(platform) {
-      case 'airbnb': return "Airbnb";
-      case 'booking': return "Booking.com";
-      case 'vrbo': return "VRBO";
-      case 'whatsapp': return "WhatsApp";
-      default: return "Email";
-    }
-  };
-
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       text: conversation.lastMessage.text,
       sender: "contact",
       timestamp: conversation.lastMessage.timestamp,
-      emailDetails: platform === 'email' ? {
+      emailDetails: {
         from: conversation.contact.name,
         to: ["you@example.com"],
         subject: "Question about breakfast service",
         cc: ["reservations@example.com"]
-      } : undefined
+      }
     },
     {
       id: "2",
       text: "Also, we'll be arriving around 9 PM. Is that too late for check-in?",
       sender: "contact",
       timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 120000 + "", // 2 minutes before
-      emailDetails: platform === 'email' ? {
+      emailDetails: {
         from: conversation.contact.name,
         to: ["you@example.com"],
         subject: "Question about breakfast service",
         cc: ["reservations@example.com"]
-      } : undefined
+      }
     },
     {
       id: "3",
@@ -106,12 +67,12 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       text: "Hello! Breakfast is served from 7:30 AM to 10:00 AM in our dining area. As for your arrival time, 9 PM is perfectly fine for check-in. We have a 24-hour reception desk. Is there anything else you'd like to know?",
       sender: "user",
       timestamp: parseISO(conversation.lastMessage.timestamp).getTime() - 30000 + "", // 30 seconds before
-      emailDetails: platform === 'email' ? {
+      emailDetails: {
         from: "you@example.com",
         to: [conversation.contact.name],
         subject: "Re: Question about breakfast service",
         cc: ["reservations@example.com"]
-      } : undefined
+      }
     }
   ]);
   
@@ -162,7 +123,7 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       text: newMessage,
       sender: "user",
       timestamp: new Date().toISOString(),
-      emailDetails: platform === 'email' ? replyDetails : undefined
+      emailDetails: replyDetails
     };
     
     setMessages([...messages, message]);
@@ -173,15 +134,15 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
     setTimeout(() => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: `I've noted your ${platform} message. Is there anything else you'd like to ask about?`,
+        text: "I've noted your message. Is there anything else you'd like to ask about?",
         sender: "contact",
         timestamp: new Date().toISOString(),
-        emailDetails: platform === 'email' ? {
+        emailDetails: {
           from: conversation.contact.name,
           to: ["you@example.com"],
           subject: `Re: ${replyDetails.subject}`,
           cc: replyDetails.cc
-        } : undefined
+        }
       };
       
       setMessages(prev => [...prev, aiMessage]);
@@ -234,20 +195,7 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
             )}
           </Avatar>
           <div>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="font-medium">{conversation.contact.name}</h2>
-              <Badge 
-                className={cn(
-                  "text-xs py-0.5 px-2 rounded-full border", 
-                  getPlatformBadgeStyle()
-                )}
-              >
-                <span className="flex items-center">
-                  {getPlatformIcon()}
-                  {getPlatformName()}
-                </span>
-              </Badge>
-            </div>
+            <h2 className="font-medium">{conversation.contact.name}</h2>
             <div className="flex gap-2">
               <Button 
                 variant={conversation.status === "todo" ? "default" : "outline"} 
@@ -332,15 +280,15 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       </div>
       
       <div className="p-4 border-t border-border">
-        {platform === 'email' && !showReplyForm ? (
+        {!showReplyForm ? (
           <Button 
             onClick={toggleReplyForm} 
             className="w-full mb-4 flex items-center justify-center"
             variant="outline"
           >
-            <Send className="h-4 w-4 mr-2" /> Reply via Email
+            <Send className="h-4 w-4 mr-2" /> Reply
           </Button>
-        ) : platform === 'email' && showReplyForm ? (
+        ) : (
           <div className="bg-card border border-border rounded-lg p-4 mb-4">
             <div className="space-y-3">
               <div className="flex items-center">
@@ -377,29 +325,12 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
               </div>
             </div>
           </div>
-        ) : (
-          <div className="flex items-center gap-2 mb-4">
-            <Badge 
-              className={cn(
-                "text-xs py-1 px-3 rounded-full border", 
-                getPlatformBadgeStyle()
-              )}
-            >
-              <span className="flex items-center">
-                {getPlatformIcon()}
-                Replying via {getPlatformName()}
-              </span>
-            </Badge>
-          </div>
         )}
         
         <div className="relative">
           <Textarea 
-            placeholder={platform === 'email' && showReplyForm 
-              ? "Type your email reply..." 
-              : `Type your ${getPlatformName()} message...`
-            } 
-            className="min-h-[80px] pr-20 rounded-xl shadow-sm border-slate-200"
+            placeholder={showReplyForm ? "Type your reply..." : "Type your message..."} 
+            className="min-h-[80px] pr-20"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
