@@ -70,7 +70,8 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    "Tasks": true // Default to expanded
+    "Tasks": true, // Default to expanded
+    "Inbox": true  // Also expand inbox by default
   });
 
   const toggleGroup = (name: string) => {
@@ -231,16 +232,22 @@ export function Sidebar() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="focus:outline-none">
-                            <item.icon className="h-5 w-5" />
+                            <item.icon className={cn(
+                              "h-5 w-5",
+                              isActive(item.path) && "text-primary"
+                            )} />
                           </button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent side="right" align="start" className="w-48 bg-white">
+                        <DropdownMenuContent side="right" align="start" className="w-48 bg-white shadow-soft rounded-xl border-none z-50">
                           <Link to={item.path}>
-                            <DropdownMenuItem>All {item.name}</DropdownMenuItem>
+                            <DropdownMenuItem className="rounded-lg">All {item.name}</DropdownMenuItem>
                           </Link>
                           {item.children.map((child) => (
                             <Link key={child.name} to={child.path}>
-                              <DropdownMenuItem>
+                              <DropdownMenuItem className={cn(
+                                "rounded-lg flex items-center",
+                                isActive(child.path) && "bg-primary/10 text-primary font-medium"
+                              )}>
                                 <child.icon className="h-4 w-4 mr-2" />
                                 <span>{child.name}</span>
                               </DropdownMenuItem>
