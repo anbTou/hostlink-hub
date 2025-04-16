@@ -18,6 +18,10 @@ export default {
       }
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        satoshi: ['Satoshi', 'Inter', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -25,7 +29,7 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         primary: {
-          DEFAULT: '#F54123',
+          DEFAULT: '#FF5C38',
           foreground: '#FFFFFF'
         },
         secondary: {
@@ -41,7 +45,7 @@ export default {
           foreground: 'hsl(var(--muted-foreground))'
         },
         accent: {
-          DEFAULT: '#F54123',
+          DEFAULT: '#FF5C38',
           foreground: '#FFFFFF'
         },
         popover: {
@@ -55,18 +59,23 @@ export default {
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
           foreground: 'hsl(var(--sidebar-foreground))',
-          primary: '#F54123',
+          primary: '#FF5C38',
           'primary-foreground': '#FFFFFF',
-          accent: '#F54123',
+          accent: '#FF5C38',
           'accent-foreground': '#FFFFFF',
           border: 'hsl(var(--sidebar-border))',
-          ring: '#F54123'
+          ring: '#FF5C38'
         }
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
+        sm: 'calc(var(--radius) - 4px)',
+        xl: '16px',
+        '2xl': '24px',
+      },
+      boxShadow: {
+        'soft': '0 6px 24px rgba(0,0,0,0.05)',
       },
       keyframes: {
         'accordion-down': {
@@ -100,7 +109,11 @@ export default {
         'pulse-subtle': {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.85' }
-        }
+        },
+        'pulse-button': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.03)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -110,7 +123,8 @@ export default {
         'slide-in-right': 'slide-in-right 0.3s ease-out',
         'slide-out-right': 'slide-out-right 0.3s ease-out',
         'scale-in': 'scale-in 0.2s ease-out',
-        'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite'
+        'pulse-subtle': 'pulse-subtle 2s ease-in-out infinite',
+        'pulse-button': 'pulse-button 1s ease-in-out infinite',
       }
     }
   },

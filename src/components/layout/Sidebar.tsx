@@ -20,6 +20,7 @@ import {
   ChevronRight,
   PlusCircle,
   Flag,
+  Sparkles,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -62,9 +63,7 @@ export function Sidebar() {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 
-  // For desktop: persistent sidebar with collapse functionality
   // For mobile: overlay menu triggered by button
-  
   if (isMobile) {
     return (
       <>
@@ -84,11 +83,14 @@ export function Sidebar() {
             onClick={() => setMobileMenuOpen(false)}
           >
             <div 
-              className="w-[280px] h-full gradient-sidebar p-4 shadow-lg animate-slide-in-right"
+              className="w-[280px] h-full bg-white shadow-soft animate-slide-in-right p-4"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-8">
-                <h1 className="font-semibold text-xl text-primary">GuestAssist</h1>
+                <h1 className="font-bold text-xl text-primary flex items-center">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Hostsy
+                </h1>
                 <Button 
                   variant="ghost" 
                   size="icon" 
@@ -105,14 +107,14 @@ export function Sidebar() {
                       <>
                         <div 
                           className={cn(
-                            "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors",
+                            "flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-colors",
                             isActive(item.path) && "text-primary"
                           )}
                           onClick={() => toggleGroup(item.name)}
                         >
                           <div className="flex items-center gap-3">
                             <item.icon className="h-5 w-5" />
-                            <span>{item.name}</span>
+                            <span className="font-medium">{item.name}</span>
                           </div>
                           {expandedGroups[item.name] ? (
                             <ChevronDown className="h-4 w-4" />
@@ -129,10 +131,10 @@ export function Sidebar() {
                                 to={child.path}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className={cn(
-                                  "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                                  "flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors",
                                   isActive(child.path)
-                                    ? "gradient-active text-primary-foreground"
-                                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                    ? "bg-primary/10 text-primary font-medium"
+                                    : "hover:bg-secondary hover:text-foreground"
                                 )}
                               >
                                 <child.icon className="h-4 w-4" />
@@ -147,10 +149,10 @@ export function Sidebar() {
                         to={item.path}
                         onClick={() => setMobileMenuOpen(false)}
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                          "flex items-center gap-3 px-3 py-2 rounded-xl transition-colors font-medium",
                           isActive(item.path)
-                            ? "gradient-active text-primary-foreground"
-                            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            ? "bg-primary/10 text-primary"
+                            : "hover:bg-secondary hover:text-foreground"
                         )}
                       >
                         <item.icon className="h-5 w-5" />
@@ -167,15 +169,19 @@ export function Sidebar() {
     );
   }
 
+  // For desktop: persistent sidebar with collapse functionality
   return (
     <div 
       className={cn(
-        "h-screen sticky top-0 gradient-sidebar border-r border-border transition-all duration-300",
+        "h-screen sticky top-0 bg-white border-r border-[#EFF3F8] transition-all duration-300 shadow-soft",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
     >
       <div className="p-4 flex justify-between items-center">
-        {!collapsed && <h1 className="font-semibold text-primary">GuestAssist</h1>}
+        {!collapsed && <h1 className="font-bold text-primary flex items-center">
+          <Sparkles className="h-4 w-4 mr-2" />
+          Hostsy
+        </h1>}
         <Button 
           variant="ghost" 
           size="icon" 
@@ -193,7 +199,7 @@ export function Sidebar() {
               <>
                 <div 
                   className={cn(
-                    "flex items-center justify-between px-3 py-2 rounded-md cursor-pointer transition-colors",
+                    "flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-colors",
                     isActive(item.path) && "text-primary",
                     collapsed && "justify-center"
                   )}
@@ -201,7 +207,7 @@ export function Sidebar() {
                 >
                   <div className={cn("flex items-center gap-3", collapsed && "justify-center")}>
                     <item.icon className="h-5 w-5" />
-                    {!collapsed && <span>{item.name}</span>}
+                    {!collapsed && <span className="font-medium">{item.name}</span>}
                   </div>
                   {!collapsed && (
                     expandedGroups[item.name] ? (
@@ -219,10 +225,10 @@ export function Sidebar() {
                         key={child.name}
                         to={child.path}
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors",
+                          "flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition-colors",
                           isActive(child.path)
-                            ? "gradient-active text-primary-foreground"
-                            : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "hover:bg-secondary hover:text-foreground"
                         )}
                       >
                         <child.icon className="h-4 w-4" />
@@ -236,10 +242,10 @@ export function Sidebar() {
               <Link
                 to={item.path}
                 className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                  "flex items-center gap-3 px-3 py-2 rounded-xl transition-colors font-medium",
                   isActive(item.path)
-                    ? "gradient-active text-primary-foreground"
-                    : "hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    ? "bg-primary/10 text-primary"
+                    : "hover:bg-secondary hover:text-foreground",
                   collapsed && "justify-center"
                 )}
               >

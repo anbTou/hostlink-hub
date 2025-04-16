@@ -1,81 +1,71 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 7 78% 56%; /* #F54123 in HSL */
-    --foreground: 0 0% 100%; /* White */
+    --background: 220 33% 98%; /* #F9FAFC to #EFF3F8 gradient base */
+    --foreground: 216 15% 14%; /* #202124 */
 
-    --card: 7 78% 56%; /* #F54123 */
-    --card-foreground: 0 0% 100%; /* White */
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 216 15% 14%; /* #202124 */
 
-    --primary: 7 78% 56%; /* #F54123 */
+    --primary: 12 100% 61%; /* #FF5C38 */
     --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 7 78% 66%; /* Slightly lighter variant of #F54123 */
-    --secondary-foreground: 0 0% 100%; /* White */
+    --secondary: 220 14% 96%; /* Soft light gray */
+    --secondary-foreground: 216 15% 14%; /* #202124 */
 
-    --muted: 7 78% 76%; /* Even lighter variant */
-    --muted-foreground: 0 0% 100%; /* White */
+    --muted: 220 14% 96%; /* Soft light gray */
+    --muted-foreground: 216 6% 45%; /* Muted text */
 
-    --accent: 7 78% 56%; /* #F54123 */
+    --accent: 12 100% 61%; /* #FF5C38 */
     --accent-foreground: 0 0% 100%; /* White */
 
-    --destructive: 7 78% 56%; /* Using primary color for destructive as well */
+    --destructive: 0 84% 60%; /* Red for destructive actions */
     --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 7 78% 56%; /* #F54123 */
-    --input: 7 78% 56%; /* #F54123 */
-    --ring: 7 78% 56%; /* #F54123 */
+    --border: 220 13% 91%; /* Soft border color */
+    --input: 220 13% 91%; /* Soft input border */
+    --ring: 12 100% 61%; /* #FF5C38 */
 
-    --radius: 0.5rem;
+    --radius: 1rem; /* 16px */
 
-    --sidebar-background: 7 78% 56%; /* #F54123 */
-    --sidebar-foreground: 0 0% 100%; /* White */
-    --sidebar-primary: 7 78% 56%; /* #F54123 */
-    --sidebar-primary-foreground: 0 0% 100%; /* White */
-    --sidebar-accent: 7 78% 56%; /* #F54123 */
-    --sidebar-accent-foreground: 0 0% 100%; /* White */
-    --sidebar-border: 7 78% 56%; /* #F54123 */
-    --sidebar-ring: 7 78% 56%; /* #F54123 */
+    --sidebar-background: 0 0% 100%; /* White */
+    --sidebar-foreground: 216 15% 14%; /* #202124 */
+    --sidebar-border: 220 13% 91%; /* Soft border color */
   }
 
   .dark {
-    /* Dark mode similar to light mode for this design */
-    --background: 7 78% 56%;
-    --foreground: 0 0% 100%;
+    --background: 216 28% 7%; /* Dark background */
+    --foreground: 213 31% 91%; /* Light text */
 
-    --card: 7 78% 56%;
-    --card-foreground: 0 0% 100%;
+    --card: 216 28% 12%; /* Dark card */
+    --card-foreground: 213 31% 91%; /* Light text */
 
-    --primary: 7 78% 56%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 12 100% 61%; /* #FF5C38 */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 7 78% 66%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 215 27% 17%; /* Dark secondary */
+    --secondary-foreground: 213 31% 91%; /* Light text */
 
-    --muted: 7 78% 76%;
-    --muted-foreground: 0 0% 100%;
+    --muted: 215 27% 17%; /* Dark muted */
+    --muted-foreground: 215 20% 65%; /* Muted text */
 
-    --accent: 7 78% 56%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 12 100% 61%; /* #FF5C38 */
+    --accent-foreground: 0 0% 100%; /* White */
 
-    --destructive: 7 78% 56%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%; /* Red for destructive actions */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --border: 7 78% 56%;
-    --input: 7 78% 56%;
-    --ring: 7 78% 56%;
+    --border: 215 27% 17%; /* Dark border */
+    --input: 215 27% 17%; /* Dark input border */
+    --ring: 12 100% 61%; /* #FF5C38 */
 
-    --sidebar-background: 7 78% 56%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 7 78% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 7 78% 56%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 7 78% 56%;
-    --sidebar-ring: 7 78% 56%;
+    --sidebar-background: 216 28% 12%; /* Dark sidebar */
+    --sidebar-foreground: 213 31% 91%; /* Light text */
+    --sidebar-border: 215 27% 17%; /* Dark border */
   }
 }
 
@@ -87,6 +77,8 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-image: linear-gradient(to bottom, #F9FAFC, #EFF3F8);
+    min-height: 100vh;
   }
 
   /* Custom scrollbar styling */
@@ -106,11 +98,15 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/50;
   }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold text-foreground;
+  }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-white/80 dark:bg-black/50 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-lg;
+    @apply bg-white/90 backdrop-blur-md border border-white/20 shadow-soft rounded-2xl;
   }
   
   .text-balance {
@@ -118,7 +114,7 @@
   }
   
   .hover-card-effect {
-    @apply transition-all duration-300 hover:shadow-md hover:-translate-y-1;
+    @apply transition-all duration-300 hover:shadow-soft hover:-translate-y-1;
   }
   
   .status-badge {
@@ -126,27 +122,61 @@
   }
   
   .status-badge-todo {
-    @apply status-badge bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300;
+    @apply status-badge bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300;
   }
   
   .status-badge-done {
-    @apply status-badge bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300;
+    @apply status-badge bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300;
   }
   
   .status-badge-followup {
-    @apply status-badge bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300;
+    @apply status-badge bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300;
   }
-
+  
+  .pill-button {
+    @apply rounded-full px-4 py-2 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98];
+  }
+  
+  /* Platform tag badges */
+  .platform-badge {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium;
+  }
+  
+  .platform-badge-airbnb {
+    @apply platform-badge bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300;
+  }
+  
+  .platform-badge-whatsapp {
+    @apply platform-badge bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300;
+  }
+  
+  .platform-badge-booking {
+    @apply platform-badge bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300;
+  }
+  
+  .platform-badge-vrbo {
+    @apply platform-badge bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300;
+  }
+  
   /* New gradient components */
   .gradient-card {
-    @apply bg-gradient-to-br from-[rgba(223,234,247,1)] to-[rgba(244,248,252,1)];
+    @apply bg-gradient-to-br from-[#F9FAFC] to-[#EFF3F8];
   }
   
   .gradient-active {
-    @apply bg-gradient-to-r from-[hsla(186,33%,94%,1)] to-[hsla(216,41%,79%,1)];
+    @apply bg-gradient-to-r from-[rgba(255,92,56,0.1)] to-[rgba(255,92,56,0.05)];
   }
   
   .gradient-sidebar {
-    @apply bg-gradient-to-b from-[hsla(199,30%,95%,1)] to-[hsla(210,30%,90%,1)];
+    @apply bg-gradient-to-b from-white to-[#F9FAFC];
+  }
+  
+  /* Card styles */
+  .message-card {
+    @apply rounded-2xl shadow-soft bg-white border border-[#EFF3F8] p-4 transition-all duration-200 hover:shadow-md;
+  }
+  
+  .ai-card {
+    @apply rounded-2xl shadow-soft bg-white/80 backdrop-blur-sm border border-[#EFF3F8] p-4;
   }
 }
