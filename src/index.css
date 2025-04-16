@@ -1,87 +1,81 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 224 71.4% 4.1%;
+    --background: 7 78% 56%; /* #F54123 in HSL */
+    --foreground: 0 0% 100%; /* White */
 
-    --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card: 7 78% 56%; /* #F54123 */
+    --card-foreground: 0 0% 100%; /* White */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 7 78% 56%; /* #F54123 */
+    --primary-foreground: 0 0% 100%; /* White */
 
-    --primary: 199 89% 57%;
-    --primary-foreground: 210 20% 98%;
+    --secondary: 7 78% 66%; /* Slightly lighter variant of #F54123 */
+    --secondary-foreground: 0 0% 100%; /* White */
 
-    --secondary: 199 30% 95%;
-    --secondary-foreground: 220.9 39.3% 11%;
+    --muted: 7 78% 76%; /* Even lighter variant */
+    --muted-foreground: 0 0% 100%; /* White */
 
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 7 78% 56%; /* #F54123 */
+    --accent-foreground: 0 0% 100%; /* White */
 
-    --accent: 199 89% 90%;
-    --accent-foreground: 199 89% 30%;
+    --destructive: 7 78% 56%; /* Using primary color for destructive as well */
+    --destructive-foreground: 0 0% 100%; /* White */
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 199 89% 57%;
+    --border: 7 78% 56%; /* #F54123 */
+    --input: 7 78% 56%; /* #F54123 */
+    --ring: 7 78% 56%; /* #F54123 */
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 224 71.4% 4.1%;
-    --sidebar-primary: 199 89% 57%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 199 30% 95%;
-    --sidebar-accent-foreground: 199 89% 30%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 199 89% 57%;
+    --sidebar-background: 7 78% 56%; /* #F54123 */
+    --sidebar-foreground: 0 0% 100%; /* White */
+    --sidebar-primary: 7 78% 56%; /* #F54123 */
+    --sidebar-primary-foreground: 0 0% 100%; /* White */
+    --sidebar-accent: 7 78% 56%; /* #F54123 */
+    --sidebar-accent-foreground: 0 0% 100%; /* White */
+    --sidebar-border: 7 78% 56%; /* #F54123 */
+    --sidebar-ring: 7 78% 56%; /* #F54123 */
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
+    /* Dark mode similar to light mode for this design */
+    --background: 7 78% 56%;
+    --foreground: 0 0% 100%;
 
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
+    --card: 7 78% 56%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
+    --primary: 7 78% 56%;
+    --primary-foreground: 0 0% 100%;
 
-    --primary: 199 89% 57%;
-    --primary-foreground: 210 20% 98%;
+    --secondary: 7 78% 66%;
+    --secondary-foreground: 0 0% 100%;
 
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
+    --muted: 7 78% 76%;
+    --muted-foreground: 0 0% 100%;
 
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 7 78% 56%;
+    --accent-foreground: 0 0% 100%;
 
-    --accent: 199 30% 20%;
-    --accent-foreground: 210 20% 98%;
+    --destructive: 7 78% 56%;
+    --destructive-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --border: 7 78% 56%;
+    --input: 7 78% 56%;
+    --ring: 7 78% 56%;
 
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 199 89% 57%;
-
-    --sidebar-background: 224 71.4% 4.1%;
-    --sidebar-foreground: 210 20% 98%;
-    --sidebar-primary: 199 89% 57%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 199 30% 20%;
-    --sidebar-accent-foreground: 210 20% 98%;
-    --sidebar-border: 215 27.9% 16.9%;
-    --sidebar-ring: 199 89% 57%;
+    --sidebar-background: 7 78% 56%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 7 78% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 7 78% 56%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 7 78% 56%;
+    --sidebar-ring: 7 78% 56%;
   }
 }
 
