@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ThreadedConversationList } from "@/components/inbox/ThreadedConversationList";
@@ -9,7 +8,7 @@ import { ConversationThread, BulkAction, ConversationSource } from "@/types/inbo
 import { parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
-// Mock data with enhanced threading
+// Mock data with enhanced threading and widget message type
 const mockThreads: ConversationThread[] = [
   {
     id: "1",
@@ -98,6 +97,41 @@ const mockThreads: ConversationThread[] = [
     tags: ["wifi", "technical"],
     lastActivity: new Date(Date.now() - 3600000).toISOString(),
     responseTime: 900 // 15 minutes
+  },
+  {
+    id: "3",
+    guest: {
+      id: "guest3",
+      name: "Emma Davis",
+      email: "emma.davis@email.com",
+      totalStays: 0,
+      totalSpent: 0,
+      memberSince: "2024",
+      preferredLanguage: "English",
+      vipStatus: "none"
+    },
+    messages: [
+      {
+        id: "3",
+        threadId: "3",
+        text: "Hi! I'm interested in your property management services. Can you tell me more about your pricing and services?",
+        sender: "contact",
+        timestamp: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
+        platform: "email",
+        isRead: false,
+        aiInsights: [
+          { type: "sentiment", value: "positive", confidence: 0.92 },
+          { type: "urgency", value: "medium", confidence: 0.75 },
+          { type: "category", value: "property management inquiry", confidence: 0.95 },
+          { type: "suggestion", value: "Send property management brochure and schedule consultation call", confidence: 0.90 }
+        ]
+      }
+    ],
+    relatedBookings: [],
+    priority: "medium",
+    tags: ["property-management", "new-lead", "widget"],
+    lastActivity: new Date(Date.now() - 7200000).toISOString(),
+    responseTime: 3600 // 1 hour
   }
 ];
 

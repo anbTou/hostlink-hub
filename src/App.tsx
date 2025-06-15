@@ -16,6 +16,7 @@ import TasksWeek from "./pages/TasksWeek";
 import TasksLater from "./pages/TasksLater";
 import TasksAll from "./pages/TasksAll";
 import Notes from "./pages/Notes";
+import WidgetManager from "./pages/WidgetManager";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,9 @@ const App = () => (
           
           {/* Notes route */}
           <Route path="/notes" element={<Notes />} />
+          
+          {/* Widget management route */}
+          <Route path="/widgets" element={<WidgetManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
