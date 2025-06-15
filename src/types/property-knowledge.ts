@@ -16,6 +16,14 @@ export interface ContentSource {
   extractedFrom?: string[];
 }
 
+export interface Property {
+  id: string;
+  name: string;
+  type: "villa" | "apartment" | "house" | "cabin" | "hotel";
+  address?: string;
+  isDefault?: boolean;
+}
+
 export interface KnowledgeBlock {
   id: string;
   title: string;
@@ -29,6 +37,7 @@ export interface KnowledgeBlock {
   seasonal?: "summer" | "winter" | "spring" | "fall" | "all";
   priority: "high" | "medium" | "low";
   aiConfidence?: number;
+  propertyId?: string; // Link knowledge blocks to specific properties
 }
 
 export interface PropertyTemplate {

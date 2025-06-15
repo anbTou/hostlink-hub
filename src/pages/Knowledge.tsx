@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -7,8 +8,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { EnhancedDocumentUpload } from "@/components/knowledge/EnhancedDocumentUpload";
+import { PropertySelector } from "@/components/knowledge/PropertySelector";
 import { Search, Plus, Book, Edit, Trash, Save, X, Upload, Brain, AlertTriangle, CheckCircle } from "lucide-react";
-import { KnowledgeBlock, AIProcessingResult } from "@/types/property-knowledge";
+import { KnowledgeBlock, AIProcessingResult, Property } from "@/types/property-knowledge";
+
+const sampleProperties: Property[] = [
+  {
+    id: "1",
+    name: "Sunset Villa",
+    type: "villa",
+    address: "123 Ocean Drive, Malibu, CA",
+    isDefault: true,
+  },
+  {
+    id: "2",
+    name: "Downtown Apartment",
+    type: "apartment",
+    address: "456 Main Street, New York, NY",
+  },
+];
 
 const sampleKnowledgeBlocks: KnowledgeBlock[] = [
   {
@@ -23,6 +41,7 @@ const sampleKnowledgeBlocks: KnowledgeBlock[] = [
     priority: "high",
     tags: ["arrival", "lockbox", "timing"],
     aiConfidence: 0.95,
+    propertyId: "1",
   },
   {
     id: "2",
@@ -35,6 +54,7 @@ const sampleKnowledgeBlocks: KnowledgeBlock[] = [
     seasonal: "all",
     priority: "medium",
     tags: ["wifi", "internet", "password"],
+    propertyId: "1",
   },
   {
     id: "3",
@@ -44,6 +64,7 @@ const sampleKnowledgeBlocks: KnowledgeBlock[] = [
     lastUpdated: "2 weeks ago",
     status: "approved",
     priority: "medium",
+    propertyId: "2",
   },
   {
     id: "4",
@@ -57,6 +78,8 @@ const sampleKnowledgeBlocks: KnowledgeBlock[] = [
 ];
 
 const KnowledgePage = () => {
+  const [properties, setProperties] = useState<Property[]>(sampleProperties);
+  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [knowledgeBlocks, setKnowledgeBlocks] = useState<KnowledgeBlock[]>(sampleKnowledgeBlocks);
   const [searchQuery, setSearchQuery] = useState("");
   const [editingBlock, setEditingBlock] = useState<KnowledgeBlock | null>(null);
@@ -70,13 +93,26 @@ const KnowledgePage = () => {
     guestPersona: "all",
     seasonal: "all",
     priority: "medium",
+    propertyId: selectedProperty?.id,
   });
   
-  const filteredBlocks = knowledgeBlocks.filter(block => 
-    block.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    block.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    block.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Filter blocks by selected property and search query
+  const filteredBlocks = knowledgeBlocks.filter(block => {
+    const matchesProperty = selectedProperty === null || block.propertyId === selectedProperty.id || !block.propertyId;
+    const matchesSearch = block.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      block.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      block.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    return matchesProperty && matchesSearch;
+  });
+  
+  const handleCreateProperty = (propertyData: Omit<Property, "id">) => {
+    const newProperty: Property = {
+      ...propertyData,
+      id: Date.now().toString(),
+    };
+    setProperties([...properties, newProperty]);
+  };
   
   const handleSaveEdit = () => {
     if (editingBlock) {
@@ -95,6 +131,7 @@ const KnowledgePage = () => {
         ...newBlock,
         id: Date.now().toString(),
         lastUpdated: "Just now",
+        propertyId: selectedProperty?.id,
       };
       
       setKnowledgeBlocks([createdBlock, ...knowledgeBlocks]);
@@ -106,6 +143,7 @@ const KnowledgePage = () => {
         guestPersona: "all",
         seasonal: "all",
         priority: "medium",
+        propertyId: selectedProperty?.id,
       });
       setIsCreating(false);
     }
@@ -120,6 +158,7 @@ const KnowledgePage = () => {
       ...block,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       lastUpdated: "Just now",
+      propertyId: selectedProperty?.id,
     }));
     
     setKnowledgeBlocks([...newBlocks, ...knowledgeBlocks]);
@@ -155,6 +194,12 @@ const KnowledgePage = () => {
       default: return 'bg-green-100 text-green-800 border-green-200';
     }
   };
+
+  const getPropertyName = (propertyId?: string) => {
+    if (!propertyId) return "All Properties";
+    const property = properties.find(p => p.id === propertyId);
+    return property?.name || "Unknown Property";
+  };
   
   return (
     <MainLayout>
@@ -165,6 +210,13 @@ const KnowledgePage = () => {
             AI-powered content management for comprehensive guest information.
           </p>
         </div>
+        
+        <PropertySelector
+          properties={properties}
+          selectedProperty={selectedProperty}
+          onSelectProperty={setSelectedProperty}
+          onCreateProperty={handleCreateProperty}
+        />
         
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div className="relative w-full sm:w-auto">
@@ -189,12 +241,21 @@ const KnowledgePage = () => {
           </div>
         </div>
         
+        {selectedProperty && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <p className="text-sm text-blue-800">
+              Viewing knowledge for: <strong>{selectedProperty.name}</strong> ({selectedProperty.type})
+              {selectedProperty.address && ` - ${selectedProperty.address}`}
+            </p>
+          </div>
+        )}
+        
         {showDocumentUpload && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <EnhancedDocumentUpload 
               onDocumentProcessed={handleDocumentProcessed}
               onClose={() => setShowDocumentUpload(false)}
-              propertyType="villa"
+              propertyType={selectedProperty?.type || "villa"}
             />
           </div>
         )}
@@ -208,6 +269,11 @@ const KnowledgePage = () => {
                   <X className="h-4 w-4" />
                 </Button>
               </CardTitle>
+              {selectedProperty && (
+                <p className="text-sm text-muted-foreground">
+                  Adding to: {selectedProperty.name}
+                </p>
+              )}
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -345,6 +411,14 @@ const KnowledgePage = () => {
                             </Badge>
                           )}
                         </div>
+
+                        {block.propertyId && (
+                          <div className="mt-2">
+                            <Badge variant="secondary" className="text-xs">
+                              {getPropertyName(block.propertyId)}
+                            </Badge>
+                          </div>
+                        )}
                         
                         {block.tags && block.tags.length > 0 && (
                           <div className="flex gap-1 mt-2 flex-wrap">
@@ -404,7 +478,12 @@ const KnowledgePage = () => {
               <div className="text-center">
                 <Brain className="h-12 w-12 mx-auto mb-3 opacity-20" />
                 <h3 className="text-lg font-medium mb-1">No knowledge blocks found</h3>
-                <p>Try adjusting your search or upload documents for AI processing</p>
+                <p>
+                  {selectedProperty 
+                    ? `No knowledge blocks found for ${selectedProperty.name}. Try adding some content or selecting a different property.`
+                    : "Try adjusting your search or upload documents for AI processing"
+                  }
+                </p>
               </div>
             </div>
           )}
