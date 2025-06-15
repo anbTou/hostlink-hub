@@ -7,6 +7,7 @@ import { EmailActions } from './EmailActions';
 import { PlainTextToggle } from './PlainTextToggle';
 import { ThreadedView } from './ThreadedView';
 import { CollisionBanner } from './CollisionBanner';
+import { adaptMessagesToThreadFormat } from './MessageAdapter';
 import { useCollisionPrevention } from '@/hooks/useCollisionPrevention';
 
 interface ConversationViewProps {
@@ -54,6 +55,9 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
     autoAssignOnReply(conversation.id, `takeover-${Date.now()}`);
   };
 
+  // Adapt messages to the format expected by ThreadedView
+  const adaptedMessages = adaptMessagesToThreadFormat(conversation.messages, conversation.subject);
+
   return (
     <div className="h-full flex flex-col">
       <div className="flex items-center justify-between p-4 border-b">
@@ -89,7 +93,7 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
 
       <div className="flex-1 overflow-auto">
         <ThreadedView 
-          messages={conversation.messages} 
+          messages={adaptedMessages} 
           isPlainText={isPlainText}
         />
       </div>

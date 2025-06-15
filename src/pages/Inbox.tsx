@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList } from "@/components/inbox/ConversationList";
@@ -13,7 +14,6 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { CollisionPreventionContext } from "@/types/assignment";
 import { useCollisionPrevention } from "@/hooks/useCollisionPrevention";
 
 // Sample conversation data
@@ -120,6 +120,17 @@ const InboxPage = () => {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [activeView, setActiveView] = useState<"inbox" | "threaded">("inbox");
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "important">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filters, setFilters] = useState({
+    status: "all",
+    platforms: [],
+    dateRange: { start: undefined, end: undefined },
+    priority: [],
+    assignedTo: undefined,
+    tags: [],
+    hasAttachments: undefined,
+    isUnread: undefined
+  });
   
   const collisionPrevention = useCollisionPrevention();
 
@@ -154,13 +165,68 @@ const InboxPage = () => {
     }
   });
 
-  const collisionContext: CollisionPreventionContext = {
-    assignments: collisionPrevention.assignments,
-    currentUser: collisionPrevention.currentUser,
-    onAssignMessage: collisionPrevention.assignMessage,
-    onReleaseMessage: collisionPrevention.releaseMessage,
-    getAssignmentStatus: collisionPrevention.getAssignmentStatus
+  // Convert conversations to expected format for ConversationList
+  const adaptedConversations = filteredConversations.map(conv => ({
+    id: conv.id,
+    contact: {
+      id: conv.id,
+      name: conv.from.split('<')[0].trim(),
+      email: conv.from,
+      isOnline: false,
+      lastSeen: conv.date
+    },
+    lastMessage: {
+      id: conv.messages[conv.messages.length - 1]?.id || '',
+      text: conv.preview,
+      timestamp: conv.date,
+      sender: 'contact' as const,
+      isRead: conv.isRead,
+      platform: 'email' as const
+    },
+    source: 'email' as const,
+    status: conv.isRead ? 'done' as const : 'todo' as const,
+    priority: conv.labels.includes('urgent') ? 'urgent' as const : 'medium' as const,
+    unreadCount: conv.isRead ? 0 : 1,
+    tags: conv.labels,
+    isAssigned: false,
+    assignedTo: undefined
+  }));
+
+  // Sample performance data
+  const performanceData = {
+    responseTime: 2.5,
+    resolutionRate: 95,
+    customerSatisfaction: 4.8,
+    activeConversations: filteredConversations.length
   };
+
+  // Sample thread data for AI insights
+  const sampleThread = selectedConversation ? {
+    id: selectedConversation.id,
+    guest: {
+      id: "guest-1",
+      name: selectedConversation.from.split('<')[0].trim(),
+      email: selectedConversation.from,
+      totalStays: 3,
+      totalSpent: 2500,
+      memberSince: "2023-01-15",
+      preferredLanguage: "en",
+      vipStatus: "none" as const
+    },
+    messages: selectedConversation.messages.map((msg: any) => ({
+      id: msg.id,
+      threadId: selectedConversation.id,
+      text: msg.content,
+      sender: "contact" as const,
+      timestamp: msg.date,
+      platform: "email" as const,
+      isRead: msg.isRead
+    })),
+    relatedBookings: [],
+    priority: "medium" as const,
+    tags: selectedConversation.labels,
+    lastActivity: selectedConversation.date
+  } : null;
 
   return (
     <MainLayout>
@@ -171,19 +237,20 @@ const InboxPage = () => {
               <div className="p-4 border-b border-border flex items-center justify-between">
                 <h1 className="text-xl font-bold">Inbox</h1>
                 <div className="flex items-center gap-2">
-                  <SmartFilters />
-                  <PerformanceDashboard />
+                  <SmartFilters 
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                  />
+                  <PerformanceDashboard data={performanceData} />
                 </div>
               </div>
               
               {selectedItems.length > 0 && (
                 <BulkActionBar 
                   selectedCount={selectedItems.length}
-                  onMarkAsRead={() => {}}
-                  onMarkAsUnread={() => {}}
-                  onArchive={() => {}}
-                  onDelete={() => {}}
-                  onAddLabel={() => {}}
+                  onBulkAction={(action) => console.log('Bulk action:', action)}
                 />
               )}
               
@@ -203,7 +270,7 @@ const InboxPage = () => {
                     
                     <TabsContent value="inbox" className="m-0">
                       <ConversationList 
-                        conversations={filteredConversations}
+                        conversations={adaptedConversations}
                         selectedConversation={selectedConversation}
                         onSelectConversation={handleSelectConversation}
                         selectedItems={selectedItems}
@@ -213,8 +280,8 @@ const InboxPage = () => {
                     
                     <TabsContent value="threaded" className="m-0">
                       <ThreadedConversationList 
-                        conversations={filteredConversations}
-                        onSelectConversation={handleSelectConversation}
+                        threads={adaptedConversations}
+                        onSelectThread={handleSelectConversation}
                       />
                     </TabsContent>
                   </Tabs>
@@ -233,7 +300,12 @@ const InboxPage = () => {
             </div>
           )}
           
-          <AIInsightsPanel />
+          {sampleThread && (
+            <AIInsightsPanel 
+              thread={sampleThread}
+              onApplySuggestion={(suggestion) => console.log('Applying suggestion:', suggestion)}
+            />
+          )}
         </div>
       </div>
     </MainLayout>

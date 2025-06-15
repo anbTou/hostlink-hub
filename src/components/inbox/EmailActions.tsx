@@ -7,33 +7,55 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from '@/hooks/use-toast';
 
 interface EmailActionsProps {
-  messageId: string;
-  threadId: string;
-  emailDetails?: {
+  conversation: {
+    id: string;
     subject: string;
     from: string;
-    to: string[];
+    messages: Array<{
+      id: string;
+      from: string;
+      to: string;
+      date: string;
+      content: string;
+      isRead: boolean;
+    }>;
   };
+  onReply: () => void;
+  onForward: () => void;
+  onArchive: () => void;
+  onDelete: () => void;
+  onMarkAsSpam: () => void;
+  onOpenInNewTab: () => void;
 }
 
-export function EmailActions({ messageId, threadId, emailDetails }: EmailActionsProps) {
+export function EmailActions({ 
+  conversation, 
+  onReply, 
+  onForward, 
+  onArchive, 
+  onDelete, 
+  onMarkAsSpam, 
+  onOpenInNewTab 
+}: EmailActionsProps) {
   const [isSpamDialogOpen, setIsSpamDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const handleOpenInNewTab = () => {
     // Create a URL for the email view
-    const emailUrl = `/inbox/email/${threadId}/${messageId}`;
+    const emailUrl = `/inbox/email/${conversation.id}`;
     window.open(emailUrl, '_blank');
     
     toast({
       title: "Email opened in new tab",
       description: "You can now respond directly from the new tab."
     });
+    
+    onOpenInNewTab();
   };
 
   const handleMarkAsSpam = () => {
     // Implement spam marking logic
-    console.log('Marking message as spam:', messageId);
+    console.log('Marking conversation as spam:', conversation.id);
     
     toast({
       title: "Marked as spam",
@@ -42,31 +64,32 @@ export function EmailActions({ messageId, threadId, emailDetails }: EmailActions
     });
     
     setIsSpamDialogOpen(false);
+    onMarkAsSpam();
   };
 
   const handleDirectReply = () => {
-    if (emailDetails) {
-      // Create mailto link for direct email response
-      const subject = encodeURIComponent(`Re: ${emailDetails.subject}`);
-      const to = encodeURIComponent(emailDetails.from);
-      const mailtoLink = `mailto:${to}?subject=${subject}`;
-      
-      window.location.href = mailtoLink;
-      
-      toast({
-        title: "Opening email client",
-        description: "Your default email client will open for direct response."
-      });
-    }
+    // Create mailto link for direct email response
+    const subject = encodeURIComponent(`Re: ${conversation.subject}`);
+    const to = encodeURIComponent(conversation.from);
+    const mailtoLink = `mailto:${to}?subject=${subject}`;
+    
+    window.location.href = mailtoLink;
+    
+    toast({
+      title: "Opening email client",
+      description: "Your default email client will open for direct response."
+    });
   };
 
   const handleArchive = () => {
-    console.log('Archiving thread:', threadId);
+    console.log('Archiving thread:', conversation.id);
     
     toast({
       title: "Conversation archived",
       description: "This conversation has been moved to archives."
     });
+    
+    onArchive();
   };
 
   return (
@@ -106,7 +129,7 @@ export function EmailActions({ messageId, threadId, emailDetails }: EmailActions
             <AlertTriangle className="h-4 w-4 mr-2" />
             Mark as Spam
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={onForward}>
             <Forward className="h-4 w-4 mr-2" />
             Forward
           </DropdownMenuItem>
