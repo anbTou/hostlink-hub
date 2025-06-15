@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search, User, Mail, Calendar, MessageSquare, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,10 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { ConversationStatus, ConversationSource } from "@/types/inbox";
 
 // Types
-export type ConversationStatus = "todo" | "followup" | "done";
-export type ConversationSource = "email" | "booking" | "airbnb" | "whatsapp" | "vrbo";
 export interface Conversation {
   id: string;
   contact: {
@@ -31,6 +29,7 @@ export interface Conversation {
   source: ConversationSource;
   status: ConversationStatus;
 }
+
 interface ConversationListProps {
   conversations: Conversation[];
   selectedConversationId?: string;
@@ -125,7 +124,8 @@ export function ConversationList({
     booking: conversations.filter(c => c.source === "booking").length,
     airbnb: conversations.filter(c => c.source === "airbnb").length,
     whatsapp: conversations.filter(c => c.source === "whatsapp").length,
-    vrbo: conversations.filter(c => c.source === "vrbo").length
+    vrbo: conversations.filter(c => c.source === "vrbo").length,
+    expedia: conversations.filter(c => c.source === "expedia").length
   };
 
   // Group conversations by day
@@ -216,6 +216,13 @@ export function ConversationList({
             <MessageSquare className="h-3.5 w-3.5" />
             <span>WhatsApp</span>
             {sourceCounts.whatsapp > 0 && <Badge variant="secondary" className="ml-1">{sourceCounts.whatsapp}</Badge>}
+          </Button>
+          <Button variant={sourceFilters.includes("expedia") ? "default" : "outline"} size="sm" onClick={() => toggleSourceFilter("expedia")} className="flex gap-2 items-center">
+            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L1 12h3v9h7v-6h2v6h7v-9h3L12 2z" />
+            </svg>
+            <span>Expedia</span>
+            {sourceCounts.expedia > 0 && <Badge variant="secondary" className="ml-1">{sourceCounts.expedia}</Badge>}
           </Button>
         </div>
       </div>
@@ -364,6 +371,13 @@ function SourceBadge({
     vrbo: {
       label: "VRBO",
       color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      icon: <svg className="h-3 w-3 mr-1 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L1 12h3v9h7v-6h2v6h7v-9h3L12 2z" />
+      </svg>
+    },
+    expedia: {
+      label: "Expedia",
+      color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
       icon: <svg className="h-3 w-3 mr-1 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 2L1 12h3v9h7v-6h2v6h7v-9h3L12 2z" />
       </svg>
