@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList } from "@/components/inbox/ConversationList";
@@ -193,7 +192,35 @@ const InboxPage = () => {
     assignedTo: undefined
   }));
 
-  // Sample performance data with correct structure
+  // Build array of ConversationThread objects for threaded view
+  const adaptedThreads = filteredConversations.map(conv => ({
+    id: conv.id,
+    guest: {
+      id: conv.id,
+      name: conv.from.split('<')[0].trim(),
+      email: conv.from,
+      totalStays: 1,
+      totalSpent: 0,
+      memberSince: "2024-01-01",
+      preferredLanguage: "en",
+      vipStatus: "none"
+    },
+    messages: conv.messages.map(msg => ({
+      id: msg.id,
+      threadId: conv.id,
+      text: msg.content,
+      sender: "contact",
+      timestamp: msg.date,
+      platform: "email",
+      isRead: msg.isRead
+    })),
+    relatedBookings: [],
+    priority: conv.labels.includes('urgent') ? 'urgent' : 'medium',
+    tags: conv.labels,
+    lastActivity: conv.date
+  }));
+
+  // Sample performance data with correct structure (fix platformDistribution)
   const performanceData = {
     responseTimeData: [
       { date: "2024-01-15", avgTime: 2.5, target: 3.0 }
@@ -205,10 +232,10 @@ const InboxPage = () => {
       { date: "2024-01-15", messages: 45, resolved: 40 }
     ],
     platformDistribution: [
-      { platform: "email", count: 120, percentage: 80 }
+      { name: "Email", value: 120, color: "#8884d8" }, // Fix example
     ],
     teamStats: [
-      { name: "John Doe", resolved: 25, avgTime: 2.1, satisfaction: 4.9 }
+      { name: "John Doe", responseTime: 2.1, satisfaction: 4.9, volume: 25 }
     ]
   };
 
@@ -284,7 +311,7 @@ const InboxPage = () => {
                     <TabsContent value="inbox" className="m-0">
                       <ConversationList 
                         conversations={adaptedConversations}
-                        selectedConversation={selectedConversation}
+                        selectedConversationId={selectedConversation?.id} // FIXED
                         onSelectConversation={handleSelectConversation}
                         selectedItems={selectedItems}
                         onSelectItem={handleSelectItem}
@@ -293,7 +320,7 @@ const InboxPage = () => {
                     
                     <TabsContent value="threaded" className="m-0">
                       <ThreadedConversationList 
-                        threads={adaptedConversations}
+                        threads={adaptedThreads} // FIXED
                         onSelectThread={handleSelectConversation}
                       />
                     </TabsContent>
