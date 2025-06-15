@@ -1,276 +1,243 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { ThreadedConversationList } from "@/components/inbox/ThreadedConversationList";
+import { ConversationList } from "@/components/inbox/ConversationList";
 import { ConversationView } from "@/components/inbox/ConversationView";
+import { ThreadedConversationList } from "@/components/inbox/ThreadedConversationList";
+import { SmartFilters } from "@/components/inbox/SmartFilters";
+import { BulkActionBar } from "@/components/inbox/BulkActionBar";
+import { PerformanceDashboard } from "@/components/inbox/PerformanceDashboard";
 import { AIInsightsPanel } from "@/components/inbox/AIInsightsPanel";
-import { ContactList } from "@/components/inbox/ContactList";
-import { ConversationThread, BulkAction, ConversationSource } from "@/types/inbox";
-import { parseISO } from "date-fns";
-import { useToast } from "@/hooks/use-toast";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { CollisionPreventionContext } from "@/types/assignment";
 import { useCollisionPrevention } from "@/hooks/useCollisionPrevention";
 
-// Mock data with enhanced threading and widget message type
-const mockThreads: ConversationThread[] = [
+// Sample conversation data
+const sampleConversations = [
   {
     id: "1",
-    guest: {
-      id: "guest1",
-      name: "Sarah Johnson",
-      email: "sarah.johnson@email.com",
-      phone: "+1234567890",
-      totalStays: 3,
-      totalSpent: 2400,
-      memberSince: "2022",
-      preferredLanguage: "English",
-      vipStatus: "gold"
-    },
+    subject: "Booking Inquiry - Beachfront Villa",
+    from: "Sarah Miller <sarah.miller@example.com>",
+    date: "2024-01-15T10:30:00Z",
+    preview: "Hi, I'm interested in booking your beachfront villa for my anniversary trip in September. Could you please provide availability and pricing?",
+    isRead: false,
+    labels: ["urgent", "booking"],
     messages: [
       {
-        id: "1",
-        threadId: "1",
-        text: "Hi! I have a question about the breakfast service. What time is it served and where?",
-        sender: "contact",
-        timestamp: new Date().toISOString(),
-        platform: "email",
-        isRead: false,
-        emailDetails: {
-          from: "sarah.johnson@email.com",
-          to: ["host@property.com"],
-          subject: "Question about breakfast service"
-        },
-        aiInsights: [
-          { type: "sentiment", value: "neutral", confidence: 0.85 },
-          { type: "urgency", value: "low", confidence: 0.9 },
-          { type: "language", value: "English", confidence: 0.95 },
-          { type: "suggestion", value: "Provide breakfast times and location details", confidence: 0.88 }
-        ]
+        id: "msg-1",
+        from: "Sarah Miller <sarah.miller@example.com>",
+        to: "bookings@property.com",
+        date: "2024-01-15T10:30:00Z",
+        content: "Hi, I'm interested in booking your beachfront villa for my anniversary trip in September. Could you please provide availability and pricing for September 15-22?",
+        isRead: false
       }
-    ],
-    relatedBookings: [
-      {
-        id: "booking1",
-        propertyId: "prop1",
-        guestId: "guest1",
-        checkIn: "2024-01-15",
-        checkOut: "2024-01-20",
-        status: "upcoming",
-        platform: "airbnb",
-        totalAmount: 800,
-        currency: "USD"
-      }
-    ],
-    priority: "medium",
-    tags: ["breakfast", "amenities"],
-    lastActivity: new Date().toISOString(),
-    responseTime: 1800, // 30 minutes
-    satisfactionScore: 0.85
+    ]
   },
   {
     id: "2",
-    guest: {
-      id: "guest2",
-      name: "Michael Chen",
-      email: "m.chen@email.com",
-      totalStays: 1,
-      totalSpent: 450,
-      memberSince: "2024",
-      preferredLanguage: "English",
-      vipStatus: "none"
-    },
+    subject: "Question about Mountain Cabin",
+    from: "John Davis <john.davis@example.com>",
+    date: "2024-01-14T14:00:00Z",
+    preview: "I have a question about the amenities at the mountain cabin. Does it have a fireplace and is firewood provided?",
+    isRead: true,
+    labels: ["question"],
     messages: [
       {
-        id: "2",
-        threadId: "2",
-        text: "The WiFi password isn't working. Can you help?",
-        sender: "contact",
-        timestamp: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-        platform: "whatsapp",
-        isRead: false,
-        aiInsights: [
-          { type: "sentiment", value: "neutral", confidence: 0.75 },
-          { type: "urgency", value: "high", confidence: 0.92 },
-          { type: "suggestion", value: "Provide current WiFi credentials immediately", confidence: 0.95 }
-        ]
+        id: "msg-2",
+        from: "John Davis <john.davis@example.com>",
+        to: "info@property.com",
+        date: "2024-01-14T14:00:00Z",
+        content: "I have a question about the amenities at the mountain cabin. Does it have a fireplace and is firewood provided?",
+        isRead: true
       }
-    ],
-    relatedBookings: [],
-    priority: "high",
-    tags: ["wifi", "technical"],
-    lastActivity: new Date(Date.now() - 3600000).toISOString(),
-    responseTime: 900 // 15 minutes
+    ]
   },
   {
     id: "3",
-    guest: {
-      id: "guest3",
-      name: "Emma Davis",
-      email: "emma.davis@email.com",
-      totalStays: 0,
-      totalSpent: 0,
-      memberSince: "2024",
-      preferredLanguage: "English",
-      vipStatus: "none"
-    },
+    subject: "Feedback on Lakeside Cottage",
+    from: "Maria Rodriguez <maria.r@example.com>",
+    date: "2024-01-13T18:45:00Z",
+    preview: "We had a wonderful stay at the lakeside cottage! The view was amazing, and we enjoyed the peaceful atmosphere. We'll definitely be back!",
+    isRead: true,
+    labels: ["feedback", "positive"],
     messages: [
       {
-        id: "3",
-        threadId: "3",
-        text: "Hi! I'm interested in your property management services. Can you tell me more about your pricing and services?",
-        sender: "contact",
-        timestamp: new Date(Date.now() - 7200000).toISOString(), // 2 hours ago
-        platform: "email",
-        isRead: false,
-        aiInsights: [
-          { type: "sentiment", value: "positive", confidence: 0.92 },
-          { type: "urgency", value: "medium", confidence: 0.75 },
-          { type: "category", value: "property management inquiry", confidence: 0.95 },
-          { type: "suggestion", value: "Send property management brochure and schedule consultation call", confidence: 0.90 }
-        ]
+        id: "msg-3",
+        from: "Maria Rodriguez <maria.r@example.com>",
+        to: "feedback@property.com",
+        date: "2024-01-13T18:45:00Z",
+        content: "We had a wonderful stay at the lakeside cottage! The view was amazing, and we enjoyed the peaceful atmosphere. We'll definitely be back!",
+        isRead: true
       }
-    ],
-    relatedBookings: [],
-    priority: "medium",
-    tags: ["property-management", "new-lead", "widget"],
-    lastActivity: new Date(Date.now() - 7200000).toISOString(),
-    responseTime: 3600 // 1 hour
+    ]
+  },
+  {
+    id: "4",
+    subject: "Inquiry about City Apartment",
+    from: "Thomas Brown <t.brown@example.com>",
+    date: "2024-01-12T09:15:00Z",
+    preview: "I'm interested in renting the city apartment for a week in February. Could you tell me more about the parking situation?",
+    isRead: false,
+    labels: ["inquiry", "parking"],
+    messages: [
+      {
+        id: "msg-4",
+        from: "Thomas Brown <t.brown@example.com>",
+        to: "rentals@property.com",
+        date: "2024-01-12T09:15:00Z",
+        content: "I'm interested in renting the city apartment for a week in February. Could you tell me more about the parking situation?",
+        isRead: false
+      }
+    ]
+  },
+  {
+    id: "5",
+    subject: "Request for Restaurant Recommendations",
+    from: "Emma Wilson <emma.wilson@example.com>",
+    date: "2024-01-11T16:20:00Z",
+    preview: "We're staying at the luxury suite next month and would love some recommendations for local restaurants. We're particularly interested in Italian cuisine.",
+    isRead: true,
+    labels: ["recommendation", "restaurant"],
+    messages: [
+      {
+        id: "msg-5",
+        from: "Emma Wilson <emma.wilson@example.com>",
+        to: "concierge@property.com",
+        date: "2024-01-11T16:20:00Z",
+        content: "We're staying at the luxury suite next month and would love some recommendations for local restaurants. We're particularly interested in Italian cuisine.",
+        isRead: true
+      }
+    ]
   }
 ];
 
-export default function Inbox() {
-  const [selectedThreadId, setSelectedThreadId] = useState<string>();
-  const [threads, setThreads] = useState<ConversationThread[]>(mockThreads);
-  const [showAIInsights, setShowAIInsights] = useState(true);
-  const { toast } = useToast();
+const InboxPage = () => {
+  const [selectedConversation, setSelectedConversation] = useState<any>(null);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [activeView, setActiveView] = useState<"inbox" | "threaded">("inbox");
+  const [activeTab, setActiveTab] = useState<"all" | "unread" | "important">("all");
   
-  // Initialize collision prevention system
   const collisionPrevention = useCollisionPrevention();
 
-  const selectedThread = threads.find(t => t.id === selectedThreadId);
-
-  const handleBulkAction = (action: BulkAction, threadIds: string[]) => {
-    console.log("Bulk action:", action, "on threads:", threadIds);
-    
-    // Auto-assign threads when performing bulk actions
-    threadIds.forEach(threadId => {
-      collisionPrevention.autoAssignOnReply(threadId, Date.now().toString());
-    });
-    
-    // Simulate bulk actions
-    switch (action.type) {
-      case 'archive':
-        toast({
-          title: "Conversations archived",
-          description: `${threadIds.length} conversation(s) have been archived.`
-        });
-        break;
-      case 'mark_read':
-        setThreads(prev => prev.map(thread => 
-          threadIds.includes(thread.id) 
-            ? { ...thread, messages: thread.messages.map(m => ({ ...m, isRead: true })) }
-            : thread
-        ));
-        toast({
-          title: "Marked as read",
-          description: `${threadIds.length} conversation(s) marked as read.`
-        });
-        break;
-      case 'priority':
-        setThreads(prev => prev.map(thread => 
-          threadIds.includes(thread.id) 
-            ? { ...thread, priority: action.value as any }
-            : thread
-        ));
-        toast({
-          title: "Priority updated",
-          description: `Priority set to ${action.value} for ${threadIds.length} conversation(s).`
-        });
-        break;
-      case 'assign':
-        toast({
-          title: "Conversations assigned",
-          description: `${threadIds.length} conversation(s) assigned to ${action.value}.`
-        });
-        break;
-      case 'delete':
-        setThreads(prev => prev.filter(thread => !threadIds.includes(thread.id)));
-        toast({
-          title: "Conversations deleted",
-          description: `${threadIds.length} conversation(s) have been deleted.`,
-          variant: "destructive"
-        });
-        break;
-    }
+  const handleSelectConversation = (conversation: any) => {
+    setSelectedConversation(conversation);
   };
 
-  const handleStatusChange = (threadId: string, status: string) => {
-    // Auto-assign thread when changing status
-    const assigned = collisionPrevention.autoAssignOnReply(threadId, Date.now().toString());
-    if (assigned) {
-      console.log("Status change:", threadId, status);
-    }
+  const handleBack = () => {
+    setSelectedConversation(null);
   };
 
-  const handleApplySuggestion = (suggestion: string) => {
-    // Apply AI suggestion to message composition
-    console.log("Applying suggestion:", suggestion);
-    toast({
-      title: "Suggestion applied",
-      description: "AI suggestion has been added to your message."
-    });
+  const handleReply = (content: string) => {
+    console.log("Reply content:", content);
+  };
+
+  const handleSelectItem = (id: string, selected: boolean) => {
+    setSelectedItems(prev => 
+      selected 
+        ? [...prev, id]
+        : prev.filter(item => item !== id)
+    );
+  };
+
+  const filteredConversations = sampleConversations.filter(conv => {
+    switch (activeTab) {
+      case "unread":
+        return !conv.isRead;
+      case "important":
+        return conv.labels.includes("urgent");
+      default:
+        return true;
+    }
+  });
+
+  const collisionContext: CollisionPreventionContext = {
+    assignments: collisionPrevention.assignments,
+    currentUser: collisionPrevention.currentUser,
+    onAssignMessage: collisionPrevention.assignMessage,
+    onReleaseMessage: collisionPrevention.releaseMessage,
+    getAssignmentStatus: collisionPrevention.getAssignmentStatus
   };
 
   return (
     <MainLayout>
-      <div className="flex h-screen">
-        <div className="w-[400px]">
-          <ThreadedConversationList
-            threads={threads}
-            selectedThreadId={selectedThreadId}
-            onSelectThread={setSelectedThreadId}
-            onBulkAction={handleBulkAction}
-          />
+      <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
+        <div className="flex h-full">
+          {!selectedConversation && (
+            <div className="w-full">
+              <div className="p-4 border-b border-border flex items-center justify-between">
+                <h1 className="text-xl font-bold">Inbox</h1>
+                <div className="flex items-center gap-2">
+                  <SmartFilters />
+                  <PerformanceDashboard />
+                </div>
+              </div>
+              
+              {selectedItems.length > 0 && (
+                <BulkActionBar 
+                  selectedCount={selectedItems.length}
+                  onMarkAsRead={() => {}}
+                  onMarkAsUnread={() => {}}
+                  onArchive={() => {}}
+                  onDelete={() => {}}
+                  onAddLabel={() => {}}
+                />
+              )}
+              
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+                <TabsList className="w-full rounded-none border-b">
+                  <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
+                  <TabsTrigger value="unread" className="flex-1">Unread</TabsTrigger>
+                  <TabsTrigger value="important" className="flex-1">Important</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value={activeTab} className="m-0">
+                  <Tabs value={activeView} onValueChange={(v) => setActiveView(v as any)}>
+                    <TabsList className="w-full rounded-none border-b">
+                      <TabsTrigger value="inbox" className="flex-1">List View</TabsTrigger>
+                      <TabsTrigger value="threaded" className="flex-1">Threaded View</TabsTrigger>
+                    </TabsList>
+                    
+                    <TabsContent value="inbox" className="m-0">
+                      <ConversationList 
+                        conversations={filteredConversations}
+                        selectedConversation={selectedConversation}
+                        onSelectConversation={handleSelectConversation}
+                        selectedItems={selectedItems}
+                        onSelectItem={handleSelectItem}
+                      />
+                    </TabsContent>
+                    
+                    <TabsContent value="threaded" className="m-0">
+                      <ThreadedConversationList 
+                        conversations={filteredConversations}
+                        onSelectConversation={handleSelectConversation}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
+          
+          {selectedConversation && (
+            <div className="w-full relative">
+              <ConversationView 
+                conversation={selectedConversation}
+                onBack={handleBack}
+                onReply={handleReply}
+              />
+            </div>
+          )}
+          
+          <AIInsightsPanel />
         </div>
-        
-        {selectedThread ? (
-          <div className="flex-1 flex">
-            <div className="flex-1">
-              <ConversationView
-                conversation={{
-                  id: selectedThread.id,
-                  contact: {
-                    name: selectedThread.guest.name,
-                    avatarUrl: selectedThread.guest.avatarUrl
-                  },
-                  lastMessage: {
-                    text: selectedThread.messages[selectedThread.messages.length - 1]?.text || "",
-                    time: "now",
-                    timestamp: selectedThread.lastActivity,
-                    isUnread: selectedThread.messages.some(m => !m.isRead),
-                    sender: selectedThread.messages[selectedThread.messages.length - 1]?.sender || "contact"
-                  },
-                  source: selectedThread.messages[0]?.platform || "email",
-                  status: selectedThread.messages.some(m => !m.isRead) ? "todo" : "done"
-                }}
-                onStatusChange={handleStatusChange}
-              />
-            </div>
-            
-            {showAIInsights && (
-              <AIInsightsPanel
-                thread={selectedThread}
-                onApplySuggestion={handleApplySuggestion}
-              />
-            )}
-          </div>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-muted-foreground">
-            <div className="text-center">
-              <h3 className="text-lg font-medium mb-2">Select a conversation</h3>
-              <p>Choose a conversation from the list to view details</p>
-            </div>
-          </div>
-        )}
       </div>
     </MainLayout>
   );
-}
+};
+
+export default InboxPage;
