@@ -41,7 +41,6 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
 
   const handleReply = () => {
     if (replyContent.trim()) {
-      // Auto-assign the conversation when replying
       const assigned = autoAssignOnReply(conversation.id, `reply-${Date.now()}`);
       
       if (assigned && onReply) {
@@ -73,15 +72,6 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
         
         <div className="flex items-center gap-2">
           <PlainTextToggle isPlainText={isPlainText} onToggle={setIsPlainText} />
-          <EmailActions 
-            conversation={conversation}
-            onReply={() => {}}
-            onForward={() => {}}
-            onArchive={() => {}}
-            onDelete={() => {}}
-            onMarkAsSpam={() => {}}
-            onOpenInNewTab={() => {}}
-          />
         </div>
       </div>
 
@@ -94,6 +84,7 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
       <div className="flex-1 overflow-auto">
         <ThreadedView 
           messages={adaptedMessages} 
+          threadId={conversation.id}
           isPlainText={isPlainText}
         />
       </div>

@@ -8,6 +8,7 @@ import { SmartFilters } from "@/components/inbox/SmartFilters";
 import { BulkActionBar } from "@/components/inbox/BulkActionBar";
 import { PerformanceDashboard } from "@/components/inbox/PerformanceDashboard";
 import { AIInsightsPanel } from "@/components/inbox/AIInsightsPanel";
+import { FilterOptions } from "@/types/inbox";
 import { 
   Tabs, 
   TabsContent, 
@@ -121,7 +122,7 @@ const InboxPage = () => {
   const [activeView, setActiveView] = useState<"inbox" | "threaded">("inbox");
   const [activeTab, setActiveTab] = useState<"all" | "unread" | "important">("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterOptions>({
     status: "all",
     platforms: [],
     dateRange: { start: undefined, end: undefined },
@@ -178,10 +179,10 @@ const InboxPage = () => {
     lastMessage: {
       id: conv.messages[conv.messages.length - 1]?.id || '',
       text: conv.preview,
+      time: conv.date,
       timestamp: conv.date,
       sender: 'contact' as const,
-      isRead: conv.isRead,
-      platform: 'email' as const
+      isUnread: !conv.isRead
     },
     source: 'email' as const,
     status: conv.isRead ? 'done' as const : 'todo' as const,
@@ -192,12 +193,23 @@ const InboxPage = () => {
     assignedTo: undefined
   }));
 
-  // Sample performance data
+  // Sample performance data with correct structure
   const performanceData = {
-    responseTime: 2.5,
-    resolutionRate: 95,
-    customerSatisfaction: 4.8,
-    activeConversations: filteredConversations.length
+    responseTimeData: [
+      { date: "2024-01-15", avgTime: 2.5, target: 3.0 }
+    ],
+    satisfactionData: [
+      { platform: "email", score: 4.8, count: 150 }
+    ],
+    volumeData: [
+      { date: "2024-01-15", messages: 45, resolved: 40 }
+    ],
+    platformDistribution: [
+      { platform: "email", count: 120, percentage: 80 }
+    ],
+    teamStats: [
+      { name: "John Doe", resolved: 25, avgTime: 2.1, satisfaction: 4.9 }
+    ]
   };
 
   // Sample thread data for AI insights
@@ -250,7 +262,8 @@ const InboxPage = () => {
               {selectedItems.length > 0 && (
                 <BulkActionBar 
                   selectedCount={selectedItems.length}
-                  onBulkAction={(action) => console.log('Bulk action:', action)}
+                  onAction={(action) => console.log('Bulk action:', action)}
+                  onClear={() => setSelectedItems([])}
                 />
               )}
               

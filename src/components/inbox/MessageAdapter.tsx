@@ -12,7 +12,7 @@ interface ThreadMessage {
   id: string;
   subject: string;
   from: string;
-  to: string;
+  to: string[];
   date: string;
   text: string;
   timestamp: string;
@@ -27,7 +27,7 @@ export function adaptMessagesToThreadFormat(
     id: message.id,
     subject: subject,
     from: message.from,
-    to: message.to,
+    to: [message.to], // Convert string to array
     date: message.date,
     text: message.content,
     timestamp: message.date,
