@@ -17,6 +17,7 @@ import TasksLater from "./pages/TasksLater";
 import TasksAll from "./pages/TasksAll";
 import Notes from "./pages/Notes";
 import WidgetManager from "./pages/WidgetManager";
+import Contacts from "./pages/Contacts";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/knowledge" element={<Knowledge />} />
           <Route path="/property" element={<PropertyInfo />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/contacts" element={<Contacts />} />
           
           {/* Tasks routes */}
           <Route path="/tasks" element={<Tasks />} />
