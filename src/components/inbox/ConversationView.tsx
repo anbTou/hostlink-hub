@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Send, Paperclip, Smile, MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
@@ -8,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Conversation } from "./ConversationList";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
+import { ThreadedView } from "./ThreadedView";
+import { PlainTextToggle } from "./PlainTextToggle";
 
 interface EmailDetails {
   to: string[];
@@ -78,6 +79,8 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
   
   const [newMessage, setNewMessage] = useState("");
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const [isPlainText, setIsPlainText] = useState(false);
+  const [useThreadedView, setUseThreadedView] = useState(true);
   const [replyDetails, setReplyDetails] = useState<EmailDetails>({
     from: "you@example.com",
     to: [conversation.contact.name],
@@ -180,103 +183,151 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       to: value.split(',').map(email => email.trim()).filter(email => email !== "")
     });
   };
+
+  // Convert messages to threaded format for email view
+  const threadedMessages = messages
+    .filter(m => m.emailDetails)
+    .map(m => ({
+      id: m.id,
+      subject: m.emailDetails!.subject,
+      from: m.emailDetails!.from,
+      to: m.emailDetails!.to,
+      text: m.text,
+      timestamp: m.timestamp,
+      isRead: true // Assume read for now
+    }));
   
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border flex justify-between">
-        <div className="flex items-center gap-3">
-          <Avatar>
-            {conversation.contact.avatarUrl ? (
-              <img src={conversation.contact.avatarUrl} alt={conversation.contact.name} />
-            ) : (
-              <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary font-medium">
-                {conversation.contact.name.charAt(0)}
+      <div className="p-4 border-b border-border">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex items-center gap-3">
+            <Avatar>
+              {conversation.contact.avatarUrl ? (
+                <img src={conversation.contact.avatarUrl} alt={conversation.contact.name} />
+              ) : (
+                <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary font-medium">
+                  {conversation.contact.name.charAt(0)}
+                </div>
+              )}
+            </Avatar>
+            <div>
+              <h2 className="font-medium">{conversation.contact.name}</h2>
+              <div className="flex gap-2">
+                <Button 
+                  variant={conversation.status === "todo" ? "default" : "outline"} 
+                  size="sm"
+                  onClick={() => onStatusChange(conversation.id, "todo")}
+                >
+                  Todo
+                </Button>
+                <Button 
+                  variant={conversation.status === "followup" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onStatusChange(conversation.id, "followup")}
+                >
+                  Follow-up
+                </Button>
+                <Button 
+                  variant={conversation.status === "done" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onStatusChange(conversation.id, "done")}
+                >
+                  Done
+                </Button>
               </div>
-            )}
-          </Avatar>
-          <div>
-            <h2 className="font-medium">{conversation.contact.name}</h2>
-            <div className="flex gap-2">
-              <Button 
-                variant={conversation.status === "todo" ? "default" : "outline"} 
-                size="sm"
-                onClick={() => onStatusChange(conversation.id, "todo")}
-              >
-                Todo
-              </Button>
-              <Button 
-                variant={conversation.status === "followup" ? "default" : "outline"}
-                size="sm"
-                onClick={() => onStatusChange(conversation.id, "followup")}
-              >
-                Follow-up
-              </Button>
-              <Button 
-                variant={conversation.status === "done" ? "default" : "outline"}
-                size="sm"
-                onClick={() => onStatusChange(conversation.id, "done")}
-              >
-                Done
-              </Button>
             </div>
           </div>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal className="h-5 w-5" />
+          </Button>
         </div>
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="h-5 w-5" />
-        </Button>
+
+        {/* View Controls */}
+        <div className="flex gap-2 items-center">
+          <PlainTextToggle 
+            isPlainText={isPlainText} 
+            onToggle={setIsPlainText} 
+          />
+          <Button
+            variant={useThreadedView ? "default" : "outline"}
+            size="sm"
+            onClick={() => setUseThreadedView(!useThreadedView)}
+          >
+            {useThreadedView ? "Standard View" : "Threaded View"}
+          </Button>
+        </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((message) => (
-          <div 
-            key={message.id} 
-            className={cn(
-              "flex flex-col",
-              message.sender === "user" ? "items-end" : "items-start"
-            )}
-          >
-            <div 
-              className={cn(
-                "max-w-[80%] rounded-lg p-3",
-                message.sender === "user" 
-                  ? "bg-primary text-primary-foreground" 
-                  : message.sender === "ai"
-                  ? "bg-secondary text-secondary-foreground border border-primary/20"
-                  : "bg-secondary text-secondary-foreground"
-              )}
-            >
-              {message.emailDetails && (
-                <div className="mb-2 text-xs border-b pb-2 border-primary/20">
-                  {message.emailDetails.subject && (
-                    <div className="font-bold mb-1">{message.emailDetails.subject}</div>
+      <div className="flex-1 overflow-y-auto p-4">
+        {useThreadedView && threadedMessages.length > 0 ? (
+          <ThreadedView
+            messages={threadedMessages}
+            threadId={conversation.id}
+            isPlainText={isPlainText}
+          />
+        ) : (
+          <div className="space-y-4">
+            {messages.map((message) => (
+              <div 
+                key={message.id} 
+                className={cn(
+                  "flex flex-col",
+                  message.sender === "user" ? "items-end" : "items-start"
+                )}
+              >
+                <div 
+                  className={cn(
+                    "max-w-[80%] rounded-lg p-3",
+                    message.sender === "user" 
+                      ? "bg-primary text-primary-foreground" 
+                      : message.sender === "ai"
+                      ? "bg-secondary text-secondary-foreground border border-primary/20"
+                      : "bg-secondary text-secondary-foreground"
                   )}
-                  <div>
-                    <span className="font-semibold">From:</span> {message.emailDetails.from}
-                  </div>
-                  <div>
-                    <span className="font-semibold">To:</span> {message.emailDetails.to.join(", ")}
-                  </div>
-                  {message.emailDetails.cc && message.emailDetails.cc.length > 0 && (
-                    <div>
-                      <span className="font-semibold">CC:</span> {message.emailDetails.cc.join(", ")}
+                >
+                  {message.emailDetails && (
+                    <div className="mb-2 text-xs border-b pb-2 border-primary/20">
+                      {message.emailDetails.subject && (
+                        <div className="font-bold mb-1">{message.emailDetails.subject}</div>
+                      )}
+                      <div>
+                        <span className="font-semibold">From:</span> {message.emailDetails.from}
+                      </div>
+                      <div>
+                        <span className="font-semibold">To:</span> {message.emailDetails.to.join(", ")}
+                      </div>
+                      {message.emailDetails.cc && message.emailDetails.cc.length > 0 && (
+                        <div>
+                          <span className="font-semibold">CC:</span> {message.emailDetails.cc.join(", ")}
+                        </div>
+                      )}
                     </div>
                   )}
+                  
+                  {message.sender === "ai" && (
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-primary">AI Assistant</span>
+                    </div>
+                  )}
+                  
+                  {isPlainText ? (
+                    <pre className="whitespace-pre-wrap font-inherit text-sm">
+                      {message.text}
+                    </pre>
+                  ) : (
+                    <p>{message.text}</p>
+                  )}
+                  
+                  <div className="text-xs opacity-70 mt-1 text-right">
+                    {formatMessageTime(message.timestamp)}
+                  </div>
                 </div>
-              )}
-              
-              {message.sender === "ai" && (
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-semibold text-primary">AI Assistant</span>
-                </div>
-              )}
-              <p>{message.text}</p>
-              <div className="text-xs opacity-70 mt-1 text-right">
-                {formatMessageTime(message.timestamp)}
               </div>
-            </div>
+            ))}
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-        <div ref={messagesEndRef} />
+        )}
       </div>
       
       <div className="p-4 border-t border-border">
