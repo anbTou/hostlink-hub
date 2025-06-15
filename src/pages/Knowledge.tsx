@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -41,6 +42,8 @@ const sampleKnowledgeBlocks: KnowledgeBlock[] = [
     content: "1. Seaside Grill - Seafood restaurant, 5 min walk\n2. La Trattoria - Italian cuisine, 10 min walk\n3. Golden Dragon - Chinese food, 15 min drive\n4. The Steakhouse - Premium meats, 10 min drive",
     category: "local",
     lastUpdated: "2 weeks ago",
+    status: "approved",
+    priority: "medium",
   },
   {
     id: "4",
@@ -48,6 +51,8 @@ const sampleKnowledgeBlocks: KnowledgeBlock[] = [
     content: "Free cancellation up to 48 hours before check-in. Cancellations made within 48 hours of check-in are eligible for a 50% refund of the total booking amount, excluding fees.",
     category: "policies",
     lastUpdated: "1 month ago",
+    status: "approved",
+    priority: "medium",
   },
 ];
 
