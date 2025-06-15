@@ -1,11 +1,11 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Plus, Book, Edit, Trash, Save, X } from "lucide-react";
+import { DocumentUpload } from "@/components/knowledge/DocumentUpload";
+import { Search, Plus, Book, Edit, Trash, Save, X, Upload } from "lucide-react";
 
 interface KnowledgeBlock {
   id: string;
@@ -13,6 +13,11 @@ interface KnowledgeBlock {
   content: string;
   category: "property" | "policies" | "local" | "custom";
   lastUpdated: string;
+  source?: {
+    filename?: string;
+    uploadedAt?: string;
+    generatedByAI?: boolean;
+  };
 }
 
 const sampleKnowledgeBlocks: KnowledgeBlock[] = [
@@ -51,6 +56,7 @@ const KnowledgePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [editingBlock, setEditingBlock] = useState<KnowledgeBlock | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showDocumentUpload, setShowDocumentUpload] = useState(false);
   const [newBlock, setNewBlock] = useState<Omit<KnowledgeBlock, "id" | "lastUpdated">>({
     title: "",
     content: "",
@@ -95,6 +101,16 @@ const KnowledgePage = () => {
     setKnowledgeBlocks(knowledgeBlocks.filter(block => block.id !== id));
   };
   
+  const handleDocumentProcessed = (processedBlocks: any[]) => {
+    const newBlocks: KnowledgeBlock[] = processedBlocks.map(block => ({
+      ...block,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+      lastUpdated: "Just now",
+    }));
+    
+    setKnowledgeBlocks([...newBlocks, ...knowledgeBlocks]);
+  };
+  
   const getCategoryLabel = (category: KnowledgeBlock["category"]) => {
     const categories = {
       property: "Property Info",
@@ -127,11 +143,26 @@ const KnowledgePage = () => {
             />
           </div>
           
-          <Button onClick={() => setIsCreating(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Knowledge Block
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowDocumentUpload(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Document
+            </Button>
+            <Button onClick={() => setIsCreating(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Knowledge Block
+            </Button>
+          </div>
         </div>
+        
+        {showDocumentUpload && (
+          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <DocumentUpload 
+              onDocumentProcessed={handleDocumentProcessed}
+              onClose={() => setShowDocumentUpload(false)}
+            />
+          </div>
+        )}
         
         {isCreating && (
           <Card className="border-primary/50 animate-scale-in">
@@ -254,7 +285,14 @@ const KnowledgePage = () => {
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle className="text-base">{block.title}</CardTitle>
+                        <div className="flex items-center gap-2 mb-1">
+                          <CardTitle className="text-base">{block.title}</CardTitle>
+                          {block.source?.generatedByAI && (
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                              AI Generated
+                            </span>
+                          )}
+                        </div>
                         <div className="flex items-center gap-2 mt-1">
                           <div className="flex items-center text-xs text-muted-foreground">
                             <Book className="h-3 w-3 mr-1" />
@@ -264,6 +302,11 @@ const KnowledgePage = () => {
                             Updated {block.lastUpdated}
                           </div>
                         </div>
+                        {block.source?.filename && (
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Source: {block.source.filename}
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-1">
                         <Button 
