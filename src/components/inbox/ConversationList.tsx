@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { ConversationStatus, ConversationSource } from "@/types/inbox";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Types
 export interface Conversation {
@@ -34,11 +35,15 @@ interface ConversationListProps {
   conversations: Conversation[];
   selectedConversationId?: string;
   onSelectConversation: (id: string) => void;
+  selectedItems: string[];
+  onSelectItem: (id: string, selected: boolean) => void;
 }
 export function ConversationList({
   conversations,
   selectedConversationId,
-  onSelectConversation
+  onSelectConversation,
+  selectedItems,
+  onSelectItem,
 }: ConversationListProps) {
   const [statusFilter, setStatusFilter] = useState<ConversationStatus | "all">("todo");
   const [sourceFilters, setSourceFilters] = useState<ConversationSource[]>([]);
@@ -238,38 +243,65 @@ export function ConversationList({
                   {dayLabel}
                 </div>
                 <ul>
-                  {dayConversations.map(conversation => <li key={conversation.id} onClick={() => onSelectConversation(conversation.id)} className={cn("p-4 border-b border-border cursor-pointer transition-colors", selectedConversationId === conversation.id ? "bg-accent" : "hover:bg-muted/50", conversation.lastMessage.isUnread && "bg-primary/5")}>
-                      <div className="flex justify-between">
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            {conversation.contact.avatarUrl ? <img src={conversation.contact.avatarUrl} alt={conversation.contact.name} /> : <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary font-medium">
-                                {conversation.contact.name.charAt(0)}
-                              </div>}
-                          </Avatar>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium">
-                                {conversation.contact.name}
-                              </h3>
-                              <SourceBadge source={conversation.source} />
+                  {dayConversations.map(conversation => (
+                    <li
+                      key={conversation.id}
+                      className={cn(
+                        "border-b border-border transition-colors",
+                        selectedConversationId === conversation.id
+                          ? "bg-accent"
+                          : "hover:bg-muted/50",
+                        conversation.lastMessage.isUnread && "bg-primary/5"
+                      )}
+                    >
+                      <div className="flex items-start gap-4 p-4">
+                        <Checkbox
+                          checked={selectedItems.includes(conversation.id)}
+                          onCheckedChange={(checked) =>
+                            onSelectItem(conversation.id, checked as boolean)
+                          }
+                          onClick={(e) => e.stopPropagation()}
+                          className="mt-1"
+                          aria-label={`Select conversation with ${conversation.contact.name}`}
+                        />
+                        <div
+                          className="flex-1 min-w-0 cursor-pointer"
+                          onClick={() => onSelectConversation(conversation.id)}
+                        >
+                          <div className="flex justify-between">
+                            <div className="flex items-center gap-3">
+                              <Avatar>
+                                {conversation.contact.avatarUrl ? <img src={conversation.contact.avatarUrl} alt={conversation.contact.name} /> : <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary font-medium">
+                                    {conversation.contact.name.charAt(0)}
+                                  </div>}
+                              </Avatar>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-medium">
+                                    {conversation.contact.name}
+                                  </h3>
+                                  <SourceBadge source={conversation.source} />
+                                </div>
+                                <p className={cn("text-sm line-clamp-1", conversation.lastMessage.isUnread ? "font-medium text-foreground" : "text-muted-foreground")}>
+                                  {conversation.lastMessage.sender === "user" && "You: "}
+                                  {conversation.lastMessage.sender === "ai" && "AI: "}
+                                  {conversation.lastMessage.text}
+                                </p>
+                              </div>
                             </div>
-                            <p className={cn("text-sm line-clamp-1", conversation.lastMessage.isUnread ? "font-medium text-foreground" : "text-muted-foreground")}>
-                              {conversation.lastMessage.sender === "user" && "You: "}
-                              {conversation.lastMessage.sender === "ai" && "AI: "}
-                              {conversation.lastMessage.text}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-end">
-                          <span className="text-xs text-muted-foreground">
-                            {conversation.lastMessage.time}
-                          </span>
-                          <div className="mt-1">
-                            <StatusBadge status={conversation.status} />
+                            <div className="flex flex-col items-end">
+                              <span className="text-xs text-muted-foreground">
+                                {conversation.lastMessage.time}
+                              </span>
+                              <div className="mt-1">
+                                <StatusBadge status={conversation.status} />
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </li>)}
+                    </li>
+                  ))}
                 </ul>
               </div>)}
           </div>}

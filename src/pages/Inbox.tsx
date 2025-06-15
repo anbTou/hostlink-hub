@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList } from "@/components/inbox/ConversationList";
@@ -7,7 +8,7 @@ import { SmartFilters } from "@/components/inbox/SmartFilters";
 import { BulkActionBar } from "@/components/inbox/BulkActionBar";
 import { PerformanceDashboard } from "@/components/inbox/PerformanceDashboard";
 import { AIInsightsPanel } from "@/components/inbox/AIInsightsPanel";
-import { FilterOptions } from "@/types/inbox";
+import { FilterOptions, ConversationThread } from "@/types/inbox";
 import { 
   Tabs, 
   TabsContent, 
@@ -134,7 +135,8 @@ const InboxPage = () => {
   
   const collisionPrevention = useCollisionPrevention();
 
-  const handleSelectConversation = (conversation: any) => {
+  const handleSelectConversation = (conversationId: string) => {
+    const conversation = sampleConversations.find(c => c.id === conversationId);
     setSelectedConversation(conversation);
   };
 
@@ -193,7 +195,7 @@ const InboxPage = () => {
   }));
 
   // Build array of ConversationThread objects for threaded view
-  const adaptedThreads = filteredConversations.map(conv => ({
+  const adaptedThreads: ConversationThread[] = filteredConversations.map(conv => ({
     id: conv.id,
     guest: {
       id: conv.id,
@@ -311,7 +313,7 @@ const InboxPage = () => {
                     <TabsContent value="inbox" className="m-0">
                       <ConversationList 
                         conversations={adaptedConversations}
-                        selectedConversationId={selectedConversation?.id} // FIXED
+                        selectedConversationId={selectedConversation?.id}
                         onSelectConversation={handleSelectConversation}
                         selectedItems={selectedItems}
                         onSelectItem={handleSelectItem}
@@ -320,7 +322,7 @@ const InboxPage = () => {
                     
                     <TabsContent value="threaded" className="m-0">
                       <ThreadedConversationList 
-                        threads={adaptedThreads} // FIXED
+                        threads={adaptedThreads}
                         onSelectThread={handleSelectConversation}
                       />
                     </TabsContent>
