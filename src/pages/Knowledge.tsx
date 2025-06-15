@@ -4,36 +4,36 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { DocumentUpload } from "@/components/knowledge/DocumentUpload";
-import { Search, Plus, Book, Edit, Trash, Save, X, Upload } from "lucide-react";
-
-interface KnowledgeBlock {
-  id: string;
-  title: string;
-  content: string;
-  category: "property" | "policies" | "local" | "custom";
-  lastUpdated: string;
-  source?: {
-    filename?: string;
-    uploadedAt?: string;
-    generatedByAI?: boolean;
-  };
-}
+import { Badge } from "@/components/ui/badge";
+import { EnhancedDocumentUpload } from "@/components/knowledge/EnhancedDocumentUpload";
+import { Search, Plus, Book, Edit, Trash, Save, X, Upload, Brain, AlertTriangle, CheckCircle } from "lucide-react";
+import { KnowledgeBlock, AIProcessingResult } from "@/types/property-knowledge";
 
 const sampleKnowledgeBlocks: KnowledgeBlock[] = [
   {
     id: "1",
     title: "Check-in Instructions",
     content: "The check-in time is 3:00 PM. Early check-in can be arranged with prior notice, subject to availability. The key lockbox code will be sent to you 24 hours before arrival. Please contact us if you're arriving after 8:00 PM.",
-    category: "property",
+    category: "checkin",
     lastUpdated: "2 days ago",
+    status: "approved",
+    guestPersona: "all",
+    seasonal: "all",
+    priority: "high",
+    tags: ["arrival", "lockbox", "timing"],
+    aiConfidence: 0.95,
   },
   {
     id: "2",
     title: "Wifi Information",
     content: "Network name: VillaGuest\nPassword: sunshine2023\nThe wifi reaches all areas of the property, including the pool area.",
-    category: "property",
+    category: "amenities",
     lastUpdated: "1 week ago",
+    status: "approved",
+    guestPersona: "all",
+    seasonal: "all",
+    priority: "medium",
+    tags: ["wifi", "internet", "password"],
   },
   {
     id: "3",
@@ -61,11 +61,16 @@ const KnowledgePage = () => {
     title: "",
     content: "",
     category: "property",
+    status: "draft",
+    guestPersona: "all",
+    seasonal: "all",
+    priority: "medium",
   });
   
   const filteredBlocks = knowledgeBlocks.filter(block => 
     block.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    block.content.toLowerCase().includes(searchQuery.toLowerCase())
+    block.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    block.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
   );
   
   const handleSaveEdit = () => {
@@ -92,6 +97,10 @@ const KnowledgePage = () => {
         title: "",
         content: "",
         category: "property",
+        status: "draft",
+        guestPersona: "all",
+        seasonal: "all",
+        priority: "medium",
       });
       setIsCreating(false);
     }
@@ -101,8 +110,8 @@ const KnowledgePage = () => {
     setKnowledgeBlocks(knowledgeBlocks.filter(block => block.id !== id));
   };
   
-  const handleDocumentProcessed = (processedBlocks: any[]) => {
-    const newBlocks: KnowledgeBlock[] = processedBlocks.map(block => ({
+  const handleDocumentProcessed = (result: AIProcessingResult) => {
+    const newBlocks: KnowledgeBlock[] = result.extractedBlocks.map(block => ({
       ...block,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       lastUpdated: "Just now",
@@ -117,9 +126,29 @@ const KnowledgePage = () => {
       policies: "Policies",
       local: "Local Area",
       custom: "Custom",
+      safety: "Safety",
+      amenities: "Amenities",
+      checkin: "Check-in",
+      emergency: "Emergency",
     };
     
     return categories[category];
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'approved': return <CheckCircle className="h-3 w-3 text-green-600" />;
+      case 'reviewed': return <AlertTriangle className="h-3 w-3 text-yellow-600" />;
+      default: return <Edit className="h-3 w-3 text-gray-400" />;
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800 border-red-200';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      default: return 'bg-green-100 text-green-800 border-green-200';
+    }
   };
   
   return (
@@ -128,7 +157,7 @@ const KnowledgePage = () => {
         <div>
           <h1 className="text-4xl font-bold mb-2">Knowledge Base</h1>
           <p className="text-muted-foreground">
-            Manage your AI's knowledge to provide accurate and helpful responses to guest inquiries.
+            AI-powered content management for comprehensive guest information.
           </p>
         </div>
         
@@ -145,8 +174,8 @@ const KnowledgePage = () => {
           
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setShowDocumentUpload(true)}>
-              <Upload className="h-4 w-4 mr-2" />
-              Upload Document
+              <Brain className="h-4 w-4 mr-2" />
+              AI Document Processing
             </Button>
             <Button onClick={() => setIsCreating(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -157,9 +186,10 @@ const KnowledgePage = () => {
         
         {showDocumentUpload && (
           <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <DocumentUpload 
+            <EnhancedDocumentUpload 
               onDocumentProcessed={handleDocumentProcessed}
               onClose={() => setShowDocumentUpload(false)}
+              propertyType="villa"
             />
           </div>
         )}
@@ -284,26 +314,54 @@ const KnowledgePage = () => {
                 <>
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
-                      <div>
+                      <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <CardTitle className="text-base">{block.title}</CardTitle>
+                          {getStatusIcon(block.status)}
                           {block.source?.generatedByAI && (
-                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded">
-                              AI Generated
-                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              <Brain className="h-3 w-3 mr-1" />
+                              AI
+                            </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex items-center text-xs text-muted-foreground">
+                        
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <Badge variant="outline" className="text-xs">
                             <Book className="h-3 w-3 mr-1" />
                             {getCategoryLabel(block.category)}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            Updated {block.lastUpdated}
-                          </div>
+                          </Badge>
+                          <Badge variant="outline" className={`text-xs ${getPriorityColor(block.priority)}`}>
+                            {block.priority}
+                          </Badge>
+                          {block.aiConfidence && (
+                            <Badge variant="outline" className="text-xs">
+                              {Math.round(block.aiConfidence * 100)}% confident
+                            </Badge>
+                          )}
                         </div>
+                        
+                        {block.tags && block.tags.length > 0 && (
+                          <div className="flex gap-1 mt-2 flex-wrap">
+                            {block.tags.slice(0, 3).map((tag, index) => (
+                              <Badge key={index} variant="secondary" className="text-xs">
+                                {tag}
+                              </Badge>
+                            ))}
+                            {block.tags.length > 3 && (
+                              <Badge variant="secondary" className="text-xs">
+                                +{block.tags.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                        
+                        <div className="text-xs text-muted-foreground mt-2">
+                          Updated {block.lastUpdated}
+                        </div>
+                        
                         {block.source?.filename && (
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="text-xs text-muted-foreground">
                             Source: {block.source.filename}
                           </div>
                         )}
@@ -329,7 +387,7 @@ const KnowledgePage = () => {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm whitespace-pre-line">{block.content}</p>
+                    <p className="text-sm whitespace-pre-line line-clamp-4">{block.content}</p>
                   </CardContent>
                 </>
               )}
@@ -339,9 +397,9 @@ const KnowledgePage = () => {
           {filteredBlocks.length === 0 && (
             <div className="col-span-full flex items-center justify-center py-12 text-muted-foreground">
               <div className="text-center">
-                <Book className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                <Brain className="h-12 w-12 mx-auto mb-3 opacity-20" />
                 <h3 className="text-lg font-medium mb-1">No knowledge blocks found</h3>
-                <p>Try adjusting your search or add new knowledge blocks</p>
+                <p>Try adjusting your search or upload documents for AI processing</p>
               </div>
             </div>
           )}
