@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { ConversationList } from "@/components/inbox/ConversationList";
@@ -8,7 +7,7 @@ import { SmartFilters } from "@/components/inbox/SmartFilters";
 import { BulkActionBar } from "@/components/inbox/BulkActionBar";
 import { PerformanceDashboard } from "@/components/inbox/PerformanceDashboard";
 import { AIInsightsPanel } from "@/components/inbox/AIInsightsPanel";
-import { FilterOptions, ConversationThread } from "@/types/inbox";
+import { FilterOptions, ConversationThread, BulkAction } from "@/types/inbox";
 import { 
   Tabs, 
   TabsContent, 
@@ -156,6 +155,12 @@ const InboxPage = () => {
     );
   };
 
+  const handleBulkAction = (action: BulkAction, itemIds: string[]) => {
+    console.log("Bulk action:", action, "on items:", itemIds);
+    // In a real app, this would perform the bulk action
+    setSelectedItems([]);
+  };
+
   const filteredConversations = sampleConversations.filter(conv => {
     switch (activeTab) {
       case "unread":
@@ -205,19 +210,19 @@ const InboxPage = () => {
       totalSpent: 0,
       memberSince: "2024-01-01",
       preferredLanguage: "en",
-      vipStatus: "none"
+      vipStatus: "none" as const
     },
     messages: conv.messages.map(msg => ({
       id: msg.id,
       threadId: conv.id,
       text: msg.content,
-      sender: "contact",
+      sender: "contact" as const,
       timestamp: msg.date,
-      platform: "email",
+      platform: "email" as const,
       isRead: msg.isRead
     })),
     relatedBookings: [],
-    priority: conv.labels.includes('urgent') ? 'urgent' : 'medium',
+    priority: conv.labels.includes('urgent') ? 'urgent' as const : 'medium' as const,
     tags: conv.labels,
     lastActivity: conv.date
   }));
@@ -291,7 +296,7 @@ const InboxPage = () => {
               {selectedItems.length > 0 && (
                 <BulkActionBar 
                   selectedCount={selectedItems.length}
-                  onAction={(action) => console.log('Bulk action:', action)}
+                  onAction={(action) => handleBulkAction(action, selectedItems)}
                   onClear={() => setSelectedItems([])}
                 />
               )}
@@ -324,6 +329,7 @@ const InboxPage = () => {
                       <ThreadedConversationList 
                         threads={adaptedThreads}
                         onSelectThread={handleSelectConversation}
+                        onBulkAction={handleBulkAction}
                       />
                     </TabsContent>
                   </Tabs>
