@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { User, Mail, Calendar, Clock, FileText, ChevronDown, ChevronUp, Search, Plus, Edit, Trash2, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -50,12 +49,16 @@ export function ContactList({
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingContact, setEditingContact] = useState<ExtendedContact | null>(null);
 
+  console.log('ContactList: Received contacts:', contacts?.length || 0, contacts);
+
   // Filter contacts based on search query
   const filteredContacts = contacts.filter(contact => 
     contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     contact.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (contact.phone && contact.phone.includes(searchQuery))
   );
+
+  console.log('ContactList: Filtered contacts:', filteredContacts.length);
 
   const toggleContactDetails = (contactId: string) => {
     setExpandedContactId(expandedContactId === contactId ? null : contactId);
@@ -105,10 +108,27 @@ export function ContactList({
             onChange={e => setSearchQuery(e.target.value)} 
           />
         </div>
+        <div className="text-xs text-muted-foreground">
+          Debug: {contacts?.length || 0} total contacts, {filteredContacts.length} filtered
+        </div>
       </div>
       
       <div className="flex-1 overflow-y-auto">
-        {filteredContacts.length === 0 ? (
+        {!contacts || contacts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
+            <User className="h-12 w-12 mb-4 opacity-20" />
+            <p>No contacts loaded</p>
+            <p className="text-sm">Check console for debugging information</p>
+            {onAddContact && (
+              <Button 
+                className="mt-4" 
+                onClick={() => setShowAddForm(true)}
+              >
+                Add Your First Contact
+              </Button>
+            )}
+          </div>
+        ) : filteredContacts.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center text-muted-foreground">
             <User className="h-12 w-12 mb-4 opacity-20" />
             <p>No contacts found</p>
