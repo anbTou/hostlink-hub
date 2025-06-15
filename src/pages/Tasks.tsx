@@ -1,23 +1,23 @@
 
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, Clock, Filter, Flag, PlusCircle, Search, SortAsc } from "lucide-react";
+import { CheckCircle, PlusCircle, Search, Filter, SortAsc } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { TaskItem } from "@/components/tasks/TaskItem";
 import { Badge } from "@/components/ui/badge";
 
-// Sample task data
-const sampleTasks = [
+// Centralized task data - all tasks in one place
+const allTasks = [
   {
     id: "1",
     title: "Fix broken air conditioning in Unit 3",
     description: "Guest reported that the A/C is not cooling properly",
     priority: "high" as "high",
-    status: "todo" as "todo", // Explicitly typed as "todo"
-    dueDate: new Date(new Date().setDate(new Date().getDate() + 1)),
+    status: "todo" as "todo",
+    dueDate: new Date(),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 3)),
     assignee: "John Doe"
   },
@@ -26,7 +26,7 @@ const sampleTasks = [
     title: "Schedule pool cleaning service",
     description: "Regular maintenance",
     priority: "medium" as "medium",
-    status: "todo" as "todo", // Explicitly typed as "todo"
+    status: "todo" as "todo",
     dueDate: new Date(new Date().setDate(new Date().getDate() + 3)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
     assignee: "Jane Smith"
@@ -36,7 +36,7 @@ const sampleTasks = [
     title: "Respond to guest inquiry about early check-in",
     description: "Guest arriving tomorrow, asking about 1pm check-in",
     priority: "high" as "high",
-    status: "todo" as "todo", // Explicitly typed as "todo"
+    status: "todo" as "todo",
     dueDate: new Date(),
     createdAt: new Date(new Date().setHours(new Date().getHours() - 5)),
     assignee: "John Doe"
@@ -46,7 +46,7 @@ const sampleTasks = [
     title: "Order new towels for all units",
     description: "Current inventory is getting worn",
     priority: "low" as "low",
-    status: "done" as "done", // Explicitly typed as "done"
+    status: "done" as "done",
     dueDate: new Date(new Date().setDate(new Date().getDate() - 2)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
     assignee: "Jane Smith"
@@ -56,9 +56,29 @@ const sampleTasks = [
     title: "Update house manual with new WiFi password",
     description: "Password was changed last week",
     priority: "medium" as "medium",
-    status: "done" as "done", // Explicitly typed as "done"
+    status: "done" as "done",
     dueDate: new Date(new Date().setDate(new Date().getDate() - 1)),
     createdAt: new Date(new Date().setDate(new Date().getDate() - 4)),
+    assignee: "John Doe"
+  },
+  {
+    id: "7",
+    title: "Research new property management software",
+    description: "Evaluate alternatives to current system",
+    priority: "low" as "low",
+    status: "todo" as "todo",
+    dueDate: new Date(new Date().setDate(new Date().getDate() + 14)),
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 10)),
+    assignee: "Jane Smith"
+  },
+  {
+    id: "8",
+    title: "Plan renovations for Unit 5",
+    description: "Create budget and timeline for bathroom updates",
+    priority: "medium" as "medium",
+    status: "todo" as "todo",
+    dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
+    createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
     assignee: "John Doe"
   }
 ];
@@ -68,7 +88,7 @@ const Tasks = () => {
   const [filter, setFilter] = useState("all");
   
   // Filter tasks based on search query and status filter
-  const filteredTasks = sampleTasks.filter(task => {
+  const filteredTasks = allTasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           task.description.toLowerCase().includes(searchQuery.toLowerCase());
     
@@ -80,8 +100,8 @@ const Tasks = () => {
   });
   
   // Count tasks by status
-  const todoCount = sampleTasks.filter(task => task.status === "todo").length;
-  const doneCount = sampleTasks.filter(task => task.status === "done").length;
+  const todoCount = allTasks.filter(task => task.status === "todo").length;
+  const doneCount = allTasks.filter(task => task.status === "done").length;
   
   return (
     <MainLayout>
@@ -89,7 +109,7 @@ const Tasks = () => {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-4xl font-bold mb-2">Tasks</h1>
-            <p className="text-muted-foreground">Manage and track your property management tasks</p>
+            <p className="text-muted-foreground">Manage and track all your property management tasks</p>
           </div>
           <Button className="flex items-center gap-2">
             <PlusCircle className="h-4 w-4" />
@@ -124,7 +144,7 @@ const Tasks = () => {
         <Tabs defaultValue="all" onValueChange={setFilter}>
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="all" className="flex-1">
-              All Tasks <Badge variant="secondary" className="ml-2">{sampleTasks.length}</Badge>
+              All Tasks <Badge variant="secondary" className="ml-2">{allTasks.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="todo" className="flex-1">
               To Do <Badge variant="secondary" className="ml-2">{todoCount}</Badge>
