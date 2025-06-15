@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, Smile, MoreHorizontal, ChevronDown, ChevronUp } from "lucide-react";
+import { Send, Paperclip, Smile, MoreHorizontal, ChevronDown, ChevronUp, UserCheck } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,9 @@ import { Conversation } from "./ConversationList";
 import { format, formatDistanceToNow, parseISO } from "date-fns";
 import { ThreadedView } from "./ThreadedView";
 import { PlainTextToggle } from "./PlainTextToggle";
+import { CollisionBanner } from "./CollisionBanner";
+import { useCollisionPrevention } from "@/hooks/useCollisionPrevention";
+import { useToast } from "@/hooks/use-toast";
 
 interface EmailDetails {
   to: string[];
@@ -89,6 +92,18 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
     bcc: []
   });
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
+  const {
+    getAssignmentStatus,
+    autoAssignOnReply,
+    assignMessage,
+    releaseMessage,
+    currentUser
+  } = useCollisionPrevention();
+
+  const assignmentStatus = getAssignmentStatus(conversation.id);
+  const isAssignedToCurrentUser = assignmentStatus.isAssigned && assignmentStatus.assignedTo === currentUser;
+  const canInteract = !assignmentStatus.isAssigned || isAssignedToCurrentUser;
   
   useEffect(() => {
     scrollToBottom();
@@ -121,6 +136,12 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
   const handleSendMessage = () => {
     if (newMessage.trim() === "") return;
     
+    // Auto-assign message to current user when they start replying
+    const assigned = autoAssignOnReply(conversation.id, Date.now().toString());
+    if (!assigned) {
+      return; // Assignment failed, don't send message
+    }
+    
     const message: Message = {
       id: Date.now().toString(),
       text: newMessage,
@@ -150,6 +171,26 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       
       setMessages(prev => [...prev, aiMessage]);
     }, 1000);
+  };
+
+  const handleTakeOver = () => {
+    const success = assignMessage(conversation.id, Date.now().toString(), currentUser);
+    if (success) {
+      toast({
+        title: "Conversation taken over",
+        description: "You are now handling this conversation"
+      });
+    }
+  };
+
+  const handleAssignToMe = () => {
+    const success = assignMessage(conversation.id, Date.now().toString(), currentUser);
+    if (success) {
+      toast({
+        title: "Conversation assigned",
+        description: "This conversation has been assigned to you"
+      });
+    }
   };
   
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -218,6 +259,7 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
                   variant={conversation.status === "todo" ? "default" : "outline"} 
                   size="sm"
                   onClick={() => onStatusChange(conversation.id, "todo")}
+                  disabled={!canInteract}
                 >
                   Todo
                 </Button>
@@ -225,6 +267,7 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
                   variant={conversation.status === "followup" ? "default" : "outline"}
                   size="sm"
                   onClick={() => onStatusChange(conversation.id, "followup")}
+                  disabled={!canInteract}
                 >
                   Follow-up
                 </Button>
@@ -232,16 +275,37 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
                   variant={conversation.status === "done" ? "default" : "outline"}
                   size="sm"
                   onClick={() => onStatusChange(conversation.id, "done")}
+                  disabled={!canInteract}
                 >
                   Done
                 </Button>
               </div>
             </div>
           </div>
-          <Button variant="ghost" size="icon">
-            <MoreHorizontal className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {!assignmentStatus.isAssigned && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleAssignToMe}
+                className="gap-2"
+              >
+                <UserCheck className="h-4 w-4" />
+                Assign to Me
+              </Button>
+            )}
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
+
+        {/* Collision Prevention Banner */}
+        <CollisionBanner
+          assignmentStatus={assignmentStatus}
+          onTakeOver={handleTakeOver}
+          canTakeOver={assignmentStatus.canTakeOver}
+        />
 
         {/* View Controls */}
         <div className="flex gap-2 items-center">
@@ -331,7 +395,13 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
       </div>
       
       <div className="p-4 border-t border-border">
-        {!showReplyForm ? (
+        {!canInteract && (
+          <div className="mb-4 p-3 bg-muted rounded-lg text-center text-muted-foreground">
+            This conversation is currently being handled by {assignmentStatus.assignedTo}
+          </div>
+        )}
+        
+        {canInteract && !showReplyForm ? (
           <Button 
             onClick={toggleReplyForm} 
             className="w-full mb-4 flex items-center justify-center"
@@ -339,7 +409,7 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
           >
             <Send className="h-4 w-4 mr-2" /> Reply
           </Button>
-        ) : (
+        ) : canInteract && showReplyForm && (
           <div className="bg-card border border-border rounded-lg p-4 mb-4">
             <div className="space-y-3">
               <div className="flex items-center">
@@ -378,31 +448,33 @@ export function ConversationView({ conversation, onStatusChange }: ConversationV
           </div>
         )}
         
-        <div className="relative">
-          <Textarea 
-            placeholder={showReplyForm ? "Type your reply..." : "Type your message..."} 
-            className="min-h-[80px] pr-20"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <div className="absolute bottom-3 right-3 flex gap-2">
-            <Button variant="ghost" size="icon" type="button">
-              <Paperclip className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon" type="button">
-              <Smile className="h-4 w-4" />
-            </Button>
-            <Button 
-              className="rounded-full w-8 h-8 p-0 flex items-center justify-center"
-              type="button"
-              onClick={handleSendMessage}
-              disabled={newMessage.trim() === ""}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
+        {canInteract && (
+          <div className="relative">
+            <Textarea 
+              placeholder={showReplyForm ? "Type your reply..." : "Type your message..."} 
+              className="min-h-[80px] pr-20"
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <div className="absolute bottom-3 right-3 flex gap-2">
+              <Button variant="ghost" size="icon" type="button">
+                <Paperclip className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" type="button">
+                <Smile className="h-4 w-4" />
+              </Button>
+              <Button 
+                className="rounded-full w-8 h-8 p-0 flex items-center justify-center"
+                type="button"
+                onClick={handleSendMessage}
+                disabled={newMessage.trim() === ""}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

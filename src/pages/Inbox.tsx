@@ -7,6 +7,7 @@ import { ContactList } from "@/components/inbox/ContactList";
 import { ConversationThread, BulkAction, ConversationSource } from "@/types/inbox";
 import { parseISO } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { useCollisionPrevention } from "@/hooks/useCollisionPrevention";
 
 // Mock data with enhanced threading and widget message type
 const mockThreads: ConversationThread[] = [
@@ -140,11 +141,19 @@ export default function Inbox() {
   const [threads, setThreads] = useState<ConversationThread[]>(mockThreads);
   const [showAIInsights, setShowAIInsights] = useState(true);
   const { toast } = useToast();
+  
+  // Initialize collision prevention system
+  const collisionPrevention = useCollisionPrevention();
 
   const selectedThread = threads.find(t => t.id === selectedThreadId);
 
   const handleBulkAction = (action: BulkAction, threadIds: string[]) => {
     console.log("Bulk action:", action, "on threads:", threadIds);
+    
+    // Auto-assign threads when performing bulk actions
+    threadIds.forEach(threadId => {
+      collisionPrevention.autoAssignOnReply(threadId, Date.now().toString());
+    });
     
     // Simulate bulk actions
     switch (action.type) {
@@ -194,8 +203,11 @@ export default function Inbox() {
   };
 
   const handleStatusChange = (threadId: string, status: string) => {
-    // Update thread status logic here
-    console.log("Status change:", threadId, status);
+    // Auto-assign thread when changing status
+    const assigned = collisionPrevention.autoAssignOnReply(threadId, Date.now().toString());
+    if (assigned) {
+      console.log("Status change:", threadId, status);
+    }
   };
 
   const handleApplySuggestion = (suggestion: string) => {
