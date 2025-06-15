@@ -27,7 +27,8 @@ const sampleContacts: Contact[] = [
       { propertyName: "Beachfront Villa", date: toISOString(subMonths(new Date(), 3)) },
       { propertyName: "Mountain Cabin", date: toISOString(subMonths(new Date(), 8)) }
     ],
-    notes: "Prefers quiet rooms away from elevators. Allergic to feather pillows. Always books for anniversary in September."
+    notes: "Prefers quiet rooms away from elevators. Allergic to feather pillows. Always books for anniversary in September.",
+    createdAt: toISOString(subMonths(new Date(), 12))
   },
   {
     id: "2",
@@ -36,7 +37,8 @@ const sampleContacts: Contact[] = [
     previousStays: [
       { propertyName: "Lakeside Cottage", date: toISOString(subMonths(new Date(), 2)) }
     ],
-    notes: "Travels for business frequently. Prefers early check-in when available. Member of loyalty program."
+    notes: "Travels for business frequently. Prefers early check-in when available. Member of loyalty program.",
+    createdAt: toISOString(subMonths(new Date(), 8))
   },
   {
     id: "3",
@@ -47,14 +49,16 @@ const sampleContacts: Contact[] = [
       { propertyName: "City Apartment", date: toISOString(subMonths(new Date(), 5)) },
       { propertyName: "Mountain Cabin", date: toISOString(subMonths(new Date(), 10)) }
     ],
-    notes: "Travels with small dog. Needs pet-friendly accommodations. Always requests extra towels."
+    notes: "Travels with small dog. Needs pet-friendly accommodations. Always requests extra towels.",
+    createdAt: toISOString(subMonths(new Date(), 15))
   },
   {
     id: "4",
     name: "Thomas Brown",
     email: "t.brown@example.com",
     previousStays: [],
-    notes: "First-time guest. Mentioned celebrating birthday during stay."
+    notes: "First-time guest. Mentioned celebrating birthday during stay.",
+    createdAt: toISOString(subMonths(new Date(), 1))
   },
   {
     id: "5",
@@ -63,7 +67,8 @@ const sampleContacts: Contact[] = [
     previousStays: [
       { propertyName: "Lakeside Cottage", date: toISOString(subMonths(new Date(), 4)) }
     ],
-    notes: "Gluten-free diet. Requested restaurant recommendations. Interested in local hiking trails."
+    notes: "Gluten-free diet. Requested restaurant recommendations. Interested in local hiking trails.",
+    createdAt: toISOString(subMonths(new Date(), 6))
   }
 ];
 
