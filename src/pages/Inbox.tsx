@@ -339,20 +339,13 @@ const InboxPage = () => {
           )}
           
           {selectedConversation && (
-            <div className="w-full relative">
+            <div className="w-full">
               <ConversationView 
                 conversation={selectedConversation}
                 onBack={handleBack}
                 onReply={handleReply}
               />
             </div>
-          )}
-          
-          {sampleThread && (
-            <AIInsightsPanel 
-              thread={sampleThread}
-              onApplySuggestion={(suggestion) => console.log('Applying suggestion:', suggestion)}
-            />
           )}
         </div>
       </div>
