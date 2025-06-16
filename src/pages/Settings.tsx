@@ -1,13 +1,6 @@
 
-import { useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { toast } from "@/hooks/use-toast";
 import { 
   Settings as SettingsIcon,
   MessageSquare,
@@ -15,21 +8,18 @@ import {
   User,
   Shield,
   Languages,
-  ToggleRight,
-  ToggleLeft,
 } from "lucide-react";
 
-const Settings = () => {
-  const [aiAutopilotEnabled, setAiAutopilotEnabled] = useState(false);
-  
-  const handleSaveAISettings = () => {
-    // In a real app, this would save to a database or local storage
-    toast({
-      title: "Settings saved",
-      description: `AI Autopilot has been ${aiAutopilotEnabled ? 'enabled' : 'disabled'}.`,
-    });
-  };
+// Import the new settings components
+import { AIPreferencesSettings } from "@/components/settings/AIPreferencesSettings";
+import { NotificationsSettings } from "@/components/settings/NotificationsSettings";
+import { AccountSettings } from "@/components/settings/AccountSettings";
+import { PrivacySettings } from "@/components/settings/PrivacySettings";
+import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
+import { LanguageSettings } from "@/components/settings/LanguageSettings";
+import { AdvancedSettings } from "@/components/settings/AdvancedSettings";
 
+const Settings = () => {
   return (
     <MainLayout>
       <div className="space-y-6 animate-scale-in">
@@ -73,131 +63,31 @@ const Settings = () => {
           </TabsList>
 
           <TabsContent value="ai" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5" />
-                  AI Autopilot
-                </CardTitle>
-                <CardDescription>
-                  Control whether AI automatically responds to guest messages
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between space-x-2 bg-background p-4 rounded-lg border">
-                  <div className="space-y-0.5">
-                    <Label className="text-base font-medium flex items-center gap-2">
-                      {aiAutopilotEnabled ? 
-                        <ToggleRight className="h-5 w-5 text-primary" /> : 
-                        <ToggleLeft className="h-5 w-5 text-muted-foreground" />
-                      }
-                      AI Autopilot
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      AI Autopilot automatically responds to guest messages based on your property information. 
-                      When enabled, the AI will handle routine inquiries using details from your Property Info section.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={aiAutopilotEnabled}
-                    onCheckedChange={setAiAutopilotEnabled}
-                    aria-label="Toggle AI Autopilot"
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-end">
-                  <Button onClick={handleSaveAISettings}>
-                    Save preferences
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <AIPreferencesSettings />
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Settings</CardTitle>
-                <CardDescription>
-                  Configure how and when you receive notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">Notification settings will be available soon.</p>
-              </CardContent>
-            </Card>
+            <NotificationsSettings />
           </TabsContent>
 
           <TabsContent value="account" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
-                <CardDescription>
-                  Manage your account information and preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">Account settings will be available soon.</p>
-              </CardContent>
-            </Card>
+            <AccountSettings />
           </TabsContent>
 
           <TabsContent value="privacy" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Privacy Settings</CardTitle>
-                <CardDescription>
-                  Control your privacy preferences and data sharing
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">Privacy settings will be available soon.</p>
-              </CardContent>
-            </Card>
+            <PrivacySettings />
           </TabsContent>
 
           <TabsContent value="appearance" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance Settings</CardTitle>
-                <CardDescription>
-                  Customize the look and feel of the application
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">Appearance settings will be available soon.</p>
-              </CardContent>
-            </Card>
+            <AppearanceSettings />
           </TabsContent>
 
           <TabsContent value="language" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Language Settings</CardTitle>
-                <CardDescription>
-                  Choose your preferred language
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">Language settings will be available soon.</p>
-              </CardContent>
-            </Card>
+            <LanguageSettings />
           </TabsContent>
 
           <TabsContent value="advanced" className="space-y-4 mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Advanced Settings</CardTitle>
-                <CardDescription>
-                  Configure advanced options for the application
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm">Advanced settings will be available soon.</p>
-              </CardContent>
-            </Card>
+            <AdvancedSettings />
           </TabsContent>
         </Tabs>
       </div>
