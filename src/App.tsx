@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Index";
 import Inbox from "./pages/Inbox";
+import InboxMain from "./pages/InboxMain";
+import InboxPrivate from "./pages/InboxPrivate";
 import Knowledge from "./pages/Knowledge";
 import PropertyInfo from "./pages/PropertyInfo";
 import Settings from "./pages/Settings";
@@ -30,6 +32,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/inbox" element={<Inbox />} />
+          <Route path="/inbox/main" element={<InboxMain />} />
+          <Route path="/inbox/private" element={<InboxPrivate />} />
           <Route path="/knowledge" element={<Knowledge />} />
           <Route path="/property" element={<PropertyInfo />} />
           <Route path="/settings" element={<Settings />} />

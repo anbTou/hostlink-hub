@@ -31,6 +31,8 @@ export interface Booking {
   currency: string;
 }
 
+export type InboxType = 'main' | 'private';
+
 export interface ConversationThread {
   id: string;
   guest: Guest;
@@ -39,6 +41,8 @@ export interface ConversationThread {
   priority: 'low' | 'medium' | 'high' | 'urgent';
   tags: string[];
   assignedTo?: string;
+  assignedToUser?: string; // User ID for private inbox assignment
+  inboxType: InboxType;
   lastActivity: string;
   responseTime?: number;
   satisfactionScore?: number;
@@ -97,6 +101,7 @@ export interface FilterOptions {
   tags: string[];
   hasAttachments?: boolean;
   isUnread?: boolean;
+  inboxType?: InboxType;
 }
 
 export interface BulkAction {

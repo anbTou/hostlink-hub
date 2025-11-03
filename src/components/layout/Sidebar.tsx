@@ -21,13 +21,20 @@ import {
   PlusCircle,
   Flag,
   Sparkles,
+  Mail,
+  UserCircle,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Main navigation categories
 const navItems = [
   { name: "Dashboard", icon: BarChart2, path: "/" },
-  { name: "Inbox", icon: Inbox, path: "/inbox" },
+  { name: "Inbox", icon: Inbox, path: "/inbox",
+    children: [
+      { name: "Main Inbox", icon: Mail, path: "/inbox/main" },
+      { name: "Private Inbox", icon: UserCircle, path: "/inbox/private" },
+    ]
+  },
   { name: "Tasks", icon: CheckSquare, path: "/tasks", 
     children: [
       { name: "Today", icon: Clock, path: "/tasks/today" },
@@ -49,7 +56,8 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    "Tasks": true // Default to expanded
+    "Tasks": true, // Default to expanded
+    "Inbox": true // Default to expanded
   });
 
   const toggleGroup = (name: string) => {
