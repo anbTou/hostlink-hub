@@ -169,15 +169,12 @@ export const InboxContainer = ({ inboxType, sampleConversations }: InboxContaine
       <div className="flex h-full">
         {!selectedConversation && (
           <div className="w-full">
-            <div className="p-4 border-b border-border flex items-center justify-between">
-              <div>
-                <h1 className="text-xl font-bold flex items-center gap-2">
-                  {inboxTitle}
-                  <Badge variant={inboxType === 'main' ? 'default' : 'secondary'}>
-                    {inboxFilteredConversations.length}
-                  </Badge>
-                </h1>
-                <p className="text-sm text-muted-foreground">{inboxDescription}</p>
+            <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <h1 className="text-lg font-semibold">{inboxTitle}</h1>
+                <Badge variant={inboxType === 'main' ? 'default' : 'secondary'} className="text-xs">
+                  {inboxFilteredConversations.length}
+                </Badge>
               </div>
               <div className="flex items-center gap-2">
                 <SmartFilters 
