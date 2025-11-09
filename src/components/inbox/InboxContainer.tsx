@@ -102,7 +102,6 @@ export const InboxContainer = ({ inboxType, sampleConversations }: InboxContaine
       isUnread: !conv.isRead
     },
     source: 'email' as const,
-    status: conv.isRead ? 'done' as const : 'todo' as const,
     priority: conv.labels.includes('urgent') ? 'urgent' as const : 'medium' as const,
     unreadCount: conv.isRead ? 0 : 1,
     tags: conv.labels,

@@ -26,7 +26,7 @@ export function ThreadedConversationList({
   onBulkAction
 }: ThreadedConversationListProps) {
   const [filters, setFilters] = useState<FilterOptions>({
-    status: "todo",
+    status: "all",
     platforms: [],
     dateRange: {},
     priority: [],
@@ -38,12 +38,6 @@ export function ThreadedConversationList({
 
   // Filter and search threads
   const filteredThreads = threads.filter(thread => {
-    // Status filter
-    if (filters.status !== "all") {
-      const threadStatus = thread.messages.some(m => !m.isRead) ? "todo" : "done";
-      if (threadStatus !== filters.status) return false;
-    }
-
     // Platform filter
     if (filters.platforms.length > 0) {
       const threadPlatforms = [...new Set(thread.messages.map(m => m.platform))];

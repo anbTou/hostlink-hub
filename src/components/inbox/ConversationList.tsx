@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { ConversationStatus, ConversationSource } from "@/types/inbox";
+import { ConversationSource } from "@/types/inbox";
 import { Checkbox } from "@/components/ui/checkbox";
 
 // Types
@@ -28,7 +28,6 @@ export interface Conversation {
     sender: "user" | "contact" | "ai";
   };
   source: ConversationSource;
-  status: ConversationStatus;
 }
 
 interface ConversationListProps {
@@ -45,7 +44,6 @@ export function ConversationList({
   selectedItems,
   onSelectItem,
 }: ConversationListProps) {
-  const [statusFilter, setStatusFilter] = useState<ConversationStatus | "all">("todo");
   const [sourceFilters, setSourceFilters] = useState<ConversationSource[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [composeOpen, setComposeOpen] = useState(false);
@@ -76,15 +74,12 @@ export function ConversationList({
 
   // Apply all filters
   const filteredConversations = sortedConversations.filter(conversation => {
-    // Status filter
-    const matchesStatus = statusFilter === "all" || conversation.status === statusFilter;
-
     // Source filter (if any are selected)
     const matchesSource = sourceFilters.length === 0 || sourceFilters.includes(conversation.source);
 
     // Search query
     const matchesSearch = conversation.contact.name.toLowerCase().includes(searchQuery.toLowerCase()) || conversation.lastMessage.text.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSource && matchesSearch;
+    return matchesSource && matchesSearch;
   });
   const handleComposeNew = () => {
     setComposeOpen(true);
@@ -117,11 +112,6 @@ export function ConversationList({
     });
     setComposeOpen(false);
   };
-
-  // Count totals for badges
-  const todoCount = conversations.filter(c => c.status === "todo").length;
-  const followupCount = conversations.filter(c => c.status === "followup").length;
-  const doneCount = conversations.filter(c => c.status === "done").length;
 
   // Count by source
   const sourceCounts = {
@@ -164,30 +154,11 @@ export function ConversationList({
           <Input placeholder="Search conversations..." className="pl-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
         </div>
         
-        {/* Compose Button - THIS IS THE SELECTED BUTTON */}
+        {/* Compose Button */}
         <Button onClick={handleComposeNew} className="w-full flex items-center justify-center gap-2 mb-4">
           <Send className="h-4 w-4" />
           Compose New
         </Button>
-        
-        {/* Status Filters */}
-        <div className="flex space-x-2 overflow-x-auto py-1 mb-3 scrollbar-hide">
-          <Button variant={statusFilter === "all" ? "default" : "outline"} size="sm" onClick={() => setStatusFilter("all")}>
-            All
-          </Button>
-          <Button variant={statusFilter === "todo" ? "default" : "outline"} size="sm" onClick={() => setStatusFilter("todo")} className="flex gap-2 items-center">
-            Todo
-            {todoCount > 0 && <Badge variant="secondary" className="ml-1">{todoCount}</Badge>}
-          </Button>
-          <Button variant={statusFilter === "followup" ? "default" : "outline"} size="sm" onClick={() => setStatusFilter("followup")} className="flex gap-2 items-center">
-            Follow-up
-            {followupCount > 0 && <Badge variant="secondary" className="ml-1">{followupCount}</Badge>}
-          </Button>
-          <Button variant={statusFilter === "done" ? "default" : "outline"} size="sm" onClick={() => setStatusFilter("done")} className="flex gap-2 items-center">
-            Done
-            {doneCount > 0 && <Badge variant="secondary" className="ml-1">{doneCount}</Badge>}
-          </Button>
-        </div>
         
         {/* Source Filters */}
         <div className="flex space-x-2 overflow-x-auto py-1 scrollbar-hide">
@@ -293,9 +264,6 @@ export function ConversationList({
                               <span className="text-xs text-muted-foreground">
                                 {conversation.lastMessage.time}
                               </span>
-                              <div className="mt-1">
-                                <StatusBadge status={conversation.status} />
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -420,17 +388,4 @@ function SourceBadge({
       {config.icon}
       {config.label}
     </span>;
-}
-function StatusBadge({
-  status
-}: {
-  status: ConversationStatus;
-}) {
-  if (status === "todo") {
-    return <span className="status-badge-todo">Todo</span>;
-  }
-  if (status === "followup") {
-    return <span className="status-badge-followup">Follow-up</span>;
-  }
-  return <span className="status-badge-done">Done</span>;
 }

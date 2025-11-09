@@ -79,7 +79,7 @@ export interface Attachment {
 }
 
 export type ConversationSource = "email" | "booking" | "airbnb" | "whatsapp" | "vrbo" | "expedia";
-export type ConversationStatus = "todo" | "followup" | "done" | "archived";
+export type ConversationStatus = "todo" | "followup" | "done" | "archived"; // @deprecated - Status system removed, kept for backward compatibility
 
 export interface EmailDetails {
   to: string[];
