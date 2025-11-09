@@ -6,22 +6,18 @@ import { SmartFilters } from "@/components/inbox/SmartFilters";
 import { BulkActionBar } from "@/components/inbox/BulkActionBar";
 import { PerformanceDashboard } from "@/components/inbox/PerformanceDashboard";
 import { FilterOptions, ConversationThread, BulkAction, InboxType } from "@/types/inbox";
-import { 
-  Tabs, 
-  TabsContent, 
-  TabsList, 
-  TabsTrigger 
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { filterByInboxType } from "@/services/inboxFilterService";
 import { useCollisionPrevention } from "@/hooks/useCollisionPrevention";
-
 interface InboxContainerProps {
   inboxType: InboxType;
   sampleConversations: any[];
 }
-
-export const InboxContainer = ({ inboxType, sampleConversations }: InboxContainerProps) => {
+export const InboxContainer = ({
+  inboxType,
+  sampleConversations
+}: InboxContainerProps) => {
   const [selectedConversation, setSelectedConversation] = useState<any>(null);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [activeView, setActiveView] = useState<"inbox" | "threaded">("inbox");
@@ -30,7 +26,10 @@ export const InboxContainer = ({ inboxType, sampleConversations }: InboxContaine
   const [filters, setFilters] = useState<FilterOptions>({
     status: "all",
     platforms: [],
-    dateRange: { start: undefined, end: undefined },
+    dateRange: {
+      start: undefined,
+      end: undefined
+    },
     priority: [],
     assignedTo: undefined,
     tags: [],
@@ -38,40 +37,27 @@ export const InboxContainer = ({ inboxType, sampleConversations }: InboxContaine
     isUnread: undefined,
     inboxType
   });
-  
   const collisionPrevention = useCollisionPrevention();
-
   const handleSelectConversation = (conversationId: string) => {
     const conversation = sampleConversations.find(c => c.id === conversationId);
     setSelectedConversation(conversation);
   };
-
   const handleBack = () => {
     setSelectedConversation(null);
   };
-
   const handleReply = (content: string) => {
     console.log("Reply content:", content);
   };
-
   const handleSelectItem = (id: string, selected: boolean) => {
-    setSelectedItems(prev => 
-      selected 
-        ? [...prev, id]
-        : prev.filter(item => item !== id)
-    );
+    setSelectedItems(prev => selected ? [...prev, id] : prev.filter(item => item !== id));
   };
-
   const handleBulkAction = (action: BulkAction, itemIds: string[]) => {
     console.log("Bulk action:", action, "on items:", itemIds);
     setSelectedItems([]);
   };
 
   // Filter conversations by inbox type first
-  const inboxFilteredConversations = sampleConversations.filter(conv => 
-    conv.inboxType === inboxType
-  );
-
+  const inboxFilteredConversations = sampleConversations.filter(conv => conv.inboxType === inboxType);
   const filteredConversations = inboxFilteredConversations.filter(conv => {
     switch (activeTab) {
       case "unread":
@@ -141,60 +127,43 @@ export const InboxContainer = ({ inboxType, sampleConversations }: InboxContaine
 
   // Sample performance data
   const performanceData = {
-    responseTimeData: [
-      { date: "2024-01-15", avgTime: 2.5, target: 3.0 }
-    ],
-    satisfactionData: [
-      { platform: "email", score: 4.8, count: 150 }
-    ],
-    volumeData: [
-      { date: "2024-01-15", messages: 45, resolved: 40 }
-    ],
-    platformDistribution: [
-      { name: "Email", value: 120, color: "#8884d8" },
-    ],
-    teamStats: [
-      { name: "John Doe", responseTime: 2.1, satisfaction: 4.9, volume: 25 }
-    ]
+    responseTimeData: [{
+      date: "2024-01-15",
+      avgTime: 2.5,
+      target: 3.0
+    }],
+    satisfactionData: [{
+      platform: "email",
+      score: 4.8,
+      count: 150
+    }],
+    volumeData: [{
+      date: "2024-01-15",
+      messages: 45,
+      resolved: 40
+    }],
+    platformDistribution: [{
+      name: "Email",
+      value: 120,
+      color: "#8884d8"
+    }],
+    teamStats: [{
+      name: "John Doe",
+      responseTime: 2.1,
+      satisfaction: 4.9,
+      volume: 25
+    }]
   };
-
   const inboxTitle = inboxType === 'main' ? 'Main Inbox' : 'Private Inbox';
-  const inboxDescription = inboxType === 'main' 
-    ? 'Team-wide conversations' 
-    : 'Your personal conversations';
-
-  return (
-    <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
+  const inboxDescription = inboxType === 'main' ? 'Team-wide conversations' : 'Your personal conversations';
+  return <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
       <div className="flex h-full">
-        {!selectedConversation && (
-          <div className="w-full">
-            <div className="px-4 py-3 border-b border-border flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <h1 className="text-lg font-semibold">{inboxTitle}</h1>
-                <Badge variant={inboxType === 'main' ? 'default' : 'secondary'} className="text-xs">
-                  {inboxFilteredConversations.length}
-                </Badge>
-              </div>
-              <div className="flex items-center gap-2">
-                <SmartFilters 
-                  filters={filters}
-                  onFiltersChange={setFilters}
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                />
-                <PerformanceDashboard data={performanceData} />
-              </div>
-            </div>
+        {!selectedConversation && <div className="w-full">
             
-            {selectedItems.length > 0 && (
-              <BulkActionBar 
-                selectedCount={selectedItems.length}
-                onAction={(action) => handleBulkAction(action, selectedItems)}
-                onClear={() => setSelectedItems([])}
-              />
-            )}
             
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
+            {selectedItems.length > 0 && <BulkActionBar selectedCount={selectedItems.length} onAction={action => handleBulkAction(action, selectedItems)} onClear={() => setSelectedItems([])} />}
+            
+            <Tabs value={activeTab} onValueChange={v => setActiveTab(v as any)}>
               <TabsList className="w-full rounded-none border-b">
                 <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
                 <TabsTrigger value="unread" className="flex-1">Unread</TabsTrigger>
@@ -202,45 +171,27 @@ export const InboxContainer = ({ inboxType, sampleConversations }: InboxContaine
               </TabsList>
               
               <TabsContent value={activeTab} className="m-0">
-                <Tabs value={activeView} onValueChange={(v) => setActiveView(v as any)}>
+                <Tabs value={activeView} onValueChange={v => setActiveView(v as any)}>
                   <TabsList className="w-full rounded-none border-b">
                     <TabsTrigger value="inbox" className="flex-1">List View</TabsTrigger>
                     <TabsTrigger value="threaded" className="flex-1">Threaded View</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="inbox" className="m-0">
-                    <ConversationList 
-                      conversations={adaptedConversations}
-                      selectedConversationId={selectedConversation?.id}
-                      onSelectConversation={handleSelectConversation}
-                      selectedItems={selectedItems}
-                      onSelectItem={handleSelectItem}
-                    />
+                    <ConversationList conversations={adaptedConversations} selectedConversationId={selectedConversation?.id} onSelectConversation={handleSelectConversation} selectedItems={selectedItems} onSelectItem={handleSelectItem} />
                   </TabsContent>
                   
                   <TabsContent value="threaded" className="m-0">
-                    <ThreadedConversationList 
-                      threads={adaptedThreads}
-                      onSelectThread={handleSelectConversation}
-                      onBulkAction={handleBulkAction}
-                    />
+                    <ThreadedConversationList threads={adaptedThreads} onSelectThread={handleSelectConversation} onBulkAction={handleBulkAction} />
                   </TabsContent>
                 </Tabs>
               </TabsContent>
             </Tabs>
-          </div>
-        )}
+          </div>}
         
-        {selectedConversation && (
-          <div className="w-full">
-            <ConversationView 
-              conversation={selectedConversation}
-              onBack={handleBack}
-              onReply={handleReply}
-            />
-          </div>
-        )}
+        {selectedConversation && <div className="w-full">
+            <ConversationView conversation={selectedConversation} onBack={handleBack} onReply={handleReply} />
+          </div>}
       </div>
-    </div>
-  );
+    </div>;
 };
