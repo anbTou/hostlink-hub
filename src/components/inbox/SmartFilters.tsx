@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Calendar, Filter, Search, Tag, User, Clock, AlertTriangle } from "lucide-react";
+import { Calendar, Filter, Search, Tag, User, Clock, AlertTriangle, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { FilterOptions, ConversationSource } from "@/types/inbox";
+import { SaveViewDialog } from "./SaveViewDialog";
+import { useSavedViews } from "@/hooks/useSavedViews";
 
 interface SmartFiltersProps {
   filters: FilterOptions;
@@ -19,6 +21,8 @@ interface SmartFiltersProps {
 
 export function SmartFilters({ filters, onFiltersChange, searchQuery, onSearchChange }: SmartFiltersProps) {
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [saveViewOpen, setSaveViewOpen] = useState(false);
+  const { createSavedView } = useSavedViews();
 
   const platformOptions: { value: ConversationSource; label: string; color: string }[] = [
     { value: "email", label: "Email", color: "bg-blue-100 text-blue-800" },
@@ -61,6 +65,10 @@ export function SmartFilters({ filters, onFiltersChange, searchQuery, onSearchCh
       tags: [],
     });
     onSearchChange("");
+  };
+
+  const handleSaveView = async (name: string, icon: string) => {
+    await createSavedView(name, filters, icon);
   };
 
   const activeFilterCount = 
@@ -120,11 +128,29 @@ export function SmartFilters({ filters, onFiltersChange, searchQuery, onSearchCh
 
         {/* Clear Filters */}
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-            Clear All
-          </Button>
+          <>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setSaveViewOpen(true)}
+              className="gap-2"
+            >
+              <Bookmark className="h-4 w-4" />
+              Save View
+            </Button>
+            <Button variant="ghost" size="sm" onClick={clearAllFilters}>
+              Clear All
+            </Button>
+          </>
         )}
       </div>
+
+      <SaveViewDialog
+        open={saveViewOpen}
+        onOpenChange={setSaveViewOpen}
+        filters={filters}
+        onSave={handleSaveView}
+      />
 
       {/* Advanced Filters */}
       {showAdvanced && (

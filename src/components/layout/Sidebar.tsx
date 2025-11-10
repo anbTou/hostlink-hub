@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,9 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SavedViewsList } from "@/components/inbox/SavedViewsList";
+import { SaveViewDialog } from "@/components/inbox/SaveViewDialog";
+import { FilterOptions } from "@/types/inbox";
 
 // Main navigation categories
 const navItems = [
@@ -53,11 +56,20 @@ const navItems = [
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
     "Tasks": true, // Default to expanded
     "Inbox": true // Default to expanded
+  });
+  const [saveViewDialogOpen, setSaveViewDialogOpen] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState<FilterOptions>({
+    status: "all",
+    platforms: [],
+    dateRange: { start: undefined, end: undefined },
+    priority: [],
+    tags: [],
   });
 
   const toggleGroup = (name: string) => {
@@ -69,6 +81,20 @@ export function Sidebar() {
 
   const isActive = (path: string) => {
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
+
+  const handleCreateView = () => {
+    setSaveViewDialogOpen(true);
+  };
+
+  const handleSaveView = async (name: string, icon: string) => {
+    // This will be handled by the useSavedViews hook
+    console.log('Save view:', name, icon, currentFilters);
+  };
+
+  const handleSelectView = (filters: FilterOptions) => {
+    // Navigate to inbox and apply filters
+    navigate('/inbox/main', { state: { filters } });
   };
 
   // For mobile: overlay menu triggered by button
@@ -170,9 +196,25 @@ export function Sidebar() {
                   </div>
                 ))}
               </nav>
+
+              {/* Saved Views Section */}
+              <div className="mt-6 border-t border-border pt-4">
+                <SavedViewsList
+                  onSelectView={handleSelectView}
+                  onCreateView={handleCreateView}
+                  collapsed={false}
+                />
+              </div>
             </div>
           </div>
         )}
+
+        <SaveViewDialog
+          open={saveViewDialogOpen}
+          onOpenChange={setSaveViewDialogOpen}
+          filters={currentFilters}
+          onSave={handleSaveView}
+        />
       </>
     );
   }
@@ -264,6 +306,24 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {/* Saved Views Section for Desktop */}
+      {!collapsed && (
+        <div className="mt-6 border-t border-border pt-4">
+          <SavedViewsList
+            onSelectView={handleSelectView}
+            onCreateView={handleCreateView}
+            collapsed={collapsed}
+          />
+        </div>
+      )}
+
+      <SaveViewDialog
+        open={saveViewDialogOpen}
+        onOpenChange={setSaveViewDialogOpen}
+        filters={currentFilters}
+        onSave={handleSaveView}
+      />
     </div>
   );
 }

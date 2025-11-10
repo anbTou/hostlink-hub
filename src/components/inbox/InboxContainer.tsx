@@ -154,6 +154,11 @@ export const InboxContainer = ({
       volume: 25
     }]
   };
+  // Calculate counters for each tab
+  const allCount = inboxFilteredConversations.length;
+  const unreadCount = inboxFilteredConversations.filter(conv => !conv.isRead).length;
+  const importantCount = inboxFilteredConversations.filter(conv => conv.labels.includes('urgent')).length;
+
   const inboxTitle = inboxType === 'main' ? 'Main Inbox' : 'Private Inbox';
   const inboxDescription = inboxType === 'main' ? 'Team-wide conversations' : 'Your personal conversations';
   return <div className="h-full bg-card rounded-lg border border-border overflow-hidden animate-scale-in">
@@ -165,9 +170,15 @@ export const InboxContainer = ({
             
             <Tabs value={activeTab} onValueChange={v => setActiveTab(v as any)}>
               <TabsList className="w-full rounded-none border-b">
-                <TabsTrigger value="all" className="flex-1">All</TabsTrigger>
-                <TabsTrigger value="unread" className="flex-1">Unread</TabsTrigger>
-                <TabsTrigger value="important" className="flex-1">Important</TabsTrigger>
+                <TabsTrigger value="all" className="flex-1">
+                  All <Badge variant="secondary" className="ml-2 text-xs">{allCount}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="unread" className="flex-1">
+                  Unread <Badge variant="secondary" className="ml-2 text-xs">{unreadCount}</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="important" className="flex-1">
+                  Important <Badge variant="secondary" className="ml-2 text-xs">{importantCount}</Badge>
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value={activeTab} className="m-0">
