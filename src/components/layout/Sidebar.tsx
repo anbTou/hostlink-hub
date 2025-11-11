@@ -65,11 +65,13 @@ export function Sidebar() {
   });
   const [saveViewDialogOpen, setSaveViewDialogOpen] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<FilterOptions>({
-    status: "all",
-    platforms: [],
-    dateRange: { start: undefined, end: undefined },
-    priority: [],
-    tags: [],
+          status: "all",
+          platforms: [],
+          dateRange: { start: undefined, end: undefined },
+          priority: [],
+          tags: [],
+          teams: [],
+          properties: [],
   });
 
   const toggleGroup = (name: string) => {

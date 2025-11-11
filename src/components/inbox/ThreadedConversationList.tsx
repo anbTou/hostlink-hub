@@ -31,6 +31,8 @@ export function ThreadedConversationList({
     dateRange: {},
     priority: [],
     tags: [],
+    teams: [],
+    properties: [],
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedThreadIds, setSelectedThreadIds] = useState<string[]>([]);

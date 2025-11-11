@@ -33,6 +33,8 @@ export const InboxContainer = ({
     priority: [],
     assignedTo: undefined,
     tags: [],
+    teams: [],
+    properties: [],
     hasAttachments: undefined,
     isUnread: undefined,
     inboxType

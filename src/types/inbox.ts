@@ -98,6 +98,9 @@ export interface FilterOptions {
   };
   priority: ('low' | 'medium' | 'high' | 'urgent')[];
   assignedTo?: string;
+  teams: string[];
+  properties: string[];
+  slaHours?: number;
   tags: string[];
   hasAttachments?: boolean;
   isUnread?: boolean;
