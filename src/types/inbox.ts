@@ -21,6 +21,7 @@ export interface Property {
 
 export interface Booking {
   id: string;
+  reservationCode: string;
   propertyId: string;
   guestId: string;
   checkIn: string;

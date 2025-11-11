@@ -61,6 +61,7 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
   // Mock booking data based on conversation - in a real app, this would come from channel manager API
   const mockBooking = {
     id: `booking-${conversation.id}`,
+    reservationCode: 'HMABCD123456',
     propertyId: 'prop-beach-villa-001',
     guestId: conversation.id,
     checkIn: '2024-09-15T15:00:00Z',

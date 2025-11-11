@@ -14,7 +14,9 @@ import {
   ExternalLink,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Hash,
+  Building2
 } from 'lucide-react';
 import { Booking, Guest } from '@/types/inbox';
 import { format, parseISO } from 'date-fns';
@@ -118,6 +120,25 @@ export function BookingInfoPanel({ booking, guest, onViewFullBooking }: BookingI
                 {Math.ceil((new Date(booking.checkOut).getTime() - new Date(booking.checkIn).getTime()) / (1000 * 60 * 60 * 24))}
               </span>
             </div>
+            <Separator className="my-2" />
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-1">
+                <Hash className="h-3 w-3" />
+                Reservation Code:
+              </span>
+              <span className="font-medium font-mono text-xs">
+                {booking.reservationCode}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                Origin:
+              </span>
+              <Badge variant="outline" className="text-xs capitalize">
+                {booking.platform}
+              </Badge>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -132,9 +153,6 @@ export function BookingInfoPanel({ booking, guest, onViewFullBooking }: BookingI
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="text-sm font-medium">Property ID: {booking.propertyId}</div>
-          <Badge variant="outline" className="text-xs">
-            {booking.platform}
-          </Badge>
         </CardContent>
       </Card>
 
