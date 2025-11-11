@@ -8,84 +8,29 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { TaskItem } from "@/components/tasks/TaskItem";
 import { Badge } from "@/components/ui/badge";
-
-// Centralized task data - all tasks in one place
-const allTasks = [
-  {
-    id: "1",
-    title: "Fix broken air conditioning in Unit 3",
-    description: "Guest reported that the A/C is not cooling properly",
-    priority: "high" as "high",
-    status: "todo" as "todo",
-    dueDate: new Date(),
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 3)),
-    assignee: "John Doe"
-  },
-  {
-    id: "2",
-    title: "Schedule pool cleaning service",
-    description: "Regular maintenance",
-    priority: "medium" as "medium",
-    status: "todo" as "todo",
-    dueDate: new Date(new Date().setDate(new Date().getDate() + 3)),
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 1)),
-    assignee: "Jane Smith"
-  },
-  {
-    id: "3",
-    title: "Respond to guest inquiry about early check-in",
-    description: "Guest arriving tomorrow, asking about 1pm check-in",
-    priority: "high" as "high",
-    status: "todo" as "todo",
-    dueDate: new Date(),
-    createdAt: new Date(new Date().setHours(new Date().getHours() - 5)),
-    assignee: "John Doe"
-  },
-  {
-    id: "4",
-    title: "Order new towels for all units",
-    description: "Current inventory is getting worn",
-    priority: "low" as "low",
-    status: "done" as "done",
-    dueDate: new Date(new Date().setDate(new Date().getDate() - 2)),
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
-    assignee: "Jane Smith"
-  },
-  {
-    id: "5",
-    title: "Update house manual with new WiFi password",
-    description: "Password was changed last week",
-    priority: "medium" as "medium",
-    status: "done" as "done",
-    dueDate: new Date(new Date().setDate(new Date().getDate() - 1)),
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 4)),
-    assignee: "John Doe"
-  },
-  {
-    id: "7",
-    title: "Research new property management software",
-    description: "Evaluate alternatives to current system",
-    priority: "low" as "low",
-    status: "todo" as "todo",
-    dueDate: new Date(new Date().setDate(new Date().getDate() + 14)),
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 10)),
-    assignee: "Jane Smith"
-  },
-  {
-    id: "8",
-    title: "Plan renovations for Unit 5",
-    description: "Create budget and timeline for bathroom updates",
-    priority: "medium" as "medium",
-    status: "todo" as "todo",
-    dueDate: new Date(new Date().setDate(new Date().getDate() + 30)),
-    createdAt: new Date(new Date().setDate(new Date().getDate() - 5)),
-    assignee: "John Doe"
-  }
-];
+import { TaskFormDialog } from "@/components/tasks/TaskFormDialog";
+import { useTasks } from "@/hooks/useTasks";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Tasks = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingTask, setEditingTask] = useState<any>(null);
+  
+  const { tasks, isLoading, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
+  
+  // Convert database tasks to component format
+  const allTasks = tasks.map(task => ({
+    id: task.id,
+    title: task.title,
+    description: task.description || "",
+    priority: task.priority as "low" | "medium" | "high" | "urgent",
+    status: task.status === "in_progress" ? "todo" : task.status as "todo" | "done",
+    dueDate: task.due_date ? new Date(task.due_date) : new Date(),
+    createdAt: new Date(task.created_at),
+    assignee: task.assigned_to || "Unassigned"
+  }));
   
   // Filter tasks based on search query and status filter
   const filteredTasks = allTasks.filter(task => {
@@ -102,6 +47,43 @@ const Tasks = () => {
   // Count tasks by status
   const todoCount = allTasks.filter(task => task.status === "todo").length;
   const doneCount = allTasks.filter(task => task.status === "done").length;
+
+  const handleCreateTask = async (data: any) => {
+    await createTask({
+      title: data.title,
+      description: data.description,
+      priority: data.priority,
+      status: data.status,
+      dueDate: data.dueDate,
+      assignedTo: data.assignedTo,
+    });
+  };
+
+  const handleEditTask = async (data: any) => {
+    if (!editingTask) return;
+    
+    await updateTask({
+      id: editingTask.id,
+      title: data.title,
+      description: data.description,
+      priority: data.priority,
+      status: data.status,
+      dueDate: data.dueDate,
+      assignedTo: data.assignedTo,
+    });
+    
+    setEditingTask(null);
+  };
+
+  const handleOpenEditDialog = (task: any) => {
+    setEditingTask(task);
+    setIsDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setIsDialogOpen(false);
+    setEditingTask(null);
+  };
   
   return (
     <MainLayout>
@@ -111,7 +93,7 @@ const Tasks = () => {
             <h1 className="text-4xl font-bold mb-2">Tasks</h1>
             <p className="text-muted-foreground">Manage and track all your property management tasks</p>
           </div>
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2" onClick={() => setIsDialogOpen(true)}>
             <PlusCircle className="h-4 w-4" />
             <span>New Task</span>
           </Button>
@@ -155,9 +137,21 @@ const Tasks = () => {
           </TabsList>
           
           <div className="mt-6 space-y-4">
-            {filteredTasks.length > 0 ? (
+            {isLoading ? (
+              <>
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+                <Skeleton className="h-24 w-full" />
+              </>
+            ) : filteredTasks.length > 0 ? (
               filteredTasks.map(task => (
-                <TaskItem key={task.id} task={task} />
+                <TaskItem 
+                  key={task.id} 
+                  task={task}
+                  onEdit={() => handleOpenEditDialog(task)}
+                  onDelete={() => deleteTask(task.id)}
+                  onToggleStatus={() => toggleTaskStatus(task.id)}
+                />
               ))
             ) : (
               <Card>
@@ -169,7 +163,7 @@ const Tasks = () => {
                       Try changing your search query
                     </p>
                   )}
-                  <Button className="mt-4">
+                  <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
                     <PlusCircle className="h-4 w-4 mr-2" />
                     Add a New Task
                   </Button>
@@ -178,6 +172,21 @@ const Tasks = () => {
             )}
           </div>
         </Tabs>
+
+        <TaskFormDialog
+          open={isDialogOpen}
+          onOpenChange={handleCloseDialog}
+          onSubmit={editingTask ? handleEditTask : handleCreateTask}
+          initialData={editingTask ? {
+            title: editingTask.title,
+            description: editingTask.description,
+            priority: editingTask.priority,
+            status: editingTask.status,
+            dueDate: editingTask.dueDate,
+            assignedTo: editingTask.assignee !== "Unassigned" ? editingTask.assignee : "",
+          } : undefined}
+          mode={editingTask ? "edit" : "create"}
+        />
       </div>
     </MainLayout>
   );

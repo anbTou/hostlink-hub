@@ -26,7 +26,7 @@ interface Task {
   id: string;
   title: string;
   description: string;
-  priority: "low" | "medium" | "high";
+  priority: "low" | "medium" | "high" | "urgent";
   status: "todo" | "done";
   dueDate: Date;
   createdAt: Date;
@@ -35,9 +35,12 @@ interface Task {
 
 interface TaskItemProps {
   task: Task;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onToggleStatus?: () => void;
 }
 
-export function TaskItem({ task }: TaskItemProps) {
+export const TaskItem = ({ task, onEdit, onDelete, onToggleStatus }: TaskItemProps) => {
   const [status, setStatus] = useState(task.status);
   
   // Calculate days since creation
@@ -49,7 +52,7 @@ export function TaskItem({ task }: TaskItemProps) {
   const handleStatusChange = () => {
     const newStatus = status === "todo" ? "done" : "todo";
     setStatus(newStatus);
-    // In a real app, this would update the task in the backend
+    onToggleStatus?.();
   };
   
   return (
@@ -83,7 +86,7 @@ export function TaskItem({ task }: TaskItemProps) {
             <div className="flex items-center gap-2">
               <Badge 
                 variant={
-                  task.priority === "high" ? "destructive" : 
+                  task.priority === "urgent" || task.priority === "high" ? "destructive" : 
                   task.priority === "medium" ? "default" : 
                   "secondary"
                 }
@@ -100,11 +103,11 @@ export function TaskItem({ task }: TaskItemProps) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem className="flex items-center">
+                  <DropdownMenuItem className="flex items-center" onClick={onEdit}>
                     <Edit className="mr-2 h-4 w-4" />
                     Edit Task
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="flex items-center text-destructive">
+                  <DropdownMenuItem className="flex items-center text-destructive" onClick={onDelete}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Task
                   </DropdownMenuItem>
