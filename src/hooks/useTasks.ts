@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import type { TaskType } from "@/components/tasks/TaskFormDialog";
 
 export interface Task {
   id: string;
@@ -9,6 +10,7 @@ export interface Task {
   description: string | null;
   priority: "low" | "medium" | "high" | "urgent";
   status: "todo" | "in_progress" | "done";
+  type: TaskType;
   due_date: string | null;
   assigned_to: string | null;
   created_at: string;
@@ -21,6 +23,7 @@ export interface CreateTaskInput {
   description?: string;
   priority: "low" | "medium" | "high" | "urgent";
   status: "todo" | "in_progress" | "done";
+  type: TaskType;
   dueDate?: Date;
   assignedTo?: string;
 }
@@ -49,7 +52,13 @@ export function useTasks() {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Task[];
+      
+      // Map database rows to Task interface with type fallback
+      return (data || []).map(row => ({
+        ...row,
+        // Handle type field - fallback to 'other' if not present in database
+        type: ((row as Record<string, unknown>).type as TaskType) || "other",
+      })) as Task[];
     },
   });
 
@@ -98,11 +107,12 @@ export function useTasks() {
   // Update task mutation
   const updateTask = useMutation({
     mutationFn: async ({ id, ...input }: UpdateTaskInput) => {
-      const updateData: any = {};
+      const updateData: Record<string, unknown> = {};
       
       if (input.title !== undefined) updateData.title = input.title;
       if (input.description !== undefined) updateData.description = input.description || null;
       if (input.priority !== undefined) updateData.priority = input.priority;
+      if (input.type !== undefined) updateData.type = input.type;
       if (input.status !== undefined) {
         updateData.status = input.status;
         if (input.status === "done") {
@@ -173,7 +183,7 @@ export function useTasks() {
       if (!task) throw new Error("Task not found");
 
       const newStatus = task.status === "done" ? "todo" : "done";
-      const updateData: any = { 
+      const updateData: Record<string, unknown> = { 
         status: newStatus,
         completed_at: newStatus === "done" ? new Date().toISOString() : null,
       };

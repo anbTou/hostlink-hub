@@ -1,16 +1,14 @@
-
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CheckCircle, PlusCircle, Search, Filter, SortAsc } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CheckCircle, PlusCircle, Search, Filter, SortAsc, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { TaskItem } from "@/components/tasks/TaskItem";
 import { Badge } from "@/components/ui/badge";
-import { TaskFormDialog } from "@/components/tasks/TaskFormDialog";
+import { TaskFormDialog, TaskFormValues } from "@/components/tasks/TaskFormDialog";
 import { useTasks } from "@/hooks/useTasks";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const Tasks = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,22 +18,10 @@ const Tasks = () => {
   
   const { tasks, isLoading, createTask, updateTask, deleteTask, toggleTaskStatus } = useTasks();
   
-  // Convert database tasks to component format
-  const allTasks = tasks.map(task => ({
-    id: task.id,
-    title: task.title,
-    description: task.description || "",
-    priority: task.priority as "low" | "medium" | "high" | "urgent",
-    status: task.status === "in_progress" ? "todo" : task.status as "todo" | "done",
-    dueDate: task.due_date ? new Date(task.due_date) : new Date(),
-    createdAt: new Date(task.created_at),
-    assignee: task.assigned_to || "Unassigned"
-  }));
-  
   // Filter tasks based on search query and status filter
-  const filteredTasks = allTasks.filter(task => {
+  const filteredTasks = tasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          task.description.toLowerCase().includes(searchQuery.toLowerCase());
+                          (task.description?.toLowerCase() || "").includes(searchQuery.toLowerCase());
     
     const matchesFilter = filter === "all" || 
                           (filter === "todo" && task.status === "todo") ||
@@ -45,21 +31,22 @@ const Tasks = () => {
   });
   
   // Count tasks by status
-  const todoCount = allTasks.filter(task => task.status === "todo").length;
-  const doneCount = allTasks.filter(task => task.status === "done").length;
+  const todoCount = tasks.filter(task => task.status === "todo").length;
+  const doneCount = tasks.filter(task => task.status === "done").length;
 
-  const handleCreateTask = async (data: any) => {
+  const handleCreateTask = async (data: TaskFormValues) => {
     await createTask({
       title: data.title,
       description: data.description,
       priority: data.priority,
       status: data.status,
+      type: data.type,
       dueDate: data.dueDate,
       assignedTo: data.assignedTo,
     });
   };
 
-  const handleEditTask = async (data: any) => {
+  const handleEditTask = async (data: TaskFormValues) => {
     if (!editingTask) return;
     
     await updateTask({
@@ -68,6 +55,7 @@ const Tasks = () => {
       description: data.description,
       priority: data.priority,
       status: data.status,
+      type: data.type,
       dueDate: data.dueDate,
       assignedTo: data.assignedTo,
     });
@@ -126,7 +114,7 @@ const Tasks = () => {
         <Tabs defaultValue="all" onValueChange={setFilter}>
           <TabsList className="w-full max-w-md">
             <TabsTrigger value="all" className="flex-1">
-              All Tasks <Badge variant="secondary" className="ml-2">{allTasks.length}</Badge>
+              All Tasks <Badge variant="secondary" className="ml-2">{tasks.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="todo" className="flex-1">
               To Do <Badge variant="secondary" className="ml-2">{todoCount}</Badge>
@@ -138,11 +126,9 @@ const Tasks = () => {
           
           <div className="mt-6 space-y-4">
             {isLoading ? (
-              <>
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <Skeleton className="h-24 w-full" />
-              </>
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
             ) : filteredTasks.length > 0 ? (
               filteredTasks.map(task => (
                 <TaskItem 
@@ -179,11 +165,12 @@ const Tasks = () => {
           onSubmit={editingTask ? handleEditTask : handleCreateTask}
           initialData={editingTask ? {
             title: editingTask.title,
-            description: editingTask.description,
+            description: editingTask.description || "",
             priority: editingTask.priority,
             status: editingTask.status,
-            dueDate: editingTask.dueDate,
-            assignedTo: editingTask.assignee !== "Unassigned" ? editingTask.assignee : "",
+            type: editingTask.type || "other",
+            dueDate: editingTask.due_date ? new Date(editingTask.due_date) : undefined,
+            assignedTo: editingTask.assigned_to || "",
           } : undefined}
           mode={editingTask ? "edit" : "create"}
         />
