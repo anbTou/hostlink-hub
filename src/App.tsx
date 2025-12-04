@@ -20,9 +20,6 @@ import TasksAll from "./pages/TasksAll";
 import Notes from "./pages/Notes";
 import WidgetManager from "./pages/WidgetManager";
 import Contacts from "./pages/Contacts";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -33,32 +30,27 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Public routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          
-          {/* Protected routes */}
-          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-          <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
-          <Route path="/inbox/main" element={<ProtectedRoute><InboxMain /></ProtectedRoute>} />
-          <Route path="/inbox/private" element={<ProtectedRoute><InboxPrivate /></ProtectedRoute>} />
-          <Route path="/knowledge" element={<ProtectedRoute><Knowledge /></ProtectedRoute>} />
-          <Route path="/property" element={<ProtectedRoute><PropertyInfo /></ProtectedRoute>} />
-          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-          <Route path="/contacts" element={<ProtectedRoute><Contacts /></ProtectedRoute>} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/inbox" element={<Inbox />} />
+          <Route path="/inbox/main" element={<InboxMain />} />
+          <Route path="/inbox/private" element={<InboxPrivate />} />
+          <Route path="/knowledge" element={<Knowledge />} />
+          <Route path="/property" element={<PropertyInfo />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/contacts" element={<Contacts />} />
           
           {/* Tasks routes */}
-          <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
-          <Route path="/tasks/today" element={<ProtectedRoute><TasksToday /></ProtectedRoute>} />
-          <Route path="/tasks/week" element={<ProtectedRoute><TasksWeek /></ProtectedRoute>} />
-          <Route path="/tasks/later" element={<ProtectedRoute><TasksLater /></ProtectedRoute>} />
-          <Route path="/tasks/all" element={<ProtectedRoute><TasksAll /></ProtectedRoute>} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/tasks/today" element={<TasksToday />} />
+          <Route path="/tasks/week" element={<TasksWeek />} />
+          <Route path="/tasks/later" element={<TasksLater />} />
+          <Route path="/tasks/all" element={<TasksAll />} />
           
           {/* Notes route */}
-          <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
+          <Route path="/notes" element={<Notes />} />
           
           {/* Widget management route */}
-          <Route path="/widgets" element={<ProtectedRoute><WidgetManager /></ProtectedRoute>} />
+          <Route path="/widgets" element={<WidgetManager />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
