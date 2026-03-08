@@ -134,12 +134,6 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
         </div>
       </div>
 
-      {/* Booking Information Panel */}
-      <BookingInfoPanel 
-        booking={mockBooking}
-        guest={mockGuest}
-        onViewFullBooking={() => console.log('View full booking details')}
-      />
     </div>
   );
 }
