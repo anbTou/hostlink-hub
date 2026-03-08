@@ -327,8 +327,22 @@ export const InboxContainer = () => {
         {selectedConversation ? (
           <ConversationView
             conversation={selectedConversation}
+            guestName={selectedInboxConv?.guestName || ""}
+            guestAvatarUrl={selectedInboxConv?.guestAvatarUrl}
+            channel={selectedInboxConv?.channel || "email"}
+            reservationCode={booking?.reservationCode}
+            propertyName={selectedInboxConv?.propertyName}
+            tags={selectedInboxConv?.tags || []}
             onBack={() => setSelectedId(null)}
             onReply={(content) => console.log("Reply:", content)}
+            onAssign={(agentId) => handleAssign(selectedId!)}
+            onTag={(tag) => {
+              setConversations(prev => prev.map(c =>
+                c.id === selectedId ? { ...c, tags: [...c.tags, tag] } : c
+              ));
+            }}
+            onSnooze={() => handleSnooze(selectedId!)}
+            onResolve={() => handleResolve(selectedId!)}
           />
         ) : (
           <div className="flex-1 flex items-center justify-center text-muted-foreground">

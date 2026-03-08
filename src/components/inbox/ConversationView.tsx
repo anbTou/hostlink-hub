@@ -1,15 +1,10 @@
-
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Send, Reply, Forward, Archive, Trash2 } from 'lucide-react';
-import { EmailActions } from './EmailActions';
-import { PlainTextToggle } from './PlainTextToggle';
-import { ThreadedView } from './ThreadedView';
-import { CollisionBanner } from './CollisionBanner';
-import { BookingInfoPanel } from './BookingInfoPanel';
-import { adaptMessagesToThreadFormat } from './MessageAdapter';
-import { useCollisionPrevention } from '@/hooks/useCollisionPrevention';
+import { ConversationHeader } from './ConversationHeader';
+import { ChatMessageThread, ChatMessage } from './ChatMessageThread';
+import { ComposeArea } from './ComposeArea';
+import { ConversationSource } from '@/types/inbox';
+import { getCurrentUser } from '@/types/team';
+import { useToast } from '@/hooks/use-toast';
 
 interface ConversationViewProps {
   conversation: {
@@ -29,111 +24,111 @@ interface ConversationViewProps {
       isRead: boolean;
     }>;
   };
+  guestName: string;
+  guestAvatarUrl?: string;
+  channel: ConversationSource;
+  reservationCode?: string;
+  propertyName?: string;
+  tags: string[];
   onBack: () => void;
   onReply?: (content: string) => void;
+  onAssign?: (agentId: string) => void;
+  onTag?: (tag: string) => void;
+  onSnooze?: (hours: number) => void;
+  onResolve?: () => void;
 }
 
-export function ConversationView({ conversation, onBack, onReply }: ConversationViewProps) {
-  const [replyContent, setReplyContent] = useState('');
-  const [isPlainText, setIsPlainText] = useState(false);
-  const { getAssignmentStatus, autoAssignOnReply } = useCollisionPrevention();
-  
-  const assignmentStatus = getAssignmentStatus(conversation.id);
+export function ConversationView({
+  conversation,
+  guestName,
+  guestAvatarUrl,
+  channel,
+  reservationCode,
+  propertyName,
+  tags,
+  onBack,
+  onReply,
+  onAssign,
+  onTag,
+  onSnooze,
+  onResolve,
+}: ConversationViewProps) {
+  const { toast } = useToast();
+  const currentUser = getCurrentUser();
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() =>
+    conversation.messages.map(msg => ({
+      id: msg.id,
+      content: msg.content,
+      sender: "guest" as const,
+      senderName: guestName,
+      senderAvatar: guestAvatarUrl,
+      timestamp: msg.date,
+      channel,
+      isRead: msg.isRead,
+    }))
+  );
 
-  const handleReply = () => {
-    if (replyContent.trim()) {
-      const assigned = autoAssignOnReply(conversation.id, `reply-${Date.now()}`);
-      
-      if (assigned && onReply) {
-        onReply(replyContent);
-        setReplyContent('');
-      }
+  const handleSend = (content: string, sendChannel: ConversationSource, isInternal: boolean) => {
+    const newMsg: ChatMessage = {
+      id: `msg-${Date.now()}`,
+      content,
+      sender: isInternal ? "internal" : "team",
+      senderName: currentUser.name,
+      timestamp: new Date().toISOString(),
+      channel: sendChannel,
+      isRead: true,
+    };
+    setChatMessages(prev => [...prev, newMsg]);
+
+    if (!isInternal) {
+      onReply?.(content);
+      toast({ title: `Reply sent via ${sendChannel}` });
+    } else {
+      toast({ title: "Internal note added" });
     }
   };
 
-  const handleTakeOver = () => {
-    autoAssignOnReply(conversation.id, `takeover-${Date.now()}`);
-  };
-
-  // Adapt messages to the format expected by ThreadedView
-  const adaptedMessages = adaptMessagesToThreadFormat(conversation.messages, conversation.subject);
-
-  // Mock booking data based on conversation - in a real app, this would come from channel manager API
-  const mockBooking = {
-    id: `booking-${conversation.id}`,
-    reservationCode: 'HMABCD123456',
-    propertyId: 'prop-beach-villa-001',
-    guestId: conversation.id,
-    checkIn: '2024-09-15T15:00:00Z',
-    checkOut: '2024-09-22T11:00:00Z',
-    status: 'upcoming' as const,
-    platform: 'airbnb' as const,
-    totalAmount: 2800,
-    currency: 'USD'
-  };
-
-  const mockGuest = {
-    id: conversation.id,
-    name: conversation.from.split('<')[0].trim(),
-    email: conversation.from,
-    phone: '+1 (555) 123-4567',
-    totalStays: 3,
-    totalSpent: 8500,
-    memberSince: '2023-01-15',
-    preferredLanguage: 'en',
-    vipStatus: 'silver' as const
-  };
-
   return (
-    <div className="h-full flex">
-      {/* Main conversation content */}
-      <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between px-5 py-4 border-b">
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={onBack}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div>
-              <h2 className="font-semibold">{conversation.subject}</h2>
-              <p className="text-sm text-muted-foreground">{conversation.from}</p>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <PlainTextToggle isPlainText={isPlainText} onToggle={setIsPlainText} />
-          </div>
-        </div>
+    <div className="h-full flex flex-col">
+      <ConversationHeader
+        guestName={guestName}
+        guestAvatarUrl={guestAvatarUrl}
+        reservationCode={reservationCode}
+        propertyName={propertyName}
+        channel={channel}
+        tags={tags}
+        onBack={onBack}
+        onAssign={(agentId) => {
+          onAssign?.(agentId);
+          toast({ title: "Conversation assigned" });
+        }}
+        onTag={(tag) => {
+          onTag?.(tag);
+          toast({ title: `Tag "${tag}" added` });
+        }}
+        onSnooze={(hours) => {
+          onSnooze?.(hours);
+          toast({ title: `Snoozed for ${hours} hours` });
+        }}
+        onResolve={() => {
+          onResolve?.();
+          toast({ title: "Conversation resolved" });
+        }}
+      />
 
-        <CollisionBanner 
-          assignmentStatus={assignmentStatus}
-          onTakeOver={handleTakeOver}
-          canTakeOver={assignmentStatus.canTakeOver}
-        />
+      <ChatMessageThread
+        messages={chatMessages}
+        // Mock: show typing/viewing indicators for demo
+        // typingAgent="João"
+        // viewingAgent="Ana"
+      />
 
-        <div className="flex-1 overflow-auto">
-          <ThreadedView 
-            messages={adaptedMessages} 
-            threadId={conversation.id}
-            isPlainText={isPlainText}
-          />
-        </div>
-
-        <div className="px-5 py-4 border-t">
-          <div className="flex gap-2">
-            <Textarea
-              placeholder="Type your reply..."
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              className="flex-1"
-              rows={3}
-            />
-            <Button onClick={handleReply} disabled={!replyContent.trim()}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
-
+      <ComposeArea
+        defaultChannel={channel}
+        onSend={handleSend}
+        guestName={guestName}
+        propertyName={propertyName}
+      />
     </div>
   );
 }
