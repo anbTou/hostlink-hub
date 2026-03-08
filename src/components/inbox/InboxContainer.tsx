@@ -186,6 +186,7 @@ export const InboxContainer = () => {
   const [activeChannels, setActiveChannels] = useState<ConversationSource[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showResolved, setShowResolved] = useState(false);
+  const [quickFilter, setQuickFilter] = useState<QuickFilter>(null);
   const { toast } = useToast();
 
   // Filter logic
