@@ -88,7 +88,7 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
     <div className="h-full flex">
       {/* Main conversation content */}
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex items-center justify-between px-5 py-4 border-b">
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={onBack}>
               <ArrowLeft className="h-4 w-4" />
