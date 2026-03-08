@@ -212,6 +212,13 @@ export const InboxContainer = () => {
     }
 
     // Channel filter
+    // Quick filter (check-in / check-out today)
+    if (quickFilter === "checkin_today") {
+      result = result.filter(c => c.checkIn && isToday(parseISO(c.checkIn)));
+    } else if (quickFilter === "checkout_today") {
+      result = result.filter(c => c.checkOut && isToday(parseISO(c.checkOut)));
+    }
+
     if (activeChannels.length > 0) {
       result = result.filter(c => activeChannels.includes(c.channel));
     }
