@@ -267,6 +267,8 @@ export const InboxContainer = () => {
   const unreadCount = conversations.filter(c => c.isUnread && !c.isResolved).length;
   const mineCount = conversations.filter(c => c.isAssignedToMe && !c.isResolved).length;
   const importantCount = conversations.filter(c => c.isStarred && !c.isResolved).length;
+  const checkinTodayCount = conversations.filter(c => c.checkIn && isToday(parseISO(c.checkIn)) && !c.isResolved).length;
+  const checkoutTodayCount = conversations.filter(c => c.checkOut && isToday(parseISO(c.checkOut)) && !c.isResolved).length;
 
   return (
     <div className="h-[calc(100vh-5rem)] bg-card rounded-lg border border-border overflow-hidden flex">
