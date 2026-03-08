@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
+  Mail, Home, MessageSquare, Building2, Plane,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
