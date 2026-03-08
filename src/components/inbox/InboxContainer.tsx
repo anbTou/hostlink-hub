@@ -177,7 +177,7 @@ const bookingData: Record<string, { reservationCode: string; propertyName: strin
 };
 
 type TabType = "all" | "unread" | "mine" | "important";
-type QuickFilter = "checkin_today" | "checkout_today" | null;
+type QuickFilter = QuickFilterValue;
 
 export const InboxContainer = () => {
   const [conversations, setConversations] = useState(sampleConversations);
