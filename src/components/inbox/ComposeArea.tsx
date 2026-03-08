@@ -25,11 +25,13 @@ interface ComposeAreaProps {
   checkOutDate?: string;
 }
 
-const channelOptions: { value: ConversationSource; label: string }[] = [
-  { value: "email", label: "Email" },
-  { value: "airbnb", label: "Airbnb" },
-  { value: "booking", label: "Booking" },
-  { value: "whatsapp", label: "WhatsApp" },
+const channelOptions: { value: ConversationSource; label: string; icon: React.ReactNode }[] = [
+  { value: "booking", label: "Booking.com", icon: <Building2 className="h-3.5 w-3.5" /> },
+  { value: "airbnb", label: "Airbnb", icon: <Home className="h-3.5 w-3.5" /> },
+  { value: "whatsapp", label: "WhatsApp", icon: <MessageSquare className="h-3.5 w-3.5" /> },
+  { value: "email", label: "Email", icon: <Mail className="h-3.5 w-3.5" /> },
+  { value: "vrbo", label: "VRBO", icon: <Home className="h-3.5 w-3.5" /> },
+  { value: "expedia", label: "Expedia", icon: <Plane className="h-3.5 w-3.5" /> },
 ];
 
 export function ComposeArea({
