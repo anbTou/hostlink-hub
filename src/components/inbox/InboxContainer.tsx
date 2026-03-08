@@ -212,11 +212,19 @@ export const InboxContainer = () => {
     }
 
     // Channel filter
-    // Quick filter (check-in / check-out today)
+    // Quick filter
     if (quickFilter === "checkin_today") {
       result = result.filter(c => c.checkIn && isToday(parseISO(c.checkIn)));
     } else if (quickFilter === "checkout_today") {
       result = result.filter(c => c.checkOut && isToday(parseISO(c.checkOut)));
+    } else if (quickFilter === "arriving_this_week") {
+      result = result.filter(c => c.checkIn && isThisWeek(parseISO(c.checkIn)));
+    } else if (quickFilter === "urgent") {
+      result = result.filter(c => c.tags.includes("urgent"));
+    } else if (quickFilter === "tagged") {
+      result = result.filter(c => c.tags.length > 0);
+    } else if (quickFilter === "unassigned") {
+      result = result.filter(c => !c.assignedTo);
     }
 
     if (activeChannels.length > 0) {
