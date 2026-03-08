@@ -201,7 +201,7 @@ export function InboxFilterDropdowns({
         </Button>
 
         {filterOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg z-50 py-1 min-w-[180px]">
+          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 py-1 min-w-[180px]">
             {filterOptions.map((opt, i) => (
               <div key={opt.value ?? "all"}>
                 {i === 1 && <div className="border-t border-border my-1" />}
