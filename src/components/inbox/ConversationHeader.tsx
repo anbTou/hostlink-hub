@@ -80,7 +80,7 @@ export function ConversationHeader({
             <img src={guestAvatarUrl} alt={guestName} />
           ) : (
             <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary text-sm font-semibold">
-              {guestName.charAt(0)}
+              {guestName?.charAt(0) || "?"}
             </div>
           )}
         </Avatar>
