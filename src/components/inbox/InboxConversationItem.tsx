@@ -61,7 +61,7 @@ export function InboxConversationItem({
   return (
     <div
       className={cn(
-        "relative px-3 py-3 cursor-pointer transition-colors border-b border-border group",
+        "relative px-4 py-3.5 cursor-pointer transition-colors border-b border-border group",
         isSelected && "bg-accent",
         !isSelected && "hover:bg-muted/50",
         conversation.isUnread && !isSelected && "bg-primary/[0.04]",
