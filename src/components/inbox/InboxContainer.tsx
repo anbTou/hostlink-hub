@@ -235,7 +235,7 @@ export const InboxContainer = () => {
 
     // Sort by timestamp desc
     return [...result].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [conversations, activeTab, activeChannels, searchQuery, showResolved]);
+  }, [conversations, activeTab, activeChannels, searchQuery, showResolved, quickFilter]);
 
   const toggleChannel = (ch: ConversationSource) => {
     setActiveChannels(prev => prev.includes(ch) ? prev.filter(c => c !== ch) : [...prev, ch]);
