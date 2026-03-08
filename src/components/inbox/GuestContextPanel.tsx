@@ -71,7 +71,7 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-4">
         {/* Contact Info */}
         <Card>
           <CardHeader className="pb-2 pt-3 px-3">
