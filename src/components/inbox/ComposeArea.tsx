@@ -123,14 +123,16 @@ export function ComposeArea({
             <span className="text-[11px] text-muted-foreground">Replying via:</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-6 text-[11px] gap-1 px-2">
-                  {channelOptions.find(c => c.value === selectedChannel)?.label}
+                <Button variant="outline" size="sm" className="h-6 text-[11px] gap-1.5 px-2.5 bg-card border-border">
+                  {selectedOption?.icon}
+                  {selectedOption?.label}
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-32">
+              <DropdownMenuContent align="start" className="min-w-[180px] bg-card border-border shadow-lg">
                 {channelOptions.map(ch => (
-                  <DropdownMenuItem key={ch.value} onClick={() => setSelectedChannel(ch.value)}>
+                  <DropdownMenuItem key={ch.value} onClick={() => setSelectedChannel(ch.value)} className="gap-2 text-xs">
+                    {ch.icon}
                     {ch.label}
                   </DropdownMenuItem>
                 ))}
