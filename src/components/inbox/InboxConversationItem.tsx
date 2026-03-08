@@ -26,6 +26,8 @@ export interface InboxConversation {
   assignedToName?: string;
   assignedToAvatar?: string;
   isAssignedToMe: boolean;
+  checkIn?: string;
+  checkOut?: string;
 }
 
 interface InboxConversationItemProps {
