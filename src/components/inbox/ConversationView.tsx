@@ -127,6 +127,7 @@ export function ConversationView({
         defaultChannel={channel}
         onSend={handleSend}
         guestName={guestName}
+        guestEmail={conversation.from}
         propertyName={propertyName}
       />
     </div>
