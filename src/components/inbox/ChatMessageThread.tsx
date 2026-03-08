@@ -67,7 +67,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             <img src={message.senderAvatar} alt={message.senderName} />
           ) : (
             <div className="bg-primary/10 h-full w-full flex items-center justify-center text-primary text-[10px] font-semibold">
-              {message.senderName.charAt(0)}
+              {message.senderName?.charAt(0) || "?"}
             </div>
           )}
         </Avatar>
@@ -108,7 +108,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
             <img src={message.senderAvatar} alt={message.senderName} />
           ) : (
             <div className="bg-primary h-full w-full flex items-center justify-center text-primary-foreground text-[10px] font-semibold">
-              {message.senderName.charAt(0)}
+              {message.senderName?.charAt(0) || "?"}
             </div>
           )}
         </Avatar>
