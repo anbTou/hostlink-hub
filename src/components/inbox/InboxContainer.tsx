@@ -299,6 +299,37 @@ export const InboxContainer = () => {
           onToggleChannel={toggleChannel}
         />
 
+        {/* Quick Filters: Check-in / Check-out Today */}
+        <div className="flex gap-1.5 px-4 py-2 border-b border-border">
+          <Button
+            variant={quickFilter === "checkin_today" ? "default" : "outline"}
+            size="sm"
+            className="h-7 text-xs px-2.5 gap-1.5"
+            onClick={() => setQuickFilter(prev => prev === "checkin_today" ? null : "checkin_today")}
+          >
+            <LogIn className="h-3 w-3" />
+            Check-in Today
+            {checkinTodayCount > 0 && (
+              <Badge variant={quickFilter === "checkin_today" ? "secondary" : "outline"} className="text-[9px] h-4 px-1 min-w-[16px]">
+                {checkinTodayCount}
+              </Badge>
+            )}
+          </Button>
+          <Button
+            variant={quickFilter === "checkout_today" ? "default" : "outline"}
+            size="sm"
+            className="h-7 text-xs px-2.5 gap-1.5"
+            onClick={() => setQuickFilter(prev => prev === "checkout_today" ? null : "checkout_today")}
+          >
+            <LogOut className="h-3 w-3" />
+            Check-out Today
+            {checkoutTodayCount > 0 && (
+              <Badge variant={quickFilter === "checkout_today" ? "secondary" : "outline"} className="text-[9px] h-4 px-1 min-w-[16px]">
+                {checkoutTodayCount}
+              </Badge>
+            )}
+          </Button>
+        </div>
         {/* Search */}
         <div className="px-4 py-2.5 border-b border-border">
           <div className="relative">
