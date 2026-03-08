@@ -48,7 +48,12 @@ export function ComposeArea({
   const [showTemplates, setShowTemplates] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  useEffect(() => {
+    setSelectedChannel(defaultChannel);
+  }, [defaultChannel]);
+
   const isNote = mode === "note";
+  const selectedOption = channelOptions.find(c => c.value === selectedChannel);
 
   const handleSend = () => {
     if (!content.trim()) return;
