@@ -47,7 +47,7 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
   return (
     <div className="w-[360px] shrink-0 border-l border-border bg-muted/20 overflow-y-auto">
       {/* Guest Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-5 border-b border-border">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12">
             {guest.avatarUrl ? (
