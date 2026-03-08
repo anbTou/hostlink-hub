@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
+  Mail, Home, MessageSquare, Building2, Plane,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
@@ -24,11 +25,13 @@ interface ComposeAreaProps {
   checkOutDate?: string;
 }
 
-const channelOptions: { value: ConversationSource; label: string }[] = [
-  { value: "email", label: "Email" },
-  { value: "airbnb", label: "Airbnb" },
-  { value: "booking", label: "Booking" },
-  { value: "whatsapp", label: "WhatsApp" },
+const channelOptions: { value: ConversationSource; label: string; icon: React.ReactNode }[] = [
+  { value: "booking", label: "Booking.com", icon: <Building2 className="h-3.5 w-3.5" /> },
+  { value: "airbnb", label: "Airbnb", icon: <Home className="h-3.5 w-3.5" /> },
+  { value: "whatsapp", label: "WhatsApp", icon: <MessageSquare className="h-3.5 w-3.5" /> },
+  { value: "email", label: "Email", icon: <Mail className="h-3.5 w-3.5" /> },
+  { value: "vrbo", label: "VRBO", icon: <Home className="h-3.5 w-3.5" /> },
+  { value: "expedia", label: "Expedia", icon: <Plane className="h-3.5 w-3.5" /> },
 ];
 
 export function ComposeArea({
@@ -45,7 +48,12 @@ export function ComposeArea({
   const [showTemplates, setShowTemplates] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  useEffect(() => {
+    setSelectedChannel(defaultChannel);
+  }, [defaultChannel]);
+
   const isNote = mode === "note";
+  const selectedOption = channelOptions.find(c => c.value === selectedChannel);
 
   const handleSend = () => {
     if (!content.trim()) return;
@@ -115,14 +123,16 @@ export function ComposeArea({
             <span className="text-[11px] text-muted-foreground">Replying via:</span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-6 text-[11px] gap-1 px-2">
-                  {channelOptions.find(c => c.value === selectedChannel)?.label}
+                <Button variant="outline" size="sm" className="h-6 text-[11px] gap-1.5 px-2.5 bg-card border-border">
+                  {selectedOption?.icon}
+                  {selectedOption?.label}
                   <ChevronDown className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-32">
+              <DropdownMenuContent align="start" className="min-w-[180px] bg-card border-border shadow-lg">
                 {channelOptions.map(ch => (
-                  <DropdownMenuItem key={ch.value} onClick={() => setSelectedChannel(ch.value)}>
+                  <DropdownMenuItem key={ch.value} onClick={() => setSelectedChannel(ch.value)} className="gap-2 text-xs">
+                    {ch.icon}
                     {ch.label}
                   </DropdownMenuItem>
                 ))}
