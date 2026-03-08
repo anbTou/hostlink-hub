@@ -135,7 +135,7 @@ export function InboxFilterDropdowns({
         </Button>
 
         {channelOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 py-1">
+          <div className="absolute top-full left-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 py-1 min-w-[200px] w-max">
             {allChannels.map(ch => {
               const isActive = activeChannels.includes(ch.value);
               const count = channelUnreadCounts[ch.value] || 0;
@@ -201,7 +201,7 @@ export function InboxFilterDropdowns({
         </Button>
 
         {filterOpen && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 py-1 min-w-[180px]">
+          <div className="absolute top-full right-0 mt-1 bg-card border border-border rounded-md shadow-lg z-50 py-1 min-w-[210px] w-max">
             {filterOptions.map((opt, i) => (
               <div key={opt.value ?? "all"}>
                 {i === 1 && <div className="border-t border-border my-1" />}
