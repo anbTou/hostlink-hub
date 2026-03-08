@@ -97,10 +97,10 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
 
         {/* Guest Stats */}
         <Card>
-          <CardHeader className="pb-2 pt-3 px-3">
+          <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Guest History</CardTitle>
           </CardHeader>
-          <CardContent className="px-3 pb-3">
+          <CardContent className="px-4 pb-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center p-2 bg-muted/50 rounded-md">
                 <div className="text-lg font-semibold text-foreground">{guest.totalStays}</div>
