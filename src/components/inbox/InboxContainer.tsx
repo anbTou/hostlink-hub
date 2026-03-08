@@ -275,8 +275,14 @@ export const InboxContainer = () => {
   const unreadCount = conversations.filter(c => c.isUnread && !c.isResolved).length;
   const mineCount = conversations.filter(c => c.isAssignedToMe && !c.isResolved).length;
   const importantCount = conversations.filter(c => c.isStarred && !c.isResolved).length;
-  const checkinTodayCount = conversations.filter(c => c.checkIn && isToday(parseISO(c.checkIn)) && !c.isResolved).length;
-  const checkoutTodayCount = conversations.filter(c => c.checkOut && isToday(parseISO(c.checkOut)) && !c.isResolved).length;
+  const channelUnreadCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const sources: ConversationSource[] = ["email", "airbnb", "booking", "whatsapp", "vrbo", "expedia"];
+    sources.forEach(ch => {
+      counts[ch] = conversations.filter(c => c.channel === ch && c.isUnread && !c.isResolved).length;
+    });
+    return counts as Record<ConversationSource, number>;
+  }, [conversations]);
 
   return (
     <div className="h-[calc(100vh-5rem)] bg-card rounded-lg border border-border overflow-hidden flex">
