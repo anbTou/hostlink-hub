@@ -159,10 +159,10 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
         {/* Property */}
         {propertyName && (
           <Card>
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Property</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Property</CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="font-medium">{propertyName}</span>

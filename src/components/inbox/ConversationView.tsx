@@ -118,7 +118,7 @@ export function ConversationView({ conversation, onBack, onReply }: Conversation
           />
         </div>
 
-        <div className="p-4 border-t">
+        <div className="px-5 py-4 border-t">
           <div className="flex gap-2">
             <Textarea
               placeholder="Type your reply..."

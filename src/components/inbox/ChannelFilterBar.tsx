@@ -24,7 +24,7 @@ export function ChannelFilterBar({ conversations, activeChannels, onToggleChanne
     conversations.filter(c => c.channel === channel && c.isUnread).length;
 
   return (
-    <div className="flex gap-1 px-3 py-2 overflow-x-auto border-b border-border scrollbar-hide">
+    <div className="flex gap-1.5 px-4 py-2.5 overflow-x-auto border-b border-border scrollbar-hide">
       {channels.map(ch => {
         const unread = getUnreadCount(ch.value);
         const isActive = activeChannels.includes(ch.value);

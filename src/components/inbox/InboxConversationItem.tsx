@@ -71,7 +71,7 @@ export function InboxConversationItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-start gap-2.5">
+      <div className="flex items-start gap-3">
         {/* Avatar */}
         <Avatar className="h-9 w-9 shrink-0 mt-0.5">
           {conversation.guestAvatarUrl ? (
