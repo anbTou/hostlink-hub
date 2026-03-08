@@ -18,6 +18,8 @@ import { useToast } from "@/hooks/use-toast";
 // Enriched sample data
 const currentUser = getCurrentUser();
 
+const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
 const sampleConversations: InboxConversation[] = [
   {
     id: "1",
@@ -35,6 +37,7 @@ const sampleConversations: InboxConversation[] = [
     assignedTo: currentUser.id,
     assignedToName: currentUser.name,
     isAssignedToMe: true,
+    checkIn: today + "T15:00:00Z",
   },
   {
     id: "2",
@@ -50,6 +53,7 @@ const sampleConversations: InboxConversation[] = [
     isSnoozed: false,
     isResolved: false,
     isAssignedToMe: false,
+    checkOut: today + "T11:00:00Z",
   },
   {
     id: "3",
@@ -82,6 +86,8 @@ const sampleConversations: InboxConversation[] = [
     assignedTo: currentUser.id,
     assignedToName: currentUser.name,
     isAssignedToMe: true,
+    checkIn: today + "T14:00:00Z",
+    checkOut: today + "T11:00:00Z",
   },
   {
     id: "5",
