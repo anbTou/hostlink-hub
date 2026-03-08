@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { Search, Send, LogIn, LogOut } from "lucide-react";
+import { Search, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { isToday, parseISO } from "date-fns";
+import { isToday, parseISO, isThisWeek } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { GuestContextPanel } from "@/components/inbox/GuestContextPanel";
-import { ChannelFilterBar } from "@/components/inbox/ChannelFilterBar";
+import { InboxFilterDropdowns, QuickFilterValue } from "@/components/inbox/InboxFilterDropdowns";
 import { InboxConversationItem, InboxConversation } from "@/components/inbox/InboxConversationItem";
 import { ConversationSource } from "@/types/inbox";
 import { getCurrentUser } from "@/types/team";
@@ -177,7 +177,7 @@ const bookingData: Record<string, { reservationCode: string; propertyName: strin
 };
 
 type TabType = "all" | "unread" | "mine" | "important";
-type QuickFilter = "checkin_today" | "checkout_today" | null;
+type QuickFilter = QuickFilterValue;
 
 export const InboxContainer = () => {
   const [conversations, setConversations] = useState(sampleConversations);
@@ -212,11 +212,19 @@ export const InboxContainer = () => {
     }
 
     // Channel filter
-    // Quick filter (check-in / check-out today)
+    // Quick filter
     if (quickFilter === "checkin_today") {
       result = result.filter(c => c.checkIn && isToday(parseISO(c.checkIn)));
     } else if (quickFilter === "checkout_today") {
       result = result.filter(c => c.checkOut && isToday(parseISO(c.checkOut)));
+    } else if (quickFilter === "arriving_this_week") {
+      result = result.filter(c => c.checkIn && isThisWeek(parseISO(c.checkIn)));
+    } else if (quickFilter === "urgent") {
+      result = result.filter(c => c.tags.includes("urgent"));
+    } else if (quickFilter === "tagged") {
+      result = result.filter(c => c.tags.length > 0);
+    } else if (quickFilter === "unassigned") {
+      result = result.filter(c => !c.assignedTo);
     }
 
     if (activeChannels.length > 0) {
@@ -267,8 +275,14 @@ export const InboxContainer = () => {
   const unreadCount = conversations.filter(c => c.isUnread && !c.isResolved).length;
   const mineCount = conversations.filter(c => c.isAssignedToMe && !c.isResolved).length;
   const importantCount = conversations.filter(c => c.isStarred && !c.isResolved).length;
-  const checkinTodayCount = conversations.filter(c => c.checkIn && isToday(parseISO(c.checkIn)) && !c.isResolved).length;
-  const checkoutTodayCount = conversations.filter(c => c.checkOut && isToday(parseISO(c.checkOut)) && !c.isResolved).length;
+  const channelUnreadCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const sources: ConversationSource[] = ["email", "airbnb", "booking", "whatsapp", "vrbo", "expedia"];
+    sources.forEach(ch => {
+      counts[ch] = conversations.filter(c => c.channel === ch && c.isUnread && !c.isResolved).length;
+    });
+    return counts as Record<ConversationSource, number>;
+  }, [conversations]);
 
   return (
     <div className="h-[calc(100vh-5rem)] bg-card rounded-lg border border-border overflow-hidden flex">
@@ -292,44 +306,15 @@ export const InboxContainer = () => {
           </TabsList>
         </Tabs>
 
-        {/* Channel Filter Bar */}
-        <ChannelFilterBar
-          conversations={conversations}
+        {/* Filter Dropdowns */}
+        <InboxFilterDropdowns
           activeChannels={activeChannels}
           onToggleChannel={toggleChannel}
+          onClearChannels={() => setActiveChannels([])}
+          quickFilter={quickFilter}
+          onSetQuickFilter={setQuickFilter}
+          channelUnreadCounts={channelUnreadCounts}
         />
-
-        {/* Quick Filters: Check-in / Check-out Today */}
-        <div className="flex gap-1.5 px-4 py-2 border-b border-border">
-          <Button
-            variant={quickFilter === "checkin_today" ? "default" : "outline"}
-            size="sm"
-            className="h-7 text-xs px-2.5 gap-1.5"
-            onClick={() => setQuickFilter(prev => prev === "checkin_today" ? null : "checkin_today")}
-          >
-            <LogIn className="h-3 w-3" />
-            Check-in Today
-            {checkinTodayCount > 0 && (
-              <Badge variant={quickFilter === "checkin_today" ? "secondary" : "outline"} className="text-[9px] h-4 px-1 min-w-[16px]">
-                {checkinTodayCount}
-              </Badge>
-            )}
-          </Button>
-          <Button
-            variant={quickFilter === "checkout_today" ? "default" : "outline"}
-            size="sm"
-            className="h-7 text-xs px-2.5 gap-1.5"
-            onClick={() => setQuickFilter(prev => prev === "checkout_today" ? null : "checkout_today")}
-          >
-            <LogOut className="h-3 w-3" />
-            Check-out Today
-            {checkoutTodayCount > 0 && (
-              <Badge variant={quickFilter === "checkout_today" ? "secondary" : "outline"} className="text-[9px] h-4 px-1 min-w-[16px]">
-                {checkoutTodayCount}
-              </Badge>
-            )}
-          </Button>
-        </div>
         {/* Search */}
         <div className="px-4 py-2.5 border-b border-border">
           <div className="relative">
