@@ -120,10 +120,10 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
         {/* Active Booking */}
         {booking && (
           <Card>
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Booking</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3 space-y-2">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Booking</CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-muted-foreground">{booking.reservationCode}</span>
                 <Badge className={`text-[10px] ${getStatusColor(booking.status)}`}>
