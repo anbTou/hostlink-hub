@@ -282,12 +282,12 @@ export const InboxContainer = () => {
         />
 
         {/* Search */}
-        <div className="px-3 py-2 border-b border-border">
+        <div className="px-4 py-2.5 border-b border-border">
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               placeholder="Search conversations..."
-              className="pl-8 h-8 text-xs"
+              className="pl-9 h-9 text-xs"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
             />
@@ -295,7 +295,7 @@ export const InboxContainer = () => {
         </div>
 
         {/* Show resolved toggle */}
-        <div className="px-3 py-1.5 border-b border-border flex items-center justify-between">
+        <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
           <Label className="text-[10px] text-muted-foreground">Show resolved</Label>
           <Switch checked={showResolved} onCheckedChange={setShowResolved} className="scale-75" />
         </div>

@@ -47,7 +47,7 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
   return (
     <div className="w-[360px] shrink-0 border-l border-border bg-muted/20 overflow-y-auto">
       {/* Guest Header */}
-      <div className="p-4 border-b border-border">
+      <div className="p-5 border-b border-border">
         <div className="flex items-center gap-3">
           <Avatar className="h-12 w-12">
             {guest.avatarUrl ? (
@@ -71,13 +71,13 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
         </div>
       </div>
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-4">
         {/* Contact Info */}
         <Card>
-          <CardHeader className="pb-2 pt-3 px-3">
+          <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Contact</CardTitle>
           </CardHeader>
-          <CardContent className="px-3 pb-3 space-y-2">
+          <CardContent className="px-4 pb-4 space-y-2.5">
             <div className="flex items-center gap-2 text-sm">
               <Mail className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="truncate">{guest.email}</span>
@@ -97,10 +97,10 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
 
         {/* Guest Stats */}
         <Card>
-          <CardHeader className="pb-2 pt-3 px-3">
+          <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Guest History</CardTitle>
           </CardHeader>
-          <CardContent className="px-3 pb-3">
+          <CardContent className="px-4 pb-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center p-2 bg-muted/50 rounded-md">
                 <div className="text-lg font-semibold text-foreground">{guest.totalStays}</div>
@@ -120,10 +120,10 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
         {/* Active Booking */}
         {booking && (
           <Card>
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Booking</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3 space-y-2">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Booking</CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono text-muted-foreground">{booking.reservationCode}</span>
                 <Badge className={`text-[10px] ${getStatusColor(booking.status)}`}>
@@ -159,10 +159,10 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
         {/* Property */}
         {propertyName && (
           <Card>
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Property</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
+          <CardHeader className="pb-2 pt-4 px-4">
+            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Property</CardTitle>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="font-medium">{propertyName}</span>

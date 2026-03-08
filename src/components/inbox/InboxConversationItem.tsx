@@ -61,7 +61,7 @@ export function InboxConversationItem({
   return (
     <div
       className={cn(
-        "relative px-3 py-3 cursor-pointer transition-colors border-b border-border group",
+        "relative px-4 py-3.5 cursor-pointer transition-colors border-b border-border group",
         isSelected && "bg-accent",
         !isSelected && "hover:bg-muted/50",
         conversation.isUnread && !isSelected && "bg-primary/[0.04]",
@@ -71,7 +71,7 @@ export function InboxConversationItem({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-start gap-2.5">
+      <div className="flex items-start gap-3">
         {/* Avatar */}
         <Avatar className="h-9 w-9 shrink-0 mt-0.5">
           {conversation.guestAvatarUrl ? (
