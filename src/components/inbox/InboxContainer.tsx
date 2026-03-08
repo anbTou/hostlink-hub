@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { Search, Send, LogIn, LogOut } from "lucide-react";
+import { Search, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { isToday, parseISO } from "date-fns";
+import { isToday, parseISO, isThisWeek } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { ConversationView } from "@/components/inbox/ConversationView";
 import { GuestContextPanel } from "@/components/inbox/GuestContextPanel";
-import { ChannelFilterBar } from "@/components/inbox/ChannelFilterBar";
+import { InboxFilterDropdowns, QuickFilterValue } from "@/components/inbox/InboxFilterDropdowns";
 import { InboxConversationItem, InboxConversation } from "@/components/inbox/InboxConversationItem";
 import { ConversationSource } from "@/types/inbox";
 import { getCurrentUser } from "@/types/team";
