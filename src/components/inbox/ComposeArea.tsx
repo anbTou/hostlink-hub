@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, KeyboardEvent as ReactKeyboardEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
-  Mail, Home, MessageSquare, Building2, Plane,
+  Mail, Home, MessageSquare, Building2, Plane, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
@@ -20,6 +21,7 @@ interface ComposeAreaProps {
   defaultChannel: ConversationSource;
   onSend: (content: string, channel: ConversationSource, isInternal: boolean) => void;
   guestName?: string;
+  guestEmail?: string;
   propertyName?: string;
   checkInDate?: string;
   checkOutDate?: string;
@@ -34,10 +36,83 @@ const channelOptions: { value: ConversationSource; label: string; icon: React.Re
   { value: "expedia", label: "Expedia", icon: <Plane className="h-3.5 w-3.5" /> },
 ];
 
+function EmailChipInput({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string[];
+  onChange: (emails: string[]) => void;
+  placeholder: string;
+}) {
+  const [inputValue, setInputValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const addEmail = (raw: string) => {
+    const email = raw.trim();
+    if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && !value.includes(email)) {
+      onChange([...value, email]);
+    }
+    setInputValue("");
+  };
+
+  const handleKeyDown = (e: ReactKeyboardEvent<HTMLInputElement>) => {
+    if ((e.key === "Enter" || e.key === ",") && inputValue.trim()) {
+      e.preventDefault();
+      addEmail(inputValue);
+    }
+    if (e.key === "Backspace" && !inputValue && value.length > 0) {
+      onChange(value.slice(0, -1));
+    }
+  };
+
+  const handleBlur = () => {
+    if (inputValue.trim()) addEmail(inputValue);
+  };
+
+  return (
+    <div
+      className="flex flex-wrap items-center gap-1 min-h-[28px] cursor-text"
+      onClick={() => inputRef.current?.focus()}
+    >
+      {value.map((email) => (
+        <Badge
+          key={email}
+          variant="secondary"
+          className="h-5 text-[10px] gap-1 px-1.5 font-normal"
+        >
+          {email}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onChange(value.filter((v) => v !== email));
+            }}
+            className="ml-0.5 hover:text-destructive"
+          >
+            <X className="h-2.5 w-2.5" />
+          </button>
+        </Badge>
+      ))}
+      <input
+        ref={inputRef}
+        type="text"
+        value={inputValue}
+        onChange={(e) => setInputValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={handleBlur}
+        placeholder={value.length === 0 ? placeholder : ""}
+        className="flex-1 min-w-[100px] bg-transparent border-0 outline-none text-[11px] text-foreground placeholder:text-muted-foreground"
+      />
+    </div>
+  );
+}
+
 export function ComposeArea({
   defaultChannel,
   onSend,
   guestName = "",
+  guestEmail = "",
   propertyName = "",
   checkInDate = "",
   checkOutDate = "",
@@ -46,6 +121,9 @@ export function ComposeArea({
   const [selectedChannel, setSelectedChannel] = useState<ConversationSource>(defaultChannel);
   const [mode, setMode] = useState<"reply" | "note">("reply");
   const [showTemplates, setShowTemplates] = useState(false);
+  const [ccEmails, setCcEmails] = useState<string[]>([]);
+  const [bccEmails, setBccEmails] = useState<string[]>([]);
+  const [showBcc, setShowBcc] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -53,16 +131,19 @@ export function ComposeArea({
   }, [defaultChannel]);
 
   const isNote = mode === "note";
+  const isEmail = selectedChannel === "email";
   const selectedOption = channelOptions.find(c => c.value === selectedChannel);
 
   const handleSend = () => {
     if (!content.trim()) return;
     onSend(content, selectedChannel, isNote);
     setContent("");
+    setCcEmails([]);
+    setBccEmails([]);
+    setShowBcc(false);
   };
 
   const handleTemplateInsert = (template: string) => {
-    // Replace variables
     const resolved = template
       .replace(/\{\{guest_name\}\}/g, guestName)
       .replace(/\{\{property_name\}\}/g, propertyName)
@@ -138,6 +219,50 @@ export function ComposeArea({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+        )}
+
+        {/* Email fields: To, CC, BCC */}
+        {!isNote && isEmail && (
+          <div className="px-4 pt-1 space-y-0">
+            {/* To field */}
+            <div className="flex items-center gap-2 py-1.5 border-b border-border">
+              <span className="text-[11px] text-muted-foreground w-8 shrink-0">To:</span>
+              <span className="text-[11px] text-foreground">{guestEmail || "—"}</span>
+            </div>
+            {/* CC field */}
+            <div className="flex items-center gap-2 py-1.5 border-b border-border">
+              <span className="text-[11px] text-muted-foreground w-8 shrink-0">CC:</span>
+              <div className="flex-1">
+                <EmailChipInput
+                  value={ccEmails}
+                  onChange={setCcEmails}
+                  placeholder="Add CC addresses..."
+                />
+              </div>
+              {!showBcc && (
+                <button
+                  type="button"
+                  onClick={() => setShowBcc(true)}
+                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                >
+                  + BCC
+                </button>
+              )}
+            </div>
+            {/* BCC field */}
+            {showBcc && (
+              <div className="flex items-center gap-2 py-1.5 border-b border-border">
+                <span className="text-[11px] text-muted-foreground w-8 shrink-0">BCC:</span>
+                <div className="flex-1">
+                  <EmailChipInput
+                    value={bccEmails}
+                    onChange={setBccEmails}
+                    placeholder="Add BCC addresses..."
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 
