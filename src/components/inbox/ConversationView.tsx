@@ -129,6 +129,15 @@ export function ConversationView({
         guestName={guestName}
         guestEmail={conversation.from}
         propertyName={propertyName}
+        forwardedMessage={
+          conversation.messages.length > 0
+            ? {
+                from: conversation.messages[conversation.messages.length - 1].from,
+                date: conversation.messages[conversation.messages.length - 1].date,
+                content: conversation.messages[conversation.messages.length - 1].content,
+              }
+            : undefined
+        }
       />
     </div>
   );

@@ -2,7 +2,6 @@ import { useState, useRef, useEffect, KeyboardEvent as ReactKeyboardEvent } from
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,11 +10,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
-  Mail, Home, MessageSquare, Building2, Plane, X,
+  Mail, Home, MessageSquare, Building2, Plane, X, Forward,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
 import { TemplatesPanel } from "./TemplatesPanel";
+
+interface ForwardedMessage {
+  from: string;
+  date: string;
+  content: string;
+}
 
 interface ComposeAreaProps {
   defaultChannel: ConversationSource;
@@ -25,6 +30,7 @@ interface ComposeAreaProps {
   propertyName?: string;
   checkInDate?: string;
   checkOutDate?: string;
+  forwardedMessage?: ForwardedMessage;
 }
 
 const channelOptions: { value: ConversationSource; label: string; icon: React.ReactNode }[] = [
@@ -116,13 +122,15 @@ export function ComposeArea({
   propertyName = "",
   checkInDate = "",
   checkOutDate = "",
+  forwardedMessage,
 }: ComposeAreaProps) {
   const [content, setContent] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<ConversationSource>(defaultChannel);
-  const [mode, setMode] = useState<"reply" | "note">("reply");
+  const [mode, setMode] = useState<"reply" | "note" | "forward">("reply");
   const [showTemplates, setShowTemplates] = useState(false);
   const [ccEmails, setCcEmails] = useState<string[]>([]);
   const [bccEmails, setBccEmails] = useState<string[]>([]);
+  const [toEmails, setToEmails] = useState<string[]>([]);
   const [showBcc, setShowBcc] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -131,15 +139,28 @@ export function ComposeArea({
   }, [defaultChannel]);
 
   const isNote = mode === "note";
+  const isForward = mode === "forward";
   const isEmail = selectedChannel === "email";
   const selectedOption = channelOptions.find(c => c.value === selectedChannel);
 
+  // In forward mode, always use email
+  const activeChannel = isForward ? "email" : selectedChannel;
+  const activeOption = channelOptions.find(c => c.value === activeChannel);
+
   const handleSend = () => {
-    if (!content.trim()) return;
-    onSend(content, selectedChannel, isNote);
+    if (!content.trim() && !isForward) return;
+    if (isForward && toEmails.length === 0) return;
+
+    let finalContent = content;
+    if (isForward && forwardedMessage) {
+      finalContent = `${content}\n\n---------- Forwarded message ----------\nFrom: ${forwardedMessage.from}\nDate: ${forwardedMessage.date}\n\n${forwardedMessage.content}`;
+    }
+
+    onSend(finalContent, activeChannel, isNote);
     setContent("");
     setCcEmails([]);
     setBccEmails([]);
+    setToEmails([]);
     setShowBcc(false);
   };
 
@@ -161,6 +182,10 @@ export function ComposeArea({
     }
   };
 
+  const sendDisabled = isForward
+    ? toEmails.length === 0 && !content.trim()
+    : !content.trim();
+
   return (
     <>
       {showTemplates && (
@@ -171,19 +196,20 @@ export function ComposeArea({
       )}
       <div className={cn(
         "border-t border-border",
-        isNote && "bg-amber-50/50 dark:bg-amber-950/20"
+        isNote && "bg-amber-50/50 dark:bg-amber-950/20",
+        isForward && "bg-blue-50/50 dark:bg-blue-950/20"
       )}>
         {/* Mode tabs */}
         <div className="flex items-center border-b border-border">
           <button
             className={cn(
               "px-4 py-2 text-xs font-medium transition-colors relative",
-              !isNote ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+              mode === "reply" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
             )}
             onClick={() => setMode("reply")}
           >
             Reply
-            {!isNote && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
+            {mode === "reply" && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
           </button>
           <button
             className={cn(
@@ -196,10 +222,21 @@ export function ComposeArea({
             Internal Note
             {isNote && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500" />}
           </button>
+          <button
+            className={cn(
+              "px-4 py-2 text-xs font-medium transition-colors relative flex items-center gap-1.5",
+              isForward ? "text-blue-700 dark:text-blue-300" : "text-muted-foreground hover:text-foreground"
+            )}
+            onClick={() => setMode("forward")}
+          >
+            <Forward className="h-3 w-3" />
+            Forward
+            {isForward && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500" />}
+          </button>
         </div>
 
-        {/* Channel selector (only in reply mode) */}
-        {!isNote && (
+        {/* Channel selector — reply mode only */}
+        {mode === "reply" && (
           <div className="flex items-center gap-2 px-4 pt-3 pb-1">
             <span className="text-[11px] text-muted-foreground">Replying via:</span>
             <DropdownMenu>
@@ -222,44 +259,71 @@ export function ComposeArea({
           </div>
         )}
 
-        {/* Email fields: To, CC, BCC */}
-        {!isNote && isEmail && (
+        {/* Forward channel indicator — locked to Email */}
+        {isForward && (
+          <div className="flex items-center gap-2 px-4 pt-3 pb-1">
+            <span className="text-[11px] text-muted-foreground">Forward via:</span>
+            <Button variant="outline" size="sm" className="h-6 text-[11px] gap-1.5 px-2.5 bg-card border-border opacity-70 cursor-default" disabled>
+              <Mail className="h-3.5 w-3.5" />
+              Email
+            </Button>
+          </div>
+        )}
+
+        {/* Email fields for reply mode */}
+        {mode === "reply" && isEmail && (
           <div className="px-4 pt-1 space-y-0">
-            {/* To field */}
             <div className="flex items-center gap-2 py-1.5 border-b border-border">
               <span className="text-[11px] text-muted-foreground w-8 shrink-0">To:</span>
               <span className="text-[11px] text-foreground">{guestEmail || "—"}</span>
             </div>
-            {/* CC field */}
             <div className="flex items-center gap-2 py-1.5 border-b border-border">
               <span className="text-[11px] text-muted-foreground w-8 shrink-0">CC:</span>
               <div className="flex-1">
-                <EmailChipInput
-                  value={ccEmails}
-                  onChange={setCcEmails}
-                  placeholder="Add CC addresses..."
-                />
+                <EmailChipInput value={ccEmails} onChange={setCcEmails} placeholder="Add CC addresses..." />
               </div>
               {!showBcc && (
-                <button
-                  type="button"
-                  onClick={() => setShowBcc(true)}
-                  className="text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                >
+                <button type="button" onClick={() => setShowBcc(true)} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0">
                   + BCC
                 </button>
               )}
             </div>
-            {/* BCC field */}
             {showBcc && (
               <div className="flex items-center gap-2 py-1.5 border-b border-border">
                 <span className="text-[11px] text-muted-foreground w-8 shrink-0">BCC:</span>
                 <div className="flex-1">
-                  <EmailChipInput
-                    value={bccEmails}
-                    onChange={setBccEmails}
-                    placeholder="Add BCC addresses..."
-                  />
+                  <EmailChipInput value={bccEmails} onChange={setBccEmails} placeholder="Add BCC addresses..." />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Email fields for forward mode */}
+        {isForward && (
+          <div className="px-4 pt-1 space-y-0">
+            <div className="flex items-center gap-2 py-1.5 border-b border-border">
+              <span className="text-[11px] text-muted-foreground w-8 shrink-0">To:</span>
+              <div className="flex-1">
+                <EmailChipInput value={toEmails} onChange={setToEmails} placeholder="Add recipient addresses..." />
+              </div>
+            </div>
+            <div className="flex items-center gap-2 py-1.5 border-b border-border">
+              <span className="text-[11px] text-muted-foreground w-8 shrink-0">CC:</span>
+              <div className="flex-1">
+                <EmailChipInput value={ccEmails} onChange={setCcEmails} placeholder="Add CC addresses..." />
+              </div>
+              {!showBcc && (
+                <button type="button" onClick={() => setShowBcc(true)} className="text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                  + BCC
+                </button>
+              )}
+            </div>
+            {showBcc && (
+              <div className="flex items-center gap-2 py-1.5 border-b border-border">
+                <span className="text-[11px] text-muted-foreground w-8 shrink-0">BCC:</span>
+                <div className="flex-1">
+                  <EmailChipInput value={bccEmails} onChange={setBccEmails} placeholder="Add BCC addresses..." />
                 </div>
               </div>
             )}
@@ -279,17 +343,38 @@ export function ComposeArea({
         <div className="px-4 py-2">
           <Textarea
             ref={textareaRef}
-            placeholder={isNote ? "Write an internal note..." : "Type your reply..."}
+            placeholder={
+              isNote ? "Write an internal note..." :
+              isForward ? "Add a message (optional)..." :
+              "Type your reply..."
+            }
             value={content}
             onChange={e => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
             className={cn(
               "min-h-[80px] max-h-[200px] resize-none border-0 shadow-none focus-visible:ring-0 p-0 text-sm",
-              isNote && "placeholder:text-amber-400"
+              isNote && "placeholder:text-amber-400",
+              isForward && "placeholder:text-blue-400"
             )}
             rows={3}
           />
         </div>
+
+        {/* Forwarded message preview */}
+        {isForward && forwardedMessage && (
+          <div className="px-4 pb-2">
+            <div className="rounded-md border border-border bg-muted/50 p-3 text-xs text-muted-foreground space-y-1">
+              <div className="font-medium text-foreground/70 text-[10px] uppercase tracking-wide mb-2">
+                Forwarded message
+              </div>
+              <div className="border-l-2 border-blue-300 dark:border-blue-700 pl-3 space-y-0.5">
+                <div><span className="font-medium">From:</span> {forwardedMessage.from}</div>
+                <div><span className="font-medium">Date:</span> {forwardedMessage.date}</div>
+                <div className="pt-1 whitespace-pre-wrap">{forwardedMessage.content}</div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Toolbar */}
         <div className="flex items-center justify-between px-4 pb-3">
@@ -318,12 +403,16 @@ export function ComposeArea({
           </div>
           <Button
             size="sm"
-            className={cn("h-8 gap-1.5", isNote && "bg-amber-600 hover:bg-amber-700")}
+            className={cn(
+              "h-8 gap-1.5",
+              isNote && "bg-amber-600 hover:bg-amber-700",
+              isForward && "bg-blue-600 hover:bg-blue-700"
+            )}
             onClick={handleSend}
-            disabled={!content.trim()}
+            disabled={sendDisabled}
           >
-            <Send className="h-3.5 w-3.5" />
-            {isNote ? "Add Note" : "Send"}
+            {isForward ? <Forward className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+            {isNote ? "Add Note" : isForward ? "Forward" : "Send"}
           </Button>
         </div>
       </div>
