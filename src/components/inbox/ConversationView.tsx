@@ -36,6 +36,8 @@ interface ConversationViewProps {
   onTag?: (tag: string) => void;
   onSnooze?: (hours: number) => void;
   onResolve?: () => void;
+  showReturnToMain?: boolean;
+  onReturnToMain?: () => void;
 }
 
 export function ConversationView({
@@ -52,6 +54,8 @@ export function ConversationView({
   onTag,
   onSnooze,
   onResolve,
+  showReturnToMain,
+  onReturnToMain,
 }: ConversationViewProps) {
   const { toast } = useToast();
   const currentUser = getCurrentUser();
@@ -114,6 +118,8 @@ export function ConversationView({
           onResolve?.();
           toast({ title: "Conversation resolved" });
         }}
+        showReturnToMain={showReturnToMain}
+        onReturnToMain={onReturnToMain}
       />
 
       <ChatMessageThread

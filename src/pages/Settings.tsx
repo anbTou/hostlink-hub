@@ -8,9 +8,9 @@ import {
   User,
   Shield,
   Languages,
+  RefreshCw,
 } from "lucide-react";
 
-// Import the new settings components
 import { AIPreferencesSettings } from "@/components/settings/AIPreferencesSettings";
 import { NotificationsSettings } from "@/components/settings/NotificationsSettings";
 import { AccountSettings } from "@/components/settings/AccountSettings";
@@ -18,6 +18,7 @@ import { PrivacySettings } from "@/components/settings/PrivacySettings";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { LanguageSettings } from "@/components/settings/LanguageSettings";
 import { AdvancedSettings } from "@/components/settings/AdvancedSettings";
+import { RoundRobinSettings } from "@/components/settings/RoundRobinSettings";
 
 const Settings = () => {
   return (
@@ -31,7 +32,7 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="ai" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
             <TabsTrigger value="ai" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               <span className="hidden md:inline">AI Preferences</span>
@@ -59,6 +60,10 @@ const Settings = () => {
             <TabsTrigger value="advanced" className="flex items-center gap-2">
               <SettingsIcon className="h-4 w-4" />
               <span className="hidden md:inline">Advanced</span>
+            </TabsTrigger>
+            <TabsTrigger value="roundrobin" className="flex items-center gap-2">
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden md:inline">Round Robin</span>
             </TabsTrigger>
           </TabsList>
 
@@ -88,6 +93,10 @@ const Settings = () => {
 
           <TabsContent value="advanced" className="space-y-4 mt-6">
             <AdvancedSettings />
+          </TabsContent>
+
+          <TabsContent value="roundrobin" className="space-y-4 mt-6">
+            <RoundRobinSettings />
           </TabsContent>
         </Tabs>
       </div>

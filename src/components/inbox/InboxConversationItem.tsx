@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Check, UserPlus, Mail, MessageSquare } from "lucide-react";
+import { Clock, Check, UserPlus, RefreshCw } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ConversationSource } from "@/types/inbox";
+import { getAgentById } from "@/types/team";
 
 export interface InboxConversation {
   id: string;
@@ -28,6 +29,7 @@ export interface InboxConversation {
   isAssignedToMe: boolean;
   checkIn?: string;
   checkOut?: string;
+  autoAssigned?: boolean;
 }
 
 interface InboxConversationItemProps {
@@ -37,6 +39,8 @@ interface InboxConversationItemProps {
   onSnooze: (id: string) => void;
   onResolve: (id: string) => void;
   onAssign: (id: string) => void;
+  showPickUp?: boolean;
+  onPickUp?: () => void;
 }
 
 const channelConfig: Record<ConversationSource, { label: string; color: string }> = {
@@ -55,6 +59,8 @@ export function InboxConversationItem({
   onSnooze,
   onResolve,
   onAssign,
+  showPickUp,
+  onPickUp,
 }: InboxConversationItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const channel = channelConfig[conversation.channel];
@@ -67,7 +73,8 @@ export function InboxConversationItem({
         isSelected && "bg-accent",
         !isSelected && "hover:bg-muted/50",
         conversation.isUnread && !isSelected && "bg-primary/[0.04]",
-        conversation.isAssignedToMe && "border-l-2 border-l-primary"
+        conversation.isAssignedToMe && "border-l-2 border-l-primary",
+        !conversation.assignedTo && "border-l-2 border-l-dashed border-l-muted-foreground/30"
       )}
       onClick={() => onSelect(conversation.id)}
       onMouseEnter={() => setIsHovered(true)}
@@ -114,12 +121,17 @@ export function InboxConversationItem({
             {conversation.preview}
           </p>
 
-          {/* Row 3: Property + tags + agent */}
+          {/* Row 3: Property + tags + auto-assigned + agent */}
           <div className="flex items-center justify-between mt-1 gap-2">
             <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
               {conversation.propertyName && (
                 <span className="text-[10px] text-muted-foreground truncate max-w-[100px]">
                   {conversation.propertyName}
+                </span>
+              )}
+              {conversation.autoAssigned && (
+                <span className="inline-flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                  <RefreshCw className="h-2.5 w-2.5" /> Auto
                 </span>
               )}
               {conversation.tags.slice(0, 2).map(tag => (
@@ -128,17 +140,34 @@ export function InboxConversationItem({
                 </Badge>
               ))}
             </div>
-            {conversation.assignedTo && (
-              <Avatar className="h-5 w-5 shrink-0">
-                {conversation.assignedToAvatar ? (
-                  <img src={conversation.assignedToAvatar} alt={conversation.assignedToName} />
-                ) : (
-                  <div className="bg-muted h-full w-full flex items-center justify-center text-muted-foreground text-[9px] font-medium">
-                    {conversation.assignedToName?.charAt(0) || "?"}
-                  </div>
-                )}
-              </Avatar>
-            )}
+            <div className="flex items-center gap-1">
+              {showPickUp && isHovered && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-5 text-[9px] px-2"
+                  onClick={(e) => { e.stopPropagation(); onPickUp?.(); }}
+                >
+                  Assign to me
+                </Button>
+              )}
+              {conversation.assignedTo ? (
+                (() => {
+                  const agent = getAgentById(conversation.assignedTo);
+                  return (
+                    <div
+                      className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0"
+                      style={{ backgroundColor: agent?.avatarColor || 'hsl(var(--muted))' }}
+                      title={conversation.assignedToName}
+                    >
+                      {conversation.assignedToName?.charAt(0) || "?"}
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground/30 shrink-0" title="Unassigned" />
+              )}
+            </div>
           </div>
         </div>
       </div>

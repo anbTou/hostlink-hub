@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { TeamProvider } from "@/contexts/TeamContext";
 import Dashboard from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import InboxMain from "./pages/InboxMain";
@@ -20,43 +21,47 @@ import TasksAll from "./pages/TasksAll";
 import Notes from "./pages/Notes";
 import WidgetManager from "./pages/WidgetManager";
 import Contacts from "./pages/Contacts";
+import TeamCalendar from "./pages/TeamCalendar";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/inbox" element={<Inbox />} />
-          <Route path="/inbox/main" element={<InboxMain />} />
-          <Route path="/inbox/private" element={<InboxPrivate />} />
-          <Route path="/knowledge" element={<Knowledge />} />
-          <Route path="/property" element={<PropertyInfo />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/contacts" element={<Contacts />} />
-          
-          {/* Tasks routes */}
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/tasks/today" element={<TasksToday />} />
-          <Route path="/tasks/week" element={<TasksWeek />} />
-          <Route path="/tasks/later" element={<TasksLater />} />
-          <Route path="/tasks/all" element={<TasksAll />} />
-          
-          {/* Notes route */}
-          <Route path="/notes" element={<Notes />} />
-          
-          {/* Widget management route */}
-          <Route path="/widgets" element={<WidgetManager />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <TeamProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/inbox/main" element={<InboxMain />} />
+            <Route path="/inbox/private" element={<InboxPrivate />} />
+            <Route path="/knowledge" element={<Knowledge />} />
+            <Route path="/property" element={<PropertyInfo />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/contacts" element={<Contacts />} />
+            <Route path="/team-calendar" element={<TeamCalendar />} />
+            
+            {/* Tasks routes */}
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/tasks/today" element={<TasksToday />} />
+            <Route path="/tasks/week" element={<TasksWeek />} />
+            <Route path="/tasks/later" element={<TasksLater />} />
+            <Route path="/tasks/all" element={<TasksAll />} />
+            
+            {/* Notes route */}
+            <Route path="/notes" element={<Notes />} />
+            
+            {/* Widget management route */}
+            <Route path="/widgets" element={<WidgetManager />} />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </TeamProvider>
   </QueryClientProvider>
 );
 

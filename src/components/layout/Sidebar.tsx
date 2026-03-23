@@ -18,8 +18,7 @@ import {
   FileText,
   ChevronDown,
   ChevronRight,
-  PlusCircle,
-  Flag,
+  CalendarDays,
   Sparkles,
   Mail,
   UserCircle,
@@ -28,6 +27,14 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { SavedViewsList } from "@/components/inbox/SavedViewsList";
 import { SaveViewDialog } from "@/components/inbox/SaveViewDialog";
 import { FilterOptions } from "@/types/inbox";
+import { useTeam } from "@/contexts/TeamContext";
+import { teamMembers } from "@/types/team";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Main navigation categories
 const navItems = [
@@ -35,9 +42,10 @@ const navItems = [
   { name: "Inbox", icon: Inbox, path: "/inbox",
     children: [
       { name: "Main Inbox", icon: Mail, path: "/inbox/main" },
-      { name: "Private Inbox", icon: UserCircle, path: "/inbox/private" },
+      { name: "My Inbox", icon: UserCircle, path: "/inbox/private" },
     ]
   },
+  { name: "Team Calendar", icon: CalendarDays, path: "/team-calendar" },
   { name: "Tasks", icon: CheckSquare, path: "/tasks", 
     children: [
       { name: "Today", icon: Clock, path: "/tasks/today" },
@@ -60,8 +68,8 @@ export function Sidebar() {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
-    "Tasks": true, // Default to expanded
-    "Inbox": true // Default to expanded
+    "Tasks": true,
+    "Inbox": true
   });
   const [saveViewDialogOpen, setSaveViewDialogOpen] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<FilterOptions>({
@@ -73,6 +81,8 @@ export function Sidebar() {
           teams: [],
           properties: [],
   });
+
+  const { currentUser, setCurrentUser } = useTeam();
 
   const toggleGroup = (name: string) => {
     setExpandedGroups(prev => ({
@@ -90,14 +100,67 @@ export function Sidebar() {
   };
 
   const handleSaveView = async (name: string, icon: string) => {
-    // This will be handled by the useSavedViews hook
     console.log('Save view:', name, icon, currentFilters);
   };
 
   const handleSelectView = (filters: FilterOptions) => {
-    // Navigate to inbox and apply filters
     navigate('/inbox/main', { state: { filters } });
   };
+
+  const AgentSwitcher = ({ collapsed: isCollapsed }: { collapsed: boolean }) => (
+    <div className={cn("border-t border-border p-2", isCollapsed && "flex justify-center")}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start gap-2 h-auto py-2",
+              isCollapsed && "w-10 h-10 p-0 justify-center"
+            )}
+          >
+            <div
+              className="h-7 w-7 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+              style={{ backgroundColor: currentUser.avatarColor }}
+            >
+              {currentUser.name.charAt(0)}
+            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col items-start text-left min-w-0">
+                <span className="text-xs font-medium truncate">{currentUser.name}</span>
+                <span className="text-[10px] text-muted-foreground capitalize">{currentUser.role}</span>
+              </div>
+            )}
+            {!isCollapsed && <ChevronDown className="h-3 w-3 ml-auto shrink-0 text-muted-foreground" />}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" side="top" className="w-56">
+          {teamMembers.map(member => (
+            <DropdownMenuItem
+              key={member.id}
+              onClick={() => setCurrentUser(member)}
+              className={cn(currentUser.id === member.id && "bg-accent")}
+            >
+              <div className="flex items-center gap-2 w-full">
+                <div
+                  className="h-6 w-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold shrink-0"
+                  style={{ backgroundColor: member.avatarColor }}
+                >
+                  {member.name.charAt(0)}
+                </div>
+                <span className="text-sm flex-1">{member.name}</span>
+                <span className="text-[10px] text-muted-foreground capitalize">{member.role}</span>
+                {member.isOnline ? (
+                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                ) : (
+                  <div className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+                )}
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 
   // For mobile: overlay menu triggered by button
   if (isMobile) {
@@ -119,7 +182,7 @@ export function Sidebar() {
             onClick={() => setMobileMenuOpen(false)}
           >
             <div 
-              className="w-[280px] h-full bg-white shadow-soft animate-slide-in-right p-4"
+              className="w-[280px] h-full bg-white shadow-soft animate-slide-in-right p-4 flex flex-col"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-8">
@@ -136,7 +199,7 @@ export function Sidebar() {
                   <X className="h-5 w-5" />
                 </Button>
               </div>
-              <nav className="space-y-2">
+              <nav className="space-y-2 flex-1">
                 {navItems.map((item) => (
                   <div key={item.name} className="space-y-1">
                     {item.children ? (
@@ -207,6 +270,8 @@ export function Sidebar() {
                   collapsed={false}
                 />
               </div>
+
+              <AgentSwitcher collapsed={false} />
             </div>
           </div>
         )}
@@ -225,7 +290,7 @@ export function Sidebar() {
   return (
     <div 
       className={cn(
-        "h-screen sticky top-0 bg-white border-r border-[#EFF3F8] transition-all duration-300 shadow-soft",
+        "h-screen sticky top-0 bg-white border-r border-[#EFF3F8] transition-all duration-300 shadow-soft flex flex-col",
         collapsed ? "w-[70px]" : "w-[240px]"
       )}
     >
@@ -244,7 +309,7 @@ export function Sidebar() {
         </Button>
       </div>
       
-      <nav className="mt-8 px-2 space-y-1">
+      <nav className="mt-8 px-2 space-y-1 flex-1">
         {navItems.map((item) => (
           <div key={item.name} className="space-y-1">
             {item.children ? (
@@ -311,7 +376,7 @@ export function Sidebar() {
 
       {/* Saved Views Section for Desktop */}
       {!collapsed && (
-        <div className="mt-6 border-t border-border pt-4">
+        <div className="border-t border-border pt-4 px-2">
           <SavedViewsList
             onSelectView={handleSelectView}
             onCreateView={handleCreateView}
@@ -319,6 +384,9 @@ export function Sidebar() {
           />
         </div>
       )}
+
+      {/* Agent Switcher */}
+      <AgentSwitcher collapsed={collapsed} />
 
       <SaveViewDialog
         open={saveViewDialogOpen}
