@@ -3,9 +3,10 @@ import { cn } from "@/lib/utils";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Clock, Check, UserPlus, Mail, MessageSquare } from "lucide-react";
+import { Clock, Check, UserPlus, RefreshCw } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ConversationSource } from "@/types/inbox";
+import { getAgentById } from "@/types/team";
 
 export interface InboxConversation {
   id: string;
