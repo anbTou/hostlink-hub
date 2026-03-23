@@ -44,6 +44,8 @@ interface ConversationHeaderProps {
   onTag: (tag: string) => void;
   onSnooze: (hours: number) => void;
   onResolve: () => void;
+  showReturnToMain?: boolean;
+  onReturnToMain?: () => void;
 }
 
 const channelLabels: Record<ConversationSource, string> = {
