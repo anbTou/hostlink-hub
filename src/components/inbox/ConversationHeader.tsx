@@ -198,6 +198,14 @@ export function ConversationHeader({
             <DropdownMenuItem>
               <Archive className="h-3.5 w-3.5 mr-2" /> Archive
             </DropdownMenuItem>
+            {showReturnToMain && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onReturnToMain}>
+                  <ArrowLeft className="h-3.5 w-3.5 mr-2" /> Return to Main Inbox
+                </DropdownMenuItem>
+              </>
+            )}
             <DropdownMenuItem className="text-destructive">
               <Trash2 className="h-3.5 w-3.5 mr-2" /> Delete
             </DropdownMenuItem>
