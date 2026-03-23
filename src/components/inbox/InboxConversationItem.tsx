@@ -28,6 +28,7 @@ export interface InboxConversation {
   isAssignedToMe: boolean;
   checkIn?: string;
   checkOut?: string;
+  autoAssigned?: boolean;
 }
 
 interface InboxConversationItemProps {
