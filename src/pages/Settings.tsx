@@ -8,9 +8,9 @@ import {
   User,
   Shield,
   Languages,
+  RefreshCw,
 } from "lucide-react";
 
-// Import the new settings components
 import { AIPreferencesSettings } from "@/components/settings/AIPreferencesSettings";
 import { NotificationsSettings } from "@/components/settings/NotificationsSettings";
 import { AccountSettings } from "@/components/settings/AccountSettings";
@@ -18,6 +18,7 @@ import { PrivacySettings } from "@/components/settings/PrivacySettings";
 import { AppearanceSettings } from "@/components/settings/AppearanceSettings";
 import { LanguageSettings } from "@/components/settings/LanguageSettings";
 import { AdvancedSettings } from "@/components/settings/AdvancedSettings";
+import { RoundRobinSettings } from "@/components/settings/RoundRobinSettings";
 
 const Settings = () => {
   return (
