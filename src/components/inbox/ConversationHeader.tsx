@@ -69,6 +69,8 @@ export function ConversationHeader({
   onTag,
   onSnooze,
   onResolve,
+  showReturnToMain,
+  onReturnToMain,
 }: ConversationHeaderProps) {
   return (
     <div className="border-b border-border">
