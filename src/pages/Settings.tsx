@@ -32,7 +32,7 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="ai" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
             <TabsTrigger value="ai" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               <span className="hidden md:inline">AI Preferences</span>
