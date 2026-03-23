@@ -118,6 +118,8 @@ export function ConversationView({
           onResolve?.();
           toast({ title: "Conversation resolved" });
         }}
+        showReturnToMain={showReturnToMain}
+        onReturnToMain={onReturnToMain}
       />
 
       <ChatMessageThread
