@@ -72,7 +72,8 @@ export function InboxConversationItem({
         isSelected && "bg-accent",
         !isSelected && "hover:bg-muted/50",
         conversation.isUnread && !isSelected && "bg-primary/[0.04]",
-        conversation.isAssignedToMe && "border-l-2 border-l-primary"
+        conversation.isAssignedToMe && "border-l-2 border-l-primary",
+        !conversation.assignedTo && "border-l-2 border-l-dashed border-l-muted-foreground/30"
       )}
       onClick={() => onSelect(conversation.id)}
       onMouseEnter={() => setIsHovered(true)}
