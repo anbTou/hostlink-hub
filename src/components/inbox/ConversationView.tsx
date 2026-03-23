@@ -54,6 +54,8 @@ export function ConversationView({
   onTag,
   onSnooze,
   onResolve,
+  showReturnToMain,
+  onReturnToMain,
 }: ConversationViewProps) {
   const { toast } = useToast();
   const currentUser = getCurrentUser();
