@@ -58,6 +58,8 @@ export function InboxConversationItem({
   onSnooze,
   onResolve,
   onAssign,
+  showPickUp,
+  onPickUp,
 }: InboxConversationItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const channel = channelConfig[conversation.channel];
