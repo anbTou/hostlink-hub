@@ -65,9 +65,6 @@ const Settings = () => {
               <RefreshCw className="h-4 w-4" />
               <span className="hidden md:inline">Round Robin</span>
             </TabsTrigger>
-              <SettingsIcon className="h-4 w-4" />
-              <span className="hidden md:inline">Advanced</span>
-            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="ai" className="space-y-4 mt-6">
@@ -96,6 +93,10 @@ const Settings = () => {
 
           <TabsContent value="advanced" className="space-y-4 mt-6">
             <AdvancedSettings />
+          </TabsContent>
+
+          <TabsContent value="roundrobin" className="space-y-4 mt-6">
+            <RoundRobinSettings />
           </TabsContent>
         </Tabs>
       </div>
