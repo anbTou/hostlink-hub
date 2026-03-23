@@ -36,6 +36,8 @@ interface ConversationViewProps {
   onTag?: (tag: string) => void;
   onSnooze?: (hours: number) => void;
   onResolve?: () => void;
+  showReturnToMain?: boolean;
+  onReturnToMain?: () => void;
 }
 
 export function ConversationView({

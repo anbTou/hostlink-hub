@@ -121,12 +121,17 @@ export function InboxConversationItem({
             {conversation.preview}
           </p>
 
-          {/* Row 3: Property + tags + agent */}
+          {/* Row 3: Property + tags + auto-assigned + agent */}
           <div className="flex items-center justify-between mt-1 gap-2">
             <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
               {conversation.propertyName && (
                 <span className="text-[10px] text-muted-foreground truncate max-w-[100px]">
                   {conversation.propertyName}
+                </span>
+              )}
+              {conversation.autoAssigned && (
+                <span className="inline-flex items-center gap-0.5 text-[9px] text-muted-foreground">
+                  <RefreshCw className="h-2.5 w-2.5" /> Auto
                 </span>
               )}
               {conversation.tags.slice(0, 2).map(tag => (
@@ -135,17 +140,34 @@ export function InboxConversationItem({
                 </Badge>
               ))}
             </div>
-            {conversation.assignedTo && (
-              <Avatar className="h-5 w-5 shrink-0">
-                {conversation.assignedToAvatar ? (
-                  <img src={conversation.assignedToAvatar} alt={conversation.assignedToName} />
-                ) : (
-                  <div className="bg-muted h-full w-full flex items-center justify-center text-muted-foreground text-[9px] font-medium">
-                    {conversation.assignedToName?.charAt(0) || "?"}
-                  </div>
-                )}
-              </Avatar>
-            )}
+            <div className="flex items-center gap-1">
+              {showPickUp && isHovered && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-5 text-[9px] px-2"
+                  onClick={(e) => { e.stopPropagation(); onPickUp?.(); }}
+                >
+                  Assign to me
+                </Button>
+              )}
+              {conversation.assignedTo ? (
+                (() => {
+                  const agent = getAgentById(conversation.assignedTo);
+                  return (
+                    <div
+                      className="h-5 w-5 rounded-full flex items-center justify-center text-white text-[9px] font-bold shrink-0"
+                      style={{ backgroundColor: agent?.avatarColor || 'hsl(var(--muted))' }}
+                      title={conversation.assignedToName}
+                    >
+                      {conversation.assignedToName?.charAt(0) || "?"}
+                    </div>
+                  );
+                })()
+              ) : (
+                <div className="h-5 w-5 rounded-full border-2 border-dashed border-muted-foreground/30 shrink-0" title="Unassigned" />
+              )}
+            </div>
           </div>
         </div>
       </div>
