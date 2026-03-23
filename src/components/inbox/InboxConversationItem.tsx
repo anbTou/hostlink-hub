@@ -38,6 +38,8 @@ interface InboxConversationItemProps {
   onSnooze: (id: string) => void;
   onResolve: (id: string) => void;
   onAssign: (id: string) => void;
+  showPickUp?: boolean;
+  onPickUp?: () => void;
 }
 
 const channelConfig: Record<ConversationSource, { label: string; color: string }> = {
