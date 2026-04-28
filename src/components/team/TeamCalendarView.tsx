@@ -79,8 +79,8 @@ export function TeamCalendarView() {
     <div className="space-y-6 animate-scale-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Team Calendar</h1>
-          <p className="text-muted-foreground">Manage shift schedules for your team</p>
+          <h1 className="text-2xl font-bold mb-0.5">Team Calendar</h1>
+          <p className="text-xs text-muted-foreground">Manage shift schedules for your team</p>
         </div>
         {!isSenior && (
           <Badge variant="secondary" className="text-xs">Read-only</Badge>
