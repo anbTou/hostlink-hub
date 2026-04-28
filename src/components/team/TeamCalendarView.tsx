@@ -154,7 +154,7 @@ export function TeamCalendarView() {
                     return (
                       <div
                         key={shift.id}
-                        className="absolute left-1 right-1 rounded-md px-1.5 py-1 text-white text-[10px] leading-tight cursor-pointer overflow-hidden hover:opacity-90 transition-opacity"
+                        className="absolute left-0.5 right-0.5 rounded px-1 py-0.5 text-white text-[9px] leading-tight cursor-pointer overflow-hidden hover:opacity-90 transition-opacity"
                         style={{
                           top: `${top}px`,
                           height: `${Math.max(height, 24)}px`,
