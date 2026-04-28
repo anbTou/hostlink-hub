@@ -69,17 +69,18 @@ export function TeamCalendarView() {
     setShiftDialog({ open: false, date: '' });
   };
 
+  const ROW_H = 28; // px per hour
   const timeToY = (time: string) => {
     const [h, m] = time.split(':').map(Number);
-    return ((h - 8) + m / 60) * 48; // 48px per hour
+    return ((h - 8) + m / 60) * ROW_H;
   };
 
   return (
-    <div className="space-y-6 animate-scale-in">
+    <div className="space-y-3 animate-scale-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold mb-2">Team Calendar</h1>
-          <p className="text-muted-foreground">Manage shift schedules for your team</p>
+          <h1 className="text-2xl font-bold mb-0.5">Team Calendar</h1>
+          <p className="text-xs text-muted-foreground">Manage shift schedules for your team</p>
         </div>
         {!isSenior && (
           <Badge variant="secondary" className="text-xs">Read-only</Badge>
@@ -102,20 +103,20 @@ export function TeamCalendarView() {
 
       {/* Calendar Grid */}
       <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          <div className="grid grid-cols-[60px_repeat(7,1fr)] min-w-[800px]">
+        <CardContent className="p-0 overflow-hidden">
+          <div className="grid grid-cols-[44px_repeat(7,1fr)]">
             {/* Header row */}
-            <div className="border-b border-r border-border p-2" />
+            <div className="border-b border-r border-border p-1" />
             {days.map((day, i) => {
               const isToday = isSameDay(day, new Date());
               return (
                 <div
                   key={i}
-                  className={`border-b border-r border-border p-2 text-center cursor-pointer hover:bg-muted/50 transition-colors ${isToday ? 'bg-primary/5' : ''}`}
+                  className={`border-b border-r border-border p-1 text-center cursor-pointer hover:bg-muted/50 transition-colors ${isToday ? 'bg-primary/5' : ''}`}
                   onClick={() => handleDayClick(day)}
                 >
-                  <div className="text-xs text-muted-foreground">{format(day, 'EEE')}</div>
-                  <div className={`text-lg font-bold ${isToday ? 'text-primary' : ''}`}>{format(day, 'd')}</div>
+                  <div className="text-[10px] text-muted-foreground leading-tight">{format(day, 'EEE')}</div>
+                  <div className={`text-sm font-bold leading-tight ${isToday ? 'text-primary' : ''}`}>{format(day, 'd')}</div>
                 </div>
               );
             })}
@@ -123,7 +124,7 @@ export function TeamCalendarView() {
             {/* Time rows */}
             <div className="border-r border-border">
               {HOURS.map(h => (
-                <div key={h} className="h-12 flex items-start justify-end pr-2 pt-0.5 text-[10px] text-muted-foreground border-b border-border">
+                <div key={h} style={{ height: ROW_H }} className="flex items-start justify-end pr-1.5 pt-0.5 text-[9px] text-muted-foreground border-b border-border">
                   {`${h}:00`}
                 </div>
               ))}
@@ -136,12 +137,12 @@ export function TeamCalendarView() {
                 <div
                   key={dayIdx}
                   className="relative border-r border-border"
-                  style={{ height: HOURS.length * 48 }}
+                  style={{ height: HOURS.length * ROW_H }}
                   onClick={() => handleDayClick(day)}
                 >
                   {/* Hour lines */}
                   {HOURS.map(h => (
-                    <div key={h} className="h-12 border-b border-border" />
+                    <div key={h} style={{ height: ROW_H }} className="border-b border-border" />
                   ))}
 
                   {/* Shift blocks */}
@@ -153,7 +154,7 @@ export function TeamCalendarView() {
                     return (
                       <div
                         key={shift.id}
-                        className="absolute left-1 right-1 rounded-md px-1.5 py-1 text-white text-[10px] leading-tight cursor-pointer overflow-hidden hover:opacity-90 transition-opacity"
+                        className="absolute left-0.5 right-0.5 rounded px-1 py-0.5 text-white text-[9px] leading-tight cursor-pointer overflow-hidden hover:opacity-90 transition-opacity"
                         style={{
                           top: `${top}px`,
                           height: `${Math.max(height, 24)}px`,
