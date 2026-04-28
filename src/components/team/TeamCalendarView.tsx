@@ -69,9 +69,10 @@ export function TeamCalendarView() {
     setShiftDialog({ open: false, date: '' });
   };
 
+  const ROW_H = 28; // px per hour
   const timeToY = (time: string) => {
     const [h, m] = time.split(':').map(Number);
-    return ((h - 8) + m / 60) * 48; // 48px per hour
+    return ((h - 8) + m / 60) * ROW_H;
   };
 
   return (
