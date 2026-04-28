@@ -103,20 +103,20 @@ export function TeamCalendarView() {
 
       {/* Calendar Grid */}
       <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          <div className="grid grid-cols-[60px_repeat(7,1fr)] min-w-[800px]">
+        <CardContent className="p-0 overflow-hidden">
+          <div className="grid grid-cols-[44px_repeat(7,1fr)]">
             {/* Header row */}
-            <div className="border-b border-r border-border p-2" />
+            <div className="border-b border-r border-border p-1" />
             {days.map((day, i) => {
               const isToday = isSameDay(day, new Date());
               return (
                 <div
                   key={i}
-                  className={`border-b border-r border-border p-2 text-center cursor-pointer hover:bg-muted/50 transition-colors ${isToday ? 'bg-primary/5' : ''}`}
+                  className={`border-b border-r border-border p-1 text-center cursor-pointer hover:bg-muted/50 transition-colors ${isToday ? 'bg-primary/5' : ''}`}
                   onClick={() => handleDayClick(day)}
                 >
-                  <div className="text-xs text-muted-foreground">{format(day, 'EEE')}</div>
-                  <div className={`text-lg font-bold ${isToday ? 'text-primary' : ''}`}>{format(day, 'd')}</div>
+                  <div className="text-[10px] text-muted-foreground leading-tight">{format(day, 'EEE')}</div>
+                  <div className={`text-sm font-bold leading-tight ${isToday ? 'text-primary' : ''}`}>{format(day, 'd')}</div>
                 </div>
               );
             })}
@@ -124,7 +124,7 @@ export function TeamCalendarView() {
             {/* Time rows */}
             <div className="border-r border-border">
               {HOURS.map(h => (
-                <div key={h} className="h-12 flex items-start justify-end pr-2 pt-0.5 text-[10px] text-muted-foreground border-b border-border">
+                <div key={h} style={{ height: ROW_H }} className="flex items-start justify-end pr-1.5 pt-0.5 text-[9px] text-muted-foreground border-b border-border">
                   {`${h}:00`}
                 </div>
               ))}
@@ -137,12 +137,12 @@ export function TeamCalendarView() {
                 <div
                   key={dayIdx}
                   className="relative border-r border-border"
-                  style={{ height: HOURS.length * 48 }}
+                  style={{ height: HOURS.length * ROW_H }}
                   onClick={() => handleDayClick(day)}
                 >
                   {/* Hour lines */}
                   {HOURS.map(h => (
-                    <div key={h} className="h-12 border-b border-border" />
+                    <div key={h} style={{ height: ROW_H }} className="border-b border-border" />
                   ))}
 
                   {/* Shift blocks */}
