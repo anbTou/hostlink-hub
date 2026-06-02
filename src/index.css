@@ -180,3 +180,13 @@
     @apply rounded-2xl shadow-soft bg-white/80 backdrop-blur-sm border border-[#EFF3F8] p-4;
   }
 }
+
+@layer utilities {
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
