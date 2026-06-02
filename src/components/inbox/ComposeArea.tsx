@@ -11,6 +11,7 @@ import {
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
   Mail, Home, MessageSquare, Building2, Plane, X, Forward,
+  Maximize2, Minimize2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
@@ -132,6 +133,7 @@ export function ComposeArea({
   const [bccEmails, setBccEmails] = useState<string[]>([]);
   const [toEmails, setToEmails] = useState<string[]>([]);
   const [showBcc, setShowBcc] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -340,7 +342,15 @@ export function ComposeArea({
         )}
 
         {/* Text area */}
-        <div className="px-4 py-2">
+        <div className="px-4 py-2 relative">
+          <button
+            type="button"
+            onClick={() => setIsExpanded(prev => !prev)}
+            title={isExpanded ? "Shrink" : "Enlarge"}
+            className="absolute right-5 top-3 z-10 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {isExpanded ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
+          </button>
           <Textarea
             ref={textareaRef}
             placeholder={
@@ -352,13 +362,15 @@ export function ComposeArea({
             onChange={e => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
             className={cn(
-              "min-h-[80px] max-h-[200px] resize-none border-0 shadow-none focus-visible:ring-0 p-0 text-sm",
+              "resize-y border-0 shadow-none focus-visible:ring-0 p-0 pr-6 text-sm",
+              isExpanded ? "min-h-[260px] max-h-[480px]" : "min-h-[80px] max-h-[200px]",
               isNote && "placeholder:text-amber-400",
               isForward && "placeholder:text-blue-400"
             )}
             rows={3}
           />
         </div>
+
 
         {/* Forwarded message preview */}
         {isForward && forwardedMessage && (
