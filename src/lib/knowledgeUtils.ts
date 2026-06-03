@@ -55,6 +55,8 @@ export function blockAppliesToProperty(
       return block.scopeId === prop.type;
     case "property":
       return block.scopeId === prop.id;
+    default:
+      return false;
   }
 }
 
