@@ -1,496 +1,240 @@
-
-
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { MainLayout } from "@/components/layout/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { EnhancedDocumentUpload } from "@/components/knowledge/EnhancedDocumentUpload";
-import { PropertySelector } from "@/components/knowledge/PropertySelector";
-import { Search, Plus, Book, Edit, Trash, Save, X, Upload, Brain, AlertTriangle, CheckCircle } from "lucide-react";
-import { KnowledgeBlock, AIProcessingResult, Property } from "@/types/property-knowledge";
-
-const sampleProperties: Property[] = [
-  {
-    id: "1",
-    name: "Sunset Villa",
-    type: "villa",
-    address: "123 Ocean Drive, Malibu, CA",
-    isDefault: true,
-  },
-  {
-    id: "2",
-    name: "Downtown Apartment",
-    type: "apartment",
-    address: "456 Main Street, New York, NY",
-  },
-];
-
-const sampleKnowledgeBlocks: KnowledgeBlock[] = [
-  {
-    id: "1",
-    title: "Check-in Instructions",
-    content: "The check-in time is 3:00 PM. Early check-in can be arranged with prior notice, subject to availability. The key lockbox code will be sent to you 24 hours before arrival. Please contact us if you're arriving after 8:00 PM.",
-    category: "checkin",
-    lastUpdated: "2 days ago",
-    status: "approved",
-    guestPersona: "all",
-    seasonal: "all",
-    priority: "high",
-    tags: ["arrival", "lockbox", "timing"],
-    aiConfidence: 0.95,
-    propertyId: "1",
-  },
-  {
-    id: "2",
-    title: "Wifi Information",
-    content: "Network name: VillaGuest\nPassword: sunshine2023\nThe wifi reaches all areas of the property, including the pool area.",
-    category: "amenities",
-    lastUpdated: "1 week ago",
-    status: "approved",
-    guestPersona: "all",
-    seasonal: "all",
-    priority: "medium",
-    tags: ["wifi", "internet", "password"],
-    propertyId: "1",
-  },
-  {
-    id: "3",
-    title: "Local Restaurants",
-    content: "1. Seaside Grill - Seafood restaurant, 5 min walk\n2. La Trattoria - Italian cuisine, 10 min walk\n3. Golden Dragon - Chinese food, 15 min drive\n4. The Steakhouse - Premium meats, 10 min drive",
-    category: "local",
-    lastUpdated: "2 weeks ago",
-    status: "approved",
-    priority: "medium",
-    propertyId: "2",
-  },
-  {
-    id: "4",
-    title: "Cancellation Policy",
-    content: "Free cancellation up to 48 hours before check-in. Cancellations made within 48 hours of check-in are eligible for a 50% refund of the total booking amount, excluding fees.",
-    category: "policies",
-    lastUpdated: "1 month ago",
-    status: "approved",
-    priority: "medium",
-  },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { Plus, LayoutGrid, Home, BookOpen, AlertTriangle } from "lucide-react";
+import { KnowledgeBlock, KnowledgeScope, KnowledgeCategory } from "@/types/knowledge";
+import { mockKnowledgeBlocks, KB_PROPERTIES } from "@/data/mockKnowledge";
+import { KnowledgeBlockCard } from "@/components/knowledge/kb/KnowledgeBlockCard";
+import { CategoryTabs } from "@/components/knowledge/kb/CategoryTabs";
+import {
+  KnowledgeFilters,
+  KbFilters,
+  EMPTY_FILTERS,
+} from "@/components/knowledge/kb/KnowledgeFilters";
+import { KnowledgeBlockForm } from "@/components/knowledge/kb/KnowledgeBlockForm";
+import { InheritanceViewer } from "@/components/knowledge/kb/InheritanceViewer";
+import { cn } from "@/lib/utils";
+import { blockAppliesToProperty } from "@/lib/knowledgeUtils";
+import { toast } from "@/hooks/use-toast";
 
 const KnowledgePage = () => {
-  const [properties, setProperties] = useState<Property[]>(sampleProperties);
-  const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
-  const [knowledgeBlocks, setKnowledgeBlocks] = useState<KnowledgeBlock[]>(sampleKnowledgeBlocks);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [editingBlock, setEditingBlock] = useState<KnowledgeBlock | null>(null);
-  const [isCreating, setIsCreating] = useState(false);
-  const [showDocumentUpload, setShowDocumentUpload] = useState(false);
-  const [newBlock, setNewBlock] = useState<Omit<KnowledgeBlock, "id" | "lastUpdated">>({
-    title: "",
-    content: "",
-    category: "property",
-    status: "draft",
-    guestPersona: "all",
-    seasonal: "all",
-    priority: "medium",
-    propertyId: selectedProperty?.id,
-  });
-  
-  // Filter blocks by selected property and search query
-  const filteredBlocks = knowledgeBlocks.filter(block => {
-    const matchesProperty = selectedProperty === null || block.propertyId === selectedProperty.id || !block.propertyId;
-    const matchesSearch = block.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      block.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      block.tags?.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    return matchesProperty && matchesSearch;
-  });
-  
-  const handleCreateProperty = (propertyData: Omit<Property, "id">) => {
-    const newProperty: Property = {
-      ...propertyData,
-      id: Date.now().toString(),
-    };
-    setProperties([...properties, newProperty]);
-  };
-  
-  const handleSaveEdit = () => {
-    if (editingBlock) {
-      setKnowledgeBlocks(
-        knowledgeBlocks.map(block => 
-          block.id === editingBlock.id ? { ...editingBlock, lastUpdated: "Just now" } : block
-        )
-      );
-      setEditingBlock(null);
-    }
-  };
-  
-  const handleCreateBlock = () => {
-    if (newBlock.title && newBlock.content) {
-      const createdBlock: KnowledgeBlock = {
-        ...newBlock,
-        id: Date.now().toString(),
-        lastUpdated: "Just now",
-        propertyId: selectedProperty?.id,
-      };
-      
-      setKnowledgeBlocks([createdBlock, ...knowledgeBlocks]);
-      setNewBlock({
-        title: "",
-        content: "",
-        category: "property",
-        status: "draft",
-        guestPersona: "all",
-        seasonal: "all",
-        priority: "medium",
-        propertyId: selectedProperty?.id,
+  const [blocks, setBlocks] = useState<KnowledgeBlock[]>(mockKnowledgeBlocks);
+  const [filters, setFilters] = useState<KbFilters>(EMPTY_FILTERS);
+  const [view, setView] = useState<"all" | "property">("all");
+  const [compiledProperty, setCompiledProperty] = useState(KB_PROPERTIES[0].id);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editing, setEditing] = useState<KnowledgeBlock | null>(null);
+  const [loading] = useState(false);
+
+  const filtered = useMemo(() => {
+    return blocks.filter((b) => {
+      if (filters.category !== "all" && b.category !== filters.category) return false;
+      if (filters.scope !== "all" && b.scopeType !== filters.scope) return false;
+      if (filters.appliesTo !== "all") {
+        const prop = KB_PROPERTIES.find((p) => p.id === filters.appliesTo);
+        if (prop) {
+          if (!blockAppliesToProperty(b, prop)) return false;
+        } else if (b.scopeId !== filters.appliesTo) {
+          return false;
+        }
+      }
+      if (filters.search.trim()) {
+        const q = filters.search.toLowerCase();
+        const hay = `${b.title} ${b.content} ${b.tags.join(" ")}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [blocks, filters]);
+
+  // conflict detection: 2+ blocks at same scope+scopeId+category
+  const conflicts = useMemo(() => {
+    const map = new Map<string, number>();
+    blocks
+      .filter((b) => b.status === "active")
+      .forEach((b) => {
+        const key = `${b.scopeType}|${b.scopeId ?? ""}|${b.category}`;
+        map.set(key, (map.get(key) ?? 0) + 1);
       });
-      setIsCreating(false);
-    }
+    return Array.from(map.values()).filter((n) => n > 1).length;
+  }, [blocks]);
+
+  const openCreate = () => {
+    setEditing(null);
+    setDrawerOpen(true);
   };
-  
-  const handleDeleteBlock = (id: string) => {
-    setKnowledgeBlocks(knowledgeBlocks.filter(block => block.id !== id));
-  };
-  
-  const handleDocumentProcessed = (result: AIProcessingResult) => {
-    const newBlocks: KnowledgeBlock[] = result.extractedBlocks.map(block => ({
-      ...block,
-      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-      lastUpdated: "Just now",
-      propertyId: selectedProperty?.id,
-    }));
-    
-    setKnowledgeBlocks([...newBlocks, ...knowledgeBlocks]);
-  };
-  
-  const getCategoryLabel = (category: KnowledgeBlock["category"]) => {
-    const categories = {
-      property: "Property Info",
-      policies: "Policies",
-      local: "Local Area",
-      custom: "Custom",
-      safety: "Safety",
-      amenities: "Amenities",
-      checkin: "Check-in",
-      emergency: "Emergency",
-    };
-    
-    return categories[category];
+  const openEdit = (block: KnowledgeBlock) => {
+    setEditing(block);
+    setDrawerOpen(true);
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'approved': return <CheckCircle className="h-3 w-3 text-green-600" />;
-      case 'reviewed': return <AlertTriangle className="h-3 w-3 text-yellow-600" />;
-      default: return <Edit className="h-3 w-3 text-gray-400" />;
-    }
+  const handleSave = (block: KnowledgeBlock) => {
+    setBlocks((prev) => {
+      const exists = prev.some((b) => b.id === block.id);
+      return exists ? prev.map((b) => (b.id === block.id ? block : b)) : [block, ...prev];
+    });
+    toast({ title: editing ? "Block updated" : "Block created", description: block.title });
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-green-100 text-green-800 border-green-200';
-    }
+  const handleDelete = (id: string) => {
+    setBlocks((prev) => prev.filter((b) => b.id !== id));
+    toast({ title: "Block deleted" });
   };
 
-  const getPropertyName = (propertyId?: string) => {
-    if (!propertyId) return "All Properties";
-    const property = properties.find(p => p.id === propertyId);
-    return property?.name || "Unknown Property";
-  };
-  
+  const hasActiveFilters =
+    filters.category !== "all" ||
+    filters.scope !== "all" ||
+    filters.appliesTo !== "all" ||
+    filters.search.trim() !== "";
+
   return (
     <MainLayout>
-      <div className="space-y-8 animate-scale-in">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">Knowledge Base</h1>
-          <p className="text-muted-foreground">
-            AI-powered content management for comprehensive guest information.
-          </p>
-        </div>
-        
-        <PropertySelector
-          properties={properties}
-          selectedProperty={selectedProperty}
-          onSelectProperty={setSelectedProperty}
-          onCreateProperty={handleCreateProperty}
-        />
-        
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="relative w-full sm:w-auto">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search knowledge base..." 
-              className="pl-9 w-full sm:w-[300px]"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowDocumentUpload(true)}>
-              <Brain className="h-4 w-4 mr-2" />
-              AI Document Processing
-            </Button>
-            <Button onClick={() => setIsCreating(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Knowledge Block
-            </Button>
-          </div>
-        </div>
-        
-        {selectedProperty && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-800">
-              Viewing knowledge for: <strong>{selectedProperty.name}</strong> ({selectedProperty.type})
-              {selectedProperty.address && ` - ${selectedProperty.address}`}
+      <div className="space-y-5">
+        {/* Header */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Knowledge Base</h1>
+            <p className="text-sm text-muted-foreground">
+              Operational procedures and company policies
             </p>
           </div>
-        )}
-        
-        {showDocumentUpload && (
-          <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <EnhancedDocumentUpload 
-              onDocumentProcessed={handleDocumentProcessed}
-              onClose={() => setShowDocumentUpload(false)}
-              propertyType={selectedProperty?.type || "villa"}
-            />
+          <Button onClick={openCreate}>
+            <Plus className="mr-1.5 h-4 w-4" /> Add Knowledge Block
+          </Button>
+        </div>
+
+        {/* Conflict banner */}
+        {conflicts > 0 && (
+          <div className="flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-2.5 text-sm text-yellow-800">
+            <AlertTriangle className="h-4 w-4" />
+            Conflict detected: {conflicts} category{conflicts > 1 ? "ies" : ""} with multiple
+            blocks at the same scope level.
           </div>
         )}
-        
-        {isCreating && (
-          <Card className="border-primary/50 animate-scale-in">
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>New Knowledge Block</span>
-                <Button variant="ghost" size="icon" onClick={() => setIsCreating(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </CardTitle>
-              {selectedProperty && (
-                <p className="text-sm text-muted-foreground">
-                  Adding to: {selectedProperty.name}
-                </p>
-              )}
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Title
-                  </label>
-                  <Input 
-                    value={newBlock.title}
-                    onChange={(e) => setNewBlock({ ...newBlock, title: e.target.value })}
-                    placeholder="Enter a title for this knowledge block"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Category
-                  </label>
-                  <select 
-                    className="w-full rounded-md border border-input bg-background px-3 py-2"
-                    value={newBlock.category}
-                    onChange={(e) => setNewBlock({ ...newBlock, category: e.target.value as KnowledgeBlock["category"] })}
-                  >
-                    <option value="property">Property Info</option>
-                    <option value="policies">Policies</option>
-                    <option value="local">Local Area</option>
-                    <option value="custom">Custom</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="text-sm font-medium mb-1 block">
-                    Content
-                  </label>
-                  <Textarea 
-                    value={newBlock.content}
-                    onChange={(e) => setNewBlock({ ...newBlock, content: e.target.value })}
-                    placeholder="Enter the knowledge content..."
-                    className="min-h-[150px]"
-                  />
-                </div>
-                
-                <div className="flex justify-end">
-                  <Button onClick={handleCreateBlock} disabled={!newBlock.title || !newBlock.content}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Save
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {filteredBlocks.map((block) => (
-            <Card key={block.id} className="hover-card-effect">
-              {editingBlock && editingBlock.id === block.id ? (
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-1 block">
-                        Title
-                      </label>
-                      <Input 
-                        value={editingBlock.title}
-                        onChange={(e) => setEditingBlock({ ...editingBlock, title: e.target.value })}
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-1 block">
-                        Category
-                      </label>
-                      <select 
-                        className="w-full rounded-md border border-input bg-background px-3 py-2"
-                        value={editingBlock.category}
-                        onChange={(e) => setEditingBlock({ ...editingBlock, category: e.target.value as KnowledgeBlock["category"] })}
-                      >
-                        <option value="property">Property Info</option>
-                        <option value="policies">Policies</option>
-                        <option value="local">Local Area</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label className="text-sm font-medium mb-1 block">
-                        Content
-                      </label>
-                      <Textarea 
-                        value={editingBlock.content}
-                        onChange={(e) => setEditingBlock({ ...editingBlock, content: e.target.value })}
-                        className="min-h-[150px]"
-                      />
-                    </div>
-                    
-                    <div className="flex justify-end gap-2">
-                      <Button variant="outline" onClick={() => setEditingBlock(null)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleSaveEdit}>
-                        <Save className="h-4 w-4 mr-2" />
-                        Save
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              ) : (
-                <>
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <CardTitle className="text-base">{block.title}</CardTitle>
-                          {getStatusIcon(block.status)}
-                          {block.source?.generatedByAI && (
-                            <Badge variant="outline" className="text-xs">
-                              <Brain className="h-3 w-3 mr-1" />
-                              AI
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                          <Badge variant="outline" className="text-xs">
-                            <Book className="h-3 w-3 mr-1" />
-                            {getCategoryLabel(block.category)}
-                          </Badge>
-                          <Badge variant="outline" className={`text-xs ${getPriorityColor(block.priority)}`}>
-                            {block.priority}
-                          </Badge>
-                          {block.aiConfidence && (
-                            <Badge variant="outline" className="text-xs">
-                              {Math.round(block.aiConfidence * 100)}% confident
-                            </Badge>
-                          )}
-                        </div>
 
-                        {block.propertyId && (
-                          <div className="mt-2">
-                            <Badge variant="secondary" className="text-xs">
-                              {getPropertyName(block.propertyId)}
-                            </Badge>
-                          </div>
-                        )}
-                        
-                        {block.tags && block.tags.length > 0 && (
-                          <div className="flex gap-1 mt-2 flex-wrap">
-                            {block.tags.slice(0, 3).map((tag, index) => (
-                              <Badge key={index} variant="secondary" className="text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                            {block.tags.length > 3 && (
-                              <Badge variant="secondary" className="text-xs">
-                                +{block.tags.length - 3}
-                              </Badge>
-                            )}
-                          </div>
-                        )}
-                        
-                        <div className="text-xs text-muted-foreground mt-2">
-                          Updated {block.lastUpdated}
-                        </div>
-                        
-                        {block.source?.filename && (
-                          <div className="text-xs text-muted-foreground">
-                            Source: {block.source.filename}
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => setEditingBlock(block)}
-                          className="h-8 w-8"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleDeleteBlock(block.id)}
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                        >
-                          <Trash className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm whitespace-pre-line line-clamp-4">{block.content}</p>
-                  </CardContent>
-                </>
-              )}
-            </Card>
-          ))}
-          
-          {filteredBlocks.length === 0 && (
-            <div className="col-span-full flex items-center justify-center py-12 text-muted-foreground">
-              <div className="text-center">
-                <Brain className="h-12 w-12 mx-auto mb-3 opacity-20" />
-                <h3 className="text-lg font-medium mb-1">No knowledge blocks found</h3>
-                <p>
-                  {selectedProperty 
-                    ? `No knowledge blocks found for ${selectedProperty.name}. Try adding some content or selecting a different property.`
-                    : "Try adjusting your search or upload documents for AI processing"
-                  }
-                </p>
-              </div>
-            </div>
+        {/* Filters */}
+        <KnowledgeFilters filters={filters} onChange={setFilters} />
+
+        {/* View toggle + tabs */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          {view === "all" ? (
+            <CategoryTabs
+              blocks={blocks}
+              active={filters.category}
+              onChange={(c) => setFilters({ ...filters, category: c as "all" | KnowledgeCategory })}
+            />
+          ) : (
+            <div />
           )}
+          <div className="flex shrink-0 rounded-lg border border-border p-0.5">
+            <button
+              onClick={() => setView("all")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium",
+                view === "all" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              )}
+            >
+              <LayoutGrid className="h-4 w-4" /> All Blocks
+            </button>
+            <button
+              onClick={() => setView("property")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium",
+                view === "property" ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              )}
+            >
+              <Home className="h-4 w-4" /> View by Property
+            </button>
+          </div>
         </div>
+
+        {/* Body */}
+        {loading ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-56 w-full rounded-xl" />
+            ))}
+          </div>
+        ) : view === "property" ? (
+          <InheritanceViewer
+            propertyId={compiledProperty}
+            onPropertyChange={setCompiledProperty}
+            allBlocks={blocks}
+          />
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            hasFilters={hasActiveFilters}
+            search={filters.search}
+            onClear={() => setFilters(EMPTY_FILTERS)}
+            onCreate={openCreate}
+          />
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {filtered.map((block, i) => (
+              <KnowledgeBlockCard
+                key={block.id}
+                block={block}
+                allBlocks={blocks}
+                index={i}
+                onEdit={openEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
       </div>
+
+      <KnowledgeBlockForm
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        editing={editing}
+        allBlocks={blocks}
+        onSave={handleSave}
+      />
     </MainLayout>
   );
 };
+
+function EmptyState({
+  hasFilters,
+  search,
+  onClear,
+  onCreate,
+}: {
+  hasFilters: boolean;
+  search: string;
+  onClear: () => void;
+  onCreate: () => void;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+      <BookOpen className="mb-3 h-12 w-12 text-muted-foreground/30" />
+      {hasFilters ? (
+        <>
+          <h3 className="text-lg font-medium text-foreground">
+            {search.trim() ? `No results for "${search}"` : "No matching blocks"}
+          </h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Try different keywords or clear the filters.
+          </p>
+          <Button variant="outline" onClick={onClear}>
+            Clear filters
+          </Button>
+        </>
+      ) : (
+        <>
+          <h3 className="text-lg font-medium text-foreground">No knowledge blocks yet</h3>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Start by creating a company-wide procedure.
+          </p>
+          <Button onClick={onCreate}>
+            <Plus className="mr-1.5 h-4 w-4" /> Create First Block
+          </Button>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default KnowledgePage;
