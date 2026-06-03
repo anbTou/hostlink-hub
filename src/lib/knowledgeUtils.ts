@@ -11,6 +11,8 @@ export function appliesToText(block: KnowledgeBlock): string {
       return `All ${block.scopeId}s`;
     case "property":
       return propertyName(block.scopeId);
+    default:
+      return "All properties";
   }
 }
 
