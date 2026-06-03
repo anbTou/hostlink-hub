@@ -46,6 +46,8 @@ export function InheritanceViewer({
         return `Applies to all ${block.scopeId}s`;
       case "property":
         return "Property-specific rule";
+      default:
+        return "";
     }
   };
 
