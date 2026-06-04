@@ -150,7 +150,8 @@ export function ComposeArea({
   const activeChannel = isForward ? "email" : selectedChannel;
   const activeOption = channelOptions.find(c => c.value === activeChannel);
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    if (isSending) return;
     if (!content.trim() && !isForward) return;
     if (isForward && toEmails.length === 0) return;
 
@@ -159,13 +160,19 @@ export function ComposeArea({
       finalContent = `${content}\n\n---------- Forwarded message ----------\nFrom: ${forwardedMessage.from}\nDate: ${forwardedMessage.date}\n\n${forwardedMessage.content}`;
     }
 
+    // Simulate the network round-trip so the user gets a spinner (mock data).
+    setIsSending(true);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
     onSend(finalContent, activeChannel, isNote);
     setContent("");
     setCcEmails([]);
     setBccEmails([]);
     setToEmails([]);
     setShowBcc(false);
+    setIsSending(false);
   };
+
 
   const handleTemplateInsert = (template: string) => {
     const resolved = template
