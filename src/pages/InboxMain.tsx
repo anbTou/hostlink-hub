@@ -4,7 +4,7 @@ import { InboxContainer } from "@/components/inbox/InboxContainer";
 const InboxMain = () => {
   return (
     <MainLayout fullHeight>
-      <InboxContainer />
+      <InboxContainer fullHeight />
     </MainLayout>
   );
 };
