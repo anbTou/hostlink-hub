@@ -3,7 +3,7 @@ import { InboxContainer } from "@/components/inbox/InboxContainer";
 
 const InboxMain = () => {
   return (
-    <MainLayout>
+    <MainLayout fullHeight>
       <InboxContainer />
     </MainLayout>
   );
