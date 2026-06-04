@@ -118,14 +118,17 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 }
 
 export function ChatMessageThread({ messages, typingAgent, viewingAgent }: ChatMessageThreadProps) {
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll within the thread container only, so the page never jumps.
+    const el = containerRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
   }, [messages, typingAgent]);
 
   return (
-    <div className="flex-1 overflow-y-auto py-4">
+    <div ref={containerRef} className="flex-1 overflow-y-auto py-4">
+
       {/* Collision banner */}
       {viewingAgent && (
         <div className="mx-5 mb-3 flex items-center gap-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2 text-xs text-amber-700 dark:text-amber-300">
