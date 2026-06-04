@@ -152,8 +152,6 @@ export function ChatMessageThread({ messages, typingAgent, viewingAgent }: ChatM
           <span className="text-xs">{typingAgent} is typing...</span>
         </div>
       )}
-
-      <div ref={bottomRef} />
     </div>
   );
 }
