@@ -11,7 +11,7 @@ import {
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
   Mail, Home, MessageSquare, Building2, Plane, X, Forward,
-  Maximize2, Minimize2,
+  Maximize2, Minimize2, Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
@@ -134,6 +134,7 @@ export function ComposeArea({
   const [toEmails, setToEmails] = useState<string[]>([]);
   const [showBcc, setShowBcc] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -149,7 +150,8 @@ export function ComposeArea({
   const activeChannel = isForward ? "email" : selectedChannel;
   const activeOption = channelOptions.find(c => c.value === activeChannel);
 
-  const handleSend = () => {
+  const handleSend = async () => {
+    if (isSending) return;
     if (!content.trim() && !isForward) return;
     if (isForward && toEmails.length === 0) return;
 
@@ -158,13 +160,19 @@ export function ComposeArea({
       finalContent = `${content}\n\n---------- Forwarded message ----------\nFrom: ${forwardedMessage.from}\nDate: ${forwardedMessage.date}\n\n${forwardedMessage.content}`;
     }
 
+    // Simulate the network round-trip so the user gets a spinner (mock data).
+    setIsSending(true);
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
     onSend(finalContent, activeChannel, isNote);
     setContent("");
     setCcEmails([]);
     setBccEmails([]);
     setToEmails([]);
     setShowBcc(false);
+    setIsSending(false);
   };
+
 
   const handleTemplateInsert = (template: string) => {
     const resolved = template
@@ -421,11 +429,24 @@ export function ComposeArea({
               isForward && "bg-blue-600 hover:bg-blue-700"
             )}
             onClick={handleSend}
-            disabled={sendDisabled}
+            disabled={sendDisabled || isSending}
           >
-            {isForward ? <Forward className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
-            {isNote ? "Add Note" : isForward ? "Forward" : "Send"}
+            {isSending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : isForward ? (
+              <Forward className="h-3.5 w-3.5" />
+            ) : (
+              <Send className="h-3.5 w-3.5" />
+            )}
+            {isSending
+              ? "Sending..."
+              : isNote
+              ? "Add Note"
+              : isForward
+              ? "Forward"
+              : "Send"}
           </Button>
+
         </div>
       </div>
     </>

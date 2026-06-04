@@ -31,9 +31,11 @@ interface GuestContextPanelProps {
     currency: string;
   };
   propertyName?: string;
+  /** When embedded (e.g. inside a sheet) drop the fixed width/border chrome. */
+  embedded?: boolean;
 }
 
-export function GuestContextPanel({ guest, booking, propertyName }: GuestContextPanelProps) {
+export function GuestContextPanel({ guest, booking, propertyName, embedded = false }: GuestContextPanelProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "current": return "bg-green-100 text-green-800";
@@ -45,7 +47,13 @@ export function GuestContextPanel({ guest, booking, propertyName }: GuestContext
   };
 
   return (
-    <div className="w-[360px] shrink-0 border-l border-border bg-muted/20 overflow-y-auto">
+    <div
+      className={
+        embedded
+          ? "w-full h-full bg-muted/20"
+          : "w-[340px] shrink-0 border-l border-border bg-muted/20 overflow-y-auto"
+      }
+    >
       {/* Guest Header */}
       <div className="p-5 border-b border-border">
         <div className="flex items-center gap-3">
