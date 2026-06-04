@@ -28,6 +28,8 @@ import {
   EmptyConversations,
   InboxErrorState,
 } from "@/components/inbox/InboxStates";
+import { cn } from "@/lib/utils";
+
 
 
 // 12 mock conversations as specified
