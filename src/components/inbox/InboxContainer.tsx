@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Search, Send, Users, Info, RefreshCw } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Send, Users, Info, RefreshCw, PanelRightOpen } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { isToday, parseISO, isThisWeek } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,19 @@ import { useTeam } from "@/contexts/TeamContext";
 import { getAgentById } from "@/types/team";
 import { useToast } from "@/hooks/use-toast";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useLocation } from "react-router-dom";
+import { useBelowBreakpoint } from "@/hooks/use-breakpoint";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ChevronDown, ChevronRight } from "lucide-react";
+import {
+  ListSkeleton,
+  ConversationSkeleton,
+  ContextSkeleton,
+  EmptyConversations,
+  InboxErrorState,
+} from "@/components/inbox/InboxStates";
+
 
 // 12 mock conversations as specified
 const buildSampleConversations = (): InboxConversation[] => [
