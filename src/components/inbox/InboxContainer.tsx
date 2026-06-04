@@ -378,10 +378,55 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
   // Check if current conversation is assigned to someone else (for senior banner)
   const isViewingOthersConversation = selectedInboxConv && selectedInboxConv.assignedTo && selectedInboxConv.assignedTo !== currentUser.id && isSenior;
 
+  const clearFilters = () => {
+    setActiveTab("all");
+    setActiveChannels([]);
+    setSearchQuery("");
+    setQuickFilter(null);
+    setShowResolved(false);
+  };
+
+  // Close the guest-details sheet once we're back on a wide layout.
+  useEffect(() => {
+    if (!isTablet) setContextSheetOpen(false);
+  }, [isTablet]);
+
+  const rootClass = cn(
+    "flex w-full overflow-hidden bg-card rounded-lg border border-border",
+    fullHeight ? "h-full" : "h-[calc(100vh-5rem)]"
+  );
+
+  if (hasError) {
+    return (
+      <div className={rootClass}>
+        <InboxErrorState onRetry={handleRetry} />
+      </div>
+    );
+  }
+
+  const showList = !isMobile || !selectedId;
+  const showConversation = !isMobile || !!selectedId;
+  const showInlineContext = !isTablet && selectedInboxConv && guestProfile;
+
+  const guestPanelData = selectedInboxConv && guestProfile
+    ? {
+        name: selectedInboxConv.guestName,
+        email: selectedInboxConv.guestEmail,
+        avatarUrl: selectedInboxConv.guestAvatarUrl,
+        ...guestProfile,
+      }
+    : null;
+
   return (
-    <div className="h-[calc(100vh-5rem)] bg-card rounded-lg border border-border overflow-hidden flex">
-      {/* Column A — Conversation List (300px) */}
-      <div className="w-[300px] shrink-0 flex flex-col border-r border-border">
+    <div className={rootClass}>
+      {/* Column A — Conversation List (~340px, full width on mobile) */}
+      <div
+        className={cn(
+          "min-h-0 shrink-0 flex-col border-r border-border",
+          showList ? "flex" : "hidden",
+          isMobile ? "w-full" : "w-[340px]"
+        )}
+      >
         {/* On-shift indicator */}
         <div className="px-4 py-2 border-b border-border flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">
@@ -477,7 +522,9 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
 
         {/* Conversation List */}
         <div className="flex-1 overflow-y-auto">
-          {isPrivateInbox && privateSubTab === "all_agents" && isSenior && groupedByAgent ? (
+          {isLoading ? (
+            <ListSkeleton />
+          ) : isPrivateInbox && privateSubTab === "all_agents" && isSenior && groupedByAgent ? (
             // All Agents grouped view
             <div>
               {allMembers.map(member => {
@@ -514,35 +561,51 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
                 );
               })}
             </div>
+          ) : filteredConversations.length === 0 ? (
+            <EmptyConversations onClear={clearFilters} />
           ) : (
-            // Normal list view
-            filteredConversations.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground p-4">
-                <p className="text-sm">No conversations found</p>
-              </div>
-            ) : (
-              filteredConversations.map(conv => (
-                <InboxConversationItem
-                  key={conv.id}
-                  conversation={conv}
-                  isSelected={selectedId === conv.id}
-                  onSelect={setSelectedId}
-                  onSnooze={handleSnooze}
-                  onResolve={handleResolve}
-                  onAssign={(id) => handleAssign(id)}
-                  showPickUp={!isPrivateInbox && !conv.assignedTo}
-                  onPickUp={() => handleAssign(conv.id)}
-                />
-              ))
-            )
+            filteredConversations.map(conv => (
+              <InboxConversationItem
+                key={conv.id}
+                conversation={conv}
+                isSelected={selectedId === conv.id}
+                onSelect={setSelectedId}
+                onSnooze={handleSnooze}
+                onResolve={handleResolve}
+                onAssign={(id) => handleAssign(id)}
+                showPickUp={!isPrivateInbox && !conv.assignedTo}
+                onPickUp={() => handleAssign(conv.id)}
+              />
+            ))
           )}
         </div>
       </div>
 
       {/* Column B — Active Conversation (flex) */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {selectedConversation ? (
-          <div className="flex-1 flex flex-col">
+      <div
+        className={cn(
+          "flex-1 flex-col min-w-0",
+          showConversation ? "flex" : "hidden"
+        )}
+      >
+        {isLoading ? (
+          <ConversationSkeleton />
+        ) : selectedConversation ? (
+          <div className="flex-1 flex flex-col min-h-0">
+            {/* Guest details trigger on smaller screens */}
+            {isTablet && (
+              <div className="flex justify-end border-b border-border px-3 py-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1.5 text-xs"
+                  onClick={() => setContextSheetOpen(true)}
+                >
+                  <PanelRightOpen className="h-3.5 w-3.5" />
+                  Guest details
+                </Button>
+              </div>
+            )}
             {/* Senior banner when viewing other's conversation */}
             {isViewingOthersConversation && (
               <div className="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-800 px-4 py-2 text-xs text-amber-800 dark:text-amber-200">
@@ -581,19 +644,38 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
         )}
       </div>
 
-      {/* Column C — Guest Context Panel (360px) */}
-      {selectedInboxConv && guestProfile && (
+      {/* Column C — Guest Context Panel (inline on wide screens) */}
+      {showInlineContext && !isLoading && guestPanelData && (
         <GuestContextPanel
-          guest={{
-            name: selectedInboxConv.guestName,
-            email: selectedInboxConv.guestEmail,
-            avatarUrl: selectedInboxConv.guestAvatarUrl,
-            ...guestProfile,
-          }}
+          guest={guestPanelData}
           booking={booking}
-          propertyName={selectedInboxConv.propertyName}
+          propertyName={selectedInboxConv!.propertyName}
         />
       )}
+
+      {/* Guest Context Panel — sheet on narrow screens */}
+      <Sheet open={contextSheetOpen} onOpenChange={setContextSheetOpen}>
+        <SheetContent side="right" className="w-[340px] max-w-[90vw] p-0 sm:max-w-[340px]">
+          <SheetHeader className="border-b border-border px-5 py-3 text-left">
+            <SheetTitle className="text-sm">Guest details</SheetTitle>
+          </SheetHeader>
+          <div className="h-[calc(100%-3.25rem)] overflow-y-auto">
+            {guestPanelData ? (
+              <GuestContextPanel
+                embedded
+                guest={guestPanelData}
+                booking={booking}
+                propertyName={selectedInboxConv!.propertyName}
+              />
+            ) : (
+              <div className="p-6 text-sm text-muted-foreground">
+                Select a conversation to see guest details.
+              </div>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
+
