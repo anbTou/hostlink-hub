@@ -429,11 +429,24 @@ export function ComposeArea({
               isForward && "bg-blue-600 hover:bg-blue-700"
             )}
             onClick={handleSend}
-            disabled={sendDisabled}
+            disabled={sendDisabled || isSending}
           >
-            {isForward ? <Forward className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
-            {isNote ? "Add Note" : isForward ? "Forward" : "Send"}
+            {isSending ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : isForward ? (
+              <Forward className="h-3.5 w-3.5" />
+            ) : (
+              <Send className="h-3.5 w-3.5" />
+            )}
+            {isSending
+              ? "Sending..."
+              : isNote
+              ? "Add Note"
+              : isForward
+              ? "Forward"
+              : "Send"}
           </Button>
+
         </div>
       </div>
     </>
