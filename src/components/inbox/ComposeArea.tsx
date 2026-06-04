@@ -134,6 +134,7 @@ export function ComposeArea({
   const [toEmails, setToEmails] = useState<string[]>([]);
   const [showBcc, setShowBcc] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
