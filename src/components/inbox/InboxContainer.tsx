@@ -171,11 +171,32 @@ const bookingData: Record<string, { reservationCode: string; propertyName: strin
 type TabType = "all" | "unread" | "mine" | "important";
 type PrivateSubTab = "my" | "all_agents";
 
-export const InboxContainer = () => {
+export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean }) => {
   const location = useLocation();
   const isPrivateInbox = location.pathname === "/inbox/private";
   const { currentUser, isSenior, onShiftAgents, allMembers } = useTeam();
   const { toast } = useToast();
+
+  // Responsive breakpoints
+  const isMobile = useBelowBreakpoint(768);
+  const isTablet = useBelowBreakpoint(1024);
+
+  // UI states
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [contextSheetOpen, setContextSheetOpen] = useState(false);
+
+  // Simulate async load of the inbox (mock data)
+  useEffect(() => {
+    setIsLoading(true);
+    setHasError(false);
+    const t = setTimeout(() => setIsLoading(false), 650);
+    return () => clearTimeout(t);
+  }, [reloadKey, isPrivateInbox]);
+
+  const handleRetry = () => setReloadKey((k) => k + 1);
+
 
   // Build conversations with isAssignedToMe based on current user
   const initialConversations = useMemo(() => {
