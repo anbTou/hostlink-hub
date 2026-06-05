@@ -217,6 +217,27 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
   const [showResolved, setShowResolved] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilterValue>(null);
   const [privateSubTab, setPrivateSubTab] = useState<PrivateSubTab>("my");
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [focusReplySignal, setFocusReplySignal] = useState(0);
+
+  // SLA tracking: response-time limit (minutes) and a demo "now" anchored to
+  // the most recent message so elapsed times stay meaningful with mock data.
+  const SLA_LIMIT_MIN = 60;
+  const demoNow = useMemo(() => {
+    const latest = Math.max(
+      ...buildSampleConversations().map((c) => new Date(c.timestamp).getTime())
+    );
+    return latest + 45 * 60 * 1000;
+  }, []);
+
+  // Full message content per conversation, so search can match message bodies.
+  const contentById = useMemo(() => {
+    const map: Record<string, string> = {};
+    rawConversations.forEach((c) => {
+      map[c.id] = c.messages.map((m) => m.content).join(" ");
+    });
+    return map;
+  }, []);
 
   // Update isAssignedToMe when currentUser changes
   useMemo(() => {
