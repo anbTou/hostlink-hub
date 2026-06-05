@@ -142,6 +142,9 @@ export function ConversationView({
         guestName={guestName}
         guestEmail={conversation.from}
         propertyName={propertyName}
+        checkInDate={checkInDate}
+        checkOutDate={checkOutDate}
+        focusSignal={focusReplySignal}
         forwardedMessage={
           conversation.messages.length > 0
             ? {
