@@ -284,6 +284,18 @@ export function ComposeArea({
           </div>
         )}
 
+        {/* Channel mismatch warning */}
+        {channelMismatch && (
+          <div className="mx-4 mt-1 mb-1 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span>
+              You're replying via <strong>{selectedOption?.label}</strong>, but this guest wrote in
+              via <strong>{defaultOption?.label}</strong>. The guest may not receive it on the
+              original channel.
+            </span>
+          </div>
+        )}
+
         {/* Forward channel indicator — locked to Email */}
         {isForward && (
           <div className="flex items-center gap-2 px-4 pt-3 pb-1">
