@@ -764,6 +764,41 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Keyboard shortcuts help overlay */}
+      <Dialog open={showShortcuts} onOpenChange={setShowShortcuts}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Keyboard className="h-4 w-4 text-primary" />
+              Keyboard shortcuts
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-1">
+            {[
+              { keys: ["J"], label: "Next conversation" },
+              { keys: ["K"], label: "Previous conversation" },
+              { keys: ["R"], label: "Focus the reply box" },
+              { keys: ["E"], label: "Resolve / archive conversation" },
+              { keys: ["?"], label: "Toggle this help overlay" },
+            ].map((s) => (
+              <div key={s.label} className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{s.label}</span>
+                <span className="flex items-center gap-1">
+                  {s.keys.map((k) => (
+                    <kbd
+                      key={k}
+                      className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-border bg-muted px-1.5 text-xs font-medium text-foreground"
+                    >
+                      {k}
+                    </kbd>
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
