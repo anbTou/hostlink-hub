@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Send, Users, Info, RefreshCw, PanelRightOpen } from "lucide-react";
+import { Search, Send, Users, Info, RefreshCw, PanelRightOpen, Keyboard } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { isToday, parseISO, isThisWeek } from "date-fns";
+import { isToday, parseISO, isThisWeek, format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -216,6 +217,27 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
   const [showResolved, setShowResolved] = useState(false);
   const [quickFilter, setQuickFilter] = useState<QuickFilterValue>(null);
   const [privateSubTab, setPrivateSubTab] = useState<PrivateSubTab>("my");
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [focusReplySignal, setFocusReplySignal] = useState(0);
+
+  // SLA tracking: response-time limit (minutes) and a demo "now" anchored to
+  // the most recent message so elapsed times stay meaningful with mock data.
+  const SLA_LIMIT_MIN = 60;
+  const demoNow = useMemo(() => {
+    const latest = Math.max(
+      ...buildSampleConversations().map((c) => new Date(c.timestamp).getTime())
+    );
+    return latest + 45 * 60 * 1000;
+  }, []);
+
+  // Full message content per conversation, so search can match message bodies.
+  const contentById = useMemo(() => {
+    const map: Record<string, string> = {};
+    rawConversations.forEach((c) => {
+      map[c.id] = c.messages.map((m) => m.content).join(" ");
+    });
+    return map;
+  }, []);
 
   // Update isAssignedToMe when currentUser changes
   useMemo(() => {
@@ -290,12 +312,13 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
       result = result.filter(c =>
         c.guestName.toLowerCase().includes(q) ||
         c.preview.toLowerCase().includes(q) ||
-        c.propertyName?.toLowerCase().includes(q)
+        c.propertyName?.toLowerCase().includes(q) ||
+        contentById[c.id]?.toLowerCase().includes(q)
       );
     }
 
     return [...result].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [conversations, activeTab, activeChannels, searchQuery, showResolved, quickFilter, isPrivateInbox, privateSubTab, currentUser.id, isSenior]);
+  }, [conversations, activeTab, activeChannels, searchQuery, showResolved, quickFilter, isPrivateInbox, privateSubTab, currentUser.id, isSenior, contentById]);
 
   const toggleChannel = (ch: ConversationSource) => {
     setActiveChannels(prev => prev.includes(ch) ? prev.filter(c => c !== ch) : [...prev, ch]);
@@ -391,6 +414,55 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
     if (!isTablet) setContextSheetOpen(false);
   }, [isTablet]);
 
+  // Keyboard shortcuts: j/k navigate, r focus reply, e resolve, ? toggle help.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        !!target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "?") {
+        if (isTyping) return;
+        e.preventDefault();
+        setShowShortcuts((s) => !s);
+        return;
+      }
+      if (e.key === "Escape" && showShortcuts) {
+        setShowShortcuts(false);
+        return;
+      }
+      if (isTyping) return;
+
+      const list = filteredConversations;
+      if (e.key === "j" || e.key === "k") {
+        e.preventDefault();
+        if (list.length === 0) return;
+        const idx = list.findIndex((c) => c.id === selectedId);
+        let next: number;
+        if (e.key === "j") next = idx < 0 ? 0 : Math.min(idx + 1, list.length - 1);
+        else next = idx < 0 ? 0 : Math.max(idx - 1, 0);
+        setSelectedId(list[next].id);
+      } else if (e.key === "r") {
+        if (selectedId) {
+          e.preventDefault();
+          setFocusReplySignal((s) => s + 1);
+        }
+      } else if (e.key === "e") {
+        if (selectedId) {
+          e.preventDefault();
+          handleResolve(selectedId);
+        }
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredConversations, selectedId, showShortcuts]);
+
   const rootClass = cn(
     "flex w-full overflow-hidden bg-card rounded-lg border border-border",
     fullHeight ? "h-full" : "h-[calc(100vh-5rem)]"
@@ -432,6 +504,16 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
           <span className="text-xs font-medium text-muted-foreground">
             {isPrivateInbox ? "My Inbox" : "Main Inbox"}
           </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground"
+              title="Keyboard shortcuts (?)"
+              onClick={() => setShowShortcuts(true)}
+            >
+              <Keyboard className="h-3.5 w-3.5" />
+            </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="h-6 text-[10px] gap-1 text-muted-foreground">
@@ -456,7 +538,9 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
               </div>
             </PopoverContent>
           </Popover>
+          </div>
         </div>
+
 
         {/* Private Inbox sub-tabs for Seniors */}
         {isPrivateInbox && isSenior && (
@@ -575,6 +659,8 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
                 onAssign={(id) => handleAssign(id)}
                 showPickUp={!isPrivateInbox && !conv.assignedTo}
                 onPickUp={() => handleAssign(conv.id)}
+                slaMinutes={(demoNow - new Date(conv.timestamp).getTime()) / 60000}
+                slaLimit={SLA_LIMIT_MIN}
               />
             ))
           )}
@@ -619,6 +705,9 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
               channel={selectedInboxConv?.channel || "email"}
               reservationCode={booking?.reservationCode}
               propertyName={selectedInboxConv?.propertyName}
+              checkInDate={booking?.checkIn ? format(parseISO(booking.checkIn), "MMM d, yyyy") : undefined}
+              checkOutDate={booking?.checkOut ? format(parseISO(booking.checkOut), "MMM d, yyyy") : undefined}
+              focusReplySignal={focusReplySignal}
               tags={selectedInboxConv?.tags || []}
               onBack={() => setSelectedId(null)}
               onReply={(content) => console.log("Reply:", content)}
@@ -675,6 +764,41 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
           </div>
         </SheetContent>
       </Sheet>
+
+      {/* Keyboard shortcuts help overlay */}
+      <Dialog open={showShortcuts} onOpenChange={setShowShortcuts}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-base">
+              <Keyboard className="h-4 w-4 text-primary" />
+              Keyboard shortcuts
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-1">
+            {[
+              { keys: ["J"], label: "Next conversation" },
+              { keys: ["K"], label: "Previous conversation" },
+              { keys: ["R"], label: "Focus the reply box" },
+              { keys: ["E"], label: "Resolve / archive conversation" },
+              { keys: ["?"], label: "Toggle this help overlay" },
+            ].map((s) => (
+              <div key={s.label} className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">{s.label}</span>
+                <span className="flex items-center gap-1">
+                  {s.keys.map((k) => (
+                    <kbd
+                      key={k}
+                      className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-md border border-border bg-muted px-1.5 text-xs font-medium text-foreground"
+                    >
+                      {k}
+                    </kbd>
+                  ))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -41,6 +41,17 @@ interface InboxConversationItemProps {
   onAssign: (id: string) => void;
   showPickUp?: boolean;
   onPickUp?: () => void;
+  /** Minutes since the guest's last message (for SLA tracking). */
+  slaMinutes?: number;
+  /** SLA response-time limit in minutes. */
+  slaLimit?: number;
+}
+
+function formatElapsed(minutes: number): string {
+  if (minutes < 60) return `${Math.round(minutes)}m`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${Math.floor(hours)}h`;
+  return `${Math.floor(hours / 24)}d`;
 }
 
 const channelConfig: Record<ConversationSource, { label: string; color: string }> = {
@@ -61,10 +72,14 @@ export function InboxConversationItem({
   onAssign,
   showPickUp,
   onPickUp,
+  slaMinutes,
+  slaLimit = 60,
 }: InboxConversationItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const channel = channelConfig[conversation.channel];
   const time = format(parseISO(conversation.timestamp), "h:mm a");
+  const showSla = !conversation.isResolved && typeof slaMinutes === "number";
+  const slaBreached = showSla && (slaMinutes as number) > slaLimit;
 
   return (
     <div
@@ -104,7 +119,27 @@ export function InboxConversationItem({
                 {channel.label}
               </span>
             </div>
-            <span className="text-[11px] text-muted-foreground shrink-0">{time}</span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {showSla && (
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-0.5 rounded-sm px-1 py-0.5 text-[9px] font-medium",
+                    slaBreached
+                      ? "bg-destructive/15 text-destructive"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                  title={
+                    slaBreached
+                      ? `SLA breached — ${formatElapsed(slaMinutes as number)} since last reply (limit ${slaLimit}m)`
+                      : `${formatElapsed(slaMinutes as number)} since last reply (SLA ${slaLimit}m)`
+                  }
+                >
+                  <Clock className="h-2.5 w-2.5" />
+                  {formatElapsed(slaMinutes as number)}
+                </span>
+              )}
+              <span className="text-[11px] text-muted-foreground">{time}</span>
+            </div>
           </div>
 
           {/* Row 2: Preview */}

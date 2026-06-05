@@ -11,7 +11,7 @@ import {
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
   Mail, Home, MessageSquare, Building2, Plane, X, Forward,
-  Maximize2, Minimize2, Loader2,
+  Maximize2, Minimize2, Loader2, AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
@@ -32,6 +32,8 @@ interface ComposeAreaProps {
   checkInDate?: string;
   checkOutDate?: string;
   forwardedMessage?: ForwardedMessage;
+  /** Increment to focus the reply textarea (keyboard shortcut "r"). */
+  focusSignal?: number;
 }
 
 const channelOptions: { value: ConversationSource; label: string; icon: React.ReactNode }[] = [
@@ -124,6 +126,7 @@ export function ComposeArea({
   checkInDate = "",
   checkOutDate = "",
   forwardedMessage,
+  focusSignal = 0,
 }: ComposeAreaProps) {
   const [content, setContent] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<ConversationSource>(defaultChannel);
@@ -141,6 +144,14 @@ export function ComposeArea({
     setSelectedChannel(defaultChannel);
   }, [defaultChannel]);
 
+  // Focus the reply box when the "r" keyboard shortcut fires.
+  useEffect(() => {
+    if (focusSignal > 0) {
+      setMode("reply");
+      textareaRef.current?.focus();
+    }
+  }, [focusSignal]);
+
   const isNote = mode === "note";
   const isForward = mode === "forward";
   const isEmail = selectedChannel === "email";
@@ -149,6 +160,10 @@ export function ComposeArea({
   // In forward mode, always use email
   const activeChannel = isForward ? "email" : selectedChannel;
   const activeOption = channelOptions.find(c => c.value === activeChannel);
+
+  // Warn when replying on a channel that differs from the guest's source channel.
+  const defaultOption = channelOptions.find(c => c.value === defaultChannel);
+  const channelMismatch = mode === "reply" && selectedChannel !== defaultChannel;
 
   const handleSend = async () => {
     if (isSending) return;
@@ -266,6 +281,18 @@ export function ComposeArea({
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+        )}
+
+        {/* Channel mismatch warning */}
+        {channelMismatch && (
+          <div className="mx-4 mt-1 mb-1 flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-[11px] text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+            <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <span>
+              You're replying via <strong>{selectedOption?.label}</strong>, but this guest wrote in
+              via <strong>{defaultOption?.label}</strong>. The guest may not receive it on the
+              original channel.
+            </span>
           </div>
         )}
 
