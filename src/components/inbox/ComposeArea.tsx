@@ -161,6 +161,10 @@ export function ComposeArea({
   const activeChannel = isForward ? "email" : selectedChannel;
   const activeOption = channelOptions.find(c => c.value === activeChannel);
 
+  // Warn when replying on a channel that differs from the guest's source channel.
+  const defaultOption = channelOptions.find(c => c.value === defaultChannel);
+  const channelMismatch = mode === "reply" && selectedChannel !== defaultChannel;
+
   const handleSend = async () => {
     if (isSending) return;
     if (!content.trim() && !isForward) return;
