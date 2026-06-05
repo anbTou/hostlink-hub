@@ -41,6 +41,17 @@ interface InboxConversationItemProps {
   onAssign: (id: string) => void;
   showPickUp?: boolean;
   onPickUp?: () => void;
+  /** Minutes since the guest's last message (for SLA tracking). */
+  slaMinutes?: number;
+  /** SLA response-time limit in minutes. */
+  slaLimit?: number;
+}
+
+function formatElapsed(minutes: number): string {
+  if (minutes < 60) return `${Math.round(minutes)}m`;
+  const hours = minutes / 60;
+  if (hours < 24) return `${Math.floor(hours)}h`;
+  return `${Math.floor(hours / 24)}d`;
 }
 
 const channelConfig: Record<ConversationSource, { label: string; color: string }> = {
