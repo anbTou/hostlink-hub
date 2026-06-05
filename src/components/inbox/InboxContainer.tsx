@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, Send, Users, Info, RefreshCw, PanelRightOpen } from "lucide-react";
+import { Search, Send, Users, Info, RefreshCw, PanelRightOpen, Keyboard } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { isToday, parseISO, isThisWeek } from "date-fns";
+import { isToday, parseISO, isThisWeek, format } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
