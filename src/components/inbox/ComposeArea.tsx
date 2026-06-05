@@ -32,6 +32,8 @@ interface ComposeAreaProps {
   checkInDate?: string;
   checkOutDate?: string;
   forwardedMessage?: ForwardedMessage;
+  /** Increment to focus the reply textarea (keyboard shortcut "r"). */
+  focusSignal?: number;
 }
 
 const channelOptions: { value: ConversationSource; label: string; icon: React.ReactNode }[] = [
