@@ -29,6 +29,8 @@ interface ConversationViewProps {
   channel: ConversationSource;
   reservationCode?: string;
   propertyName?: string;
+  checkInDate?: string;
+  checkOutDate?: string;
   tags: string[];
   onBack: () => void;
   onReply?: (content: string) => void;
@@ -38,6 +40,8 @@ interface ConversationViewProps {
   onResolve?: () => void;
   showReturnToMain?: boolean;
   onReturnToMain?: () => void;
+  /** Increment to focus the reply box (keyboard shortcut "r"). */
+  focusReplySignal?: number;
 }
 
 export function ConversationView({
