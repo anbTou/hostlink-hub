@@ -72,10 +72,14 @@ export function InboxConversationItem({
   onAssign,
   showPickUp,
   onPickUp,
+  slaMinutes,
+  slaLimit = 60,
 }: InboxConversationItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const channel = channelConfig[conversation.channel];
   const time = format(parseISO(conversation.timestamp), "h:mm a");
+  const showSla = !conversation.isResolved && typeof slaMinutes === "number";
+  const slaBreached = showSla && (slaMinutes as number) > slaLimit;
 
   return (
     <div
