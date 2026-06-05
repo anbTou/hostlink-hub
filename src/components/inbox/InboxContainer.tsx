@@ -504,6 +504,16 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
           <span className="text-xs font-medium text-muted-foreground">
             {isPrivateInbox ? "My Inbox" : "Main Inbox"}
           </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground"
+              title="Keyboard shortcuts (?)"
+              onClick={() => setShowShortcuts(true)}
+            >
+              <Keyboard className="h-3.5 w-3.5" />
+            </Button>
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="sm" className="h-6 text-[10px] gap-1 text-muted-foreground">
