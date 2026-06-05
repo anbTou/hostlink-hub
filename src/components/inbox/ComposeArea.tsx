@@ -11,7 +11,7 @@ import {
 import {
   Send, Paperclip, FileText, Globe, ChevronDown, Lock,
   Mail, Home, MessageSquare, Building2, Plane, X, Forward,
-  Maximize2, Minimize2, Loader2,
+  Maximize2, Minimize2, Loader2, AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConversationSource } from "@/types/inbox";
