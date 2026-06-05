@@ -693,6 +693,9 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
               channel={selectedInboxConv?.channel || "email"}
               reservationCode={booking?.reservationCode}
               propertyName={selectedInboxConv?.propertyName}
+              checkInDate={booking?.checkIn ? format(parseISO(booking.checkIn), "MMM d, yyyy") : undefined}
+              checkOutDate={booking?.checkOut ? format(parseISO(booking.checkOut), "MMM d, yyyy") : undefined}
+              focusReplySignal={focusReplySignal}
               tags={selectedInboxConv?.tags || []}
               onBack={() => setSelectedId(null)}
               onReply={(content) => console.log("Reply:", content)}
