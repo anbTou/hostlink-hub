@@ -538,7 +538,9 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
               </div>
             </PopoverContent>
           </Popover>
+          </div>
         </div>
+
 
         {/* Private Inbox sub-tabs for Seniors */}
         {isPrivateInbox && isSenior && (
