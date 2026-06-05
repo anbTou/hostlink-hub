@@ -647,6 +647,8 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
                 onAssign={(id) => handleAssign(id)}
                 showPickUp={!isPrivateInbox && !conv.assignedTo}
                 onPickUp={() => handleAssign(conv.id)}
+                slaMinutes={(demoNow - new Date(conv.timestamp).getTime()) / 60000}
+                slaLimit={SLA_LIMIT_MIN}
               />
             ))
           )}
