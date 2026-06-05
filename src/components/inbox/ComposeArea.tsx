@@ -126,6 +126,7 @@ export function ComposeArea({
   checkInDate = "",
   checkOutDate = "",
   forwardedMessage,
+  focusSignal = 0,
 }: ComposeAreaProps) {
   const [content, setContent] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<ConversationSource>(defaultChannel);
@@ -142,6 +143,14 @@ export function ComposeArea({
   useEffect(() => {
     setSelectedChannel(defaultChannel);
   }, [defaultChannel]);
+
+  // Focus the reply box when the "r" keyboard shortcut fires.
+  useEffect(() => {
+    if (focusSignal > 0) {
+      setMode("reply");
+      textareaRef.current?.focus();
+    }
+  }, [focusSignal]);
 
   const isNote = mode === "note";
   const isForward = mode === "forward";
