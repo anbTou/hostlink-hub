@@ -51,6 +51,8 @@ export function ConversationView({
   channel,
   reservationCode,
   propertyName,
+  checkInDate,
+  checkOutDate,
   tags,
   onBack,
   onReply,
@@ -60,6 +62,7 @@ export function ConversationView({
   onResolve,
   showReturnToMain,
   onReturnToMain,
+  focusReplySignal,
 }: ConversationViewProps) {
   const { toast } = useToast();
   const currentUser = getCurrentUser();
