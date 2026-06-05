@@ -312,12 +312,13 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
       result = result.filter(c =>
         c.guestName.toLowerCase().includes(q) ||
         c.preview.toLowerCase().includes(q) ||
-        c.propertyName?.toLowerCase().includes(q)
+        c.propertyName?.toLowerCase().includes(q) ||
+        contentById[c.id]?.toLowerCase().includes(q)
       );
     }
 
     return [...result].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [conversations, activeTab, activeChannels, searchQuery, showResolved, quickFilter, isPrivateInbox, privateSubTab, currentUser.id, isSenior]);
+  }, [conversations, activeTab, activeChannels, searchQuery, showResolved, quickFilter, isPrivateInbox, privateSubTab, currentUser.id, isSenior, contentById]);
 
   const toggleChannel = (ch: ConversationSource) => {
     setActiveChannels(prev => prev.includes(ch) ? prev.filter(c => c !== ch) : [...prev, ch]);
