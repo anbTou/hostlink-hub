@@ -414,6 +414,55 @@ export const InboxContainer = ({ fullHeight = false }: { fullHeight?: boolean })
     if (!isTablet) setContextSheetOpen(false);
   }, [isTablet]);
 
+  // Keyboard shortcuts: j/k navigate, r focus reply, e resolve, ? toggle help.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isTyping =
+        !!target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable);
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === "?") {
+        if (isTyping) return;
+        e.preventDefault();
+        setShowShortcuts((s) => !s);
+        return;
+      }
+      if (e.key === "Escape" && showShortcuts) {
+        setShowShortcuts(false);
+        return;
+      }
+      if (isTyping) return;
+
+      const list = filteredConversations;
+      if (e.key === "j" || e.key === "k") {
+        e.preventDefault();
+        if (list.length === 0) return;
+        const idx = list.findIndex((c) => c.id === selectedId);
+        let next: number;
+        if (e.key === "j") next = idx < 0 ? 0 : Math.min(idx + 1, list.length - 1);
+        else next = idx < 0 ? 0 : Math.max(idx - 1, 0);
+        setSelectedId(list[next].id);
+      } else if (e.key === "r") {
+        if (selectedId) {
+          e.preventDefault();
+          setFocusReplySignal((s) => s + 1);
+        }
+      } else if (e.key === "e") {
+        if (selectedId) {
+          e.preventDefault();
+          handleResolve(selectedId);
+        }
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredConversations, selectedId, showShortcuts]);
+
   const rootClass = cn(
     "flex w-full overflow-hidden bg-card rounded-lg border border-border",
     fullHeight ? "h-full" : "h-[calc(100vh-5rem)]"
