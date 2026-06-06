@@ -11,6 +11,9 @@
     --card: 0 0% 100%; /* White */
     --card-foreground: 216 15% 14%; /* #202124 */
 
+    --popover: 0 0% 100%; /* White */
+    --popover-foreground: 216 15% 14%; /* #202124 */
+
     --primary: 12 100% 61%; /* #FF5C38 */
     --primary-foreground: 0 0% 100%; /* White */
 
@@ -43,6 +46,9 @@
 
     --card: 216 28% 12%; /* Dark card */
     --card-foreground: 213 31% 91%; /* Light text */
+
+    --popover: 216 28% 12%; /* Dark popover */
+    --popover-foreground: 213 31% 91%; /* Light text */
 
     --primary: 12 100% 61%; /* #FF5C38 */
     --primary-foreground: 0 0% 100%; /* White */
