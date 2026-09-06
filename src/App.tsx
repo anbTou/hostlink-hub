@@ -39,6 +39,7 @@ const App = () => (
             <Route path="/inbox/main" element={<InboxMain />} />
             <Route path="/inbox/private" element={<InboxPrivate />} />
             <Route path="/knowledge" element={<Knowledge />} />
+            <Route path="/ai-knowledge" element={<AIKnowledge />} />
             <Route path="/property" element={<PropertyInfo />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/contacts" element={<Contacts />} />
