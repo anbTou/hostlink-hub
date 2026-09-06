@@ -10,6 +10,7 @@ import Inbox from "./pages/Inbox";
 import InboxMain from "./pages/InboxMain";
 import InboxPrivate from "./pages/InboxPrivate";
 import Knowledge from "./pages/Knowledge";
+import AIKnowledge from "./pages/AIKnowledge";
 import PropertyInfo from "./pages/PropertyInfo";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/inbox/main" element={<InboxMain />} />
             <Route path="/inbox/private" element={<InboxPrivate />} />
             <Route path="/knowledge" element={<Knowledge />} />
+            <Route path="/ai-knowledge" element={<AIKnowledge />} />
             <Route path="/property" element={<PropertyInfo />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/contacts" element={<Contacts />} />
