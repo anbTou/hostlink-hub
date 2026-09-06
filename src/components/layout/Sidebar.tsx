@@ -56,6 +56,7 @@ const navItems = [
   },
   { name: "Quick Notes", icon: FileText, path: "/notes" },
   { name: "Knowledge Base", icon: Book, path: "/knowledge" },
+  { name: "AI Knowledge", icon: Bot, path: "/ai-knowledge" },
   { name: "Property Info", icon: Home, path: "/property" },
   { name: "Contacts", icon: Users, path: "/contacts" },
   { name: "Settings", icon: Settings, path: "/settings" },

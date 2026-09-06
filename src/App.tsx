@@ -10,6 +10,7 @@ import Inbox from "./pages/Inbox";
 import InboxMain from "./pages/InboxMain";
 import InboxPrivate from "./pages/InboxPrivate";
 import Knowledge from "./pages/Knowledge";
+import AIKnowledge from "./pages/AIKnowledge";
 import PropertyInfo from "./pages/PropertyInfo";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
