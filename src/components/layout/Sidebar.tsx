@@ -39,8 +39,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+interface NavItem {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  path: string;
+  accent?: boolean;
+  badge?: "urgent";
+  children?: { name: string; icon: React.ComponentType<{ className?: string }>; path: string }[];
+}
+
 // Main navigation categories
-const navItems = [
+const navItems: NavItem[] = [
   { name: "Dashboard", icon: BarChart2, path: "/" },
   { name: "Inbox", icon: Inbox, path: "/inbox",
     children: [
