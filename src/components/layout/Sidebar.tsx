@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,9 @@ import {
   Mail,
   UserCircle,
   Bot,
+  ClipboardList,
 } from "lucide-react";
+import { useHandover } from "@/contexts/HandoverContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SavedViewsList } from "@/components/inbox/SavedViewsList";
 import { SaveViewDialog } from "@/components/inbox/SaveViewDialog";
@@ -37,8 +39,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+interface NavItem {
+  name: string;
+  icon: ComponentType<{ className?: string }>;
+  path: string;
+  accent?: boolean;
+  badge?: "urgent";
+  children?: { name: string; icon: ComponentType<{ className?: string }>; path: string }[];
+}
+
 // Main navigation categories
-const navItems = [
+const navItems: NavItem[] = [
   { name: "Dashboard", icon: BarChart2, path: "/" },
   { name: "Inbox", icon: Inbox, path: "/inbox",
     children: [
@@ -47,6 +58,7 @@ const navItems = [
     ]
   },
   { name: "Team Calendar", icon: CalendarDays, path: "/team-calendar" },
+  { name: "Handover", icon: ClipboardList, path: "/handover", accent: true, badge: "urgent" as const },
   { name: "Tasks", icon: CheckSquare, path: "/tasks", 
     children: [
       { name: "Today", icon: Clock, path: "/tasks/today" },
