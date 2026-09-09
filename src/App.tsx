@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { TeamProvider } from "@/contexts/TeamContext";
+import { HandoverProvider } from "@/contexts/HandoverContext";
+import Handover from "./pages/Handover";
 import Dashboard from "./pages/Index";
 import Inbox from "./pages/Inbox";
 import InboxMain from "./pages/InboxMain";
@@ -29,6 +31,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TeamProvider>
+      <HandoverProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -44,6 +47,7 @@ const App = () => (
             <Route path="/settings" element={<Settings />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/team-calendar" element={<TeamCalendar />} />
+            <Route path="/handover" element={<Handover />} />
             
             {/* Tasks routes */}
             <Route path="/tasks" element={<Tasks />} />
@@ -63,6 +67,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
+      </HandoverProvider>
     </TeamProvider>
   </QueryClientProvider>
 );
