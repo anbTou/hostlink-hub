@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -41,11 +41,11 @@ import {
 
 interface NavItem {
   name: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   path: string;
   accent?: boolean;
   badge?: "urgent";
-  children?: { name: string; icon: React.ComponentType<{ className?: string }>; path: string }[];
+  children?: { name: string; icon: ComponentType<{ className?: string }>; path: string }[];
 }
 
 // Main navigation categories
