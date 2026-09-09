@@ -23,7 +23,9 @@ import {
   Mail,
   UserCircle,
   Bot,
+  ClipboardList,
 } from "lucide-react";
+import { useHandover } from "@/contexts/HandoverContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SavedViewsList } from "@/components/inbox/SavedViewsList";
 import { SaveViewDialog } from "@/components/inbox/SaveViewDialog";
@@ -47,6 +49,7 @@ const navItems = [
     ]
   },
   { name: "Team Calendar", icon: CalendarDays, path: "/team-calendar" },
+  { name: "Handover", icon: ClipboardList, path: "/handover", accent: true, badge: "urgent" as const },
   { name: "Tasks", icon: CheckSquare, path: "/tasks", 
     children: [
       { name: "Today", icon: Clock, path: "/tasks/today" },
